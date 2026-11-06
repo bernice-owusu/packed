@@ -37,14 +37,14 @@ export const Header: React.FC<{
   };
 
   return (
-    <header className="bg-[#1E0B36] text-white py-3.5 sm:py-4 relative z-30 shadow-md border-b border-purple-900/40">
+    <header className="bg-white text-[#1D395F] py-3.5 sm:py-4 sticky top-0 z-50 shadow-md border-b border-purple-100">
       <div className="pls-container flex items-center justify-between gap-3 sm:gap-4 lg:gap-8">
         {/* Brand Logo */}
         <div className="flex items-center space-x-2 sm:space-x-3">
           {onToggleMobileMenu && (
             <button
               onClick={onToggleMobileMenu}
-              className="lg:hidden p-2 text-white hover:text-purple-200 focus:outline-none cursor-pointer"
+              className="lg:hidden p-2 text-[#1D395F] hover:text-[#581C87] focus:outline-none cursor-pointer"
               aria-label="Toggle Menu"
             >
               <svg
@@ -74,7 +74,7 @@ export const Header: React.FC<{
             <img
               src={logo}
               alt="Packed by Dolyn Logo"
-              className="h-16 w-auto object-contain group-hover:scale-105 transition-transform shrink-0"
+              className="h-20 w-auto object-contain group-hover:scale-105 transition-transform shrink-0"
             />
           </a>
         </div>
@@ -164,31 +164,31 @@ export const Header: React.FC<{
         <div className="flex items-center space-x-3 lg:space-x-4">
           {/* Direct Support Helpline */}
           <div className="hidden xl:flex items-center space-x-2.5">
-            <div className="w-9 h-9 rounded-full bg-purple-900/60 border border-purple-400/30 flex items-center justify-center text-white">
-              <Phone className="w-4 h-4 text-amber-200" />
+            <div className="w-9 h-9 rounded-full bg-purple-50 border border-purple-200 flex items-center justify-center text-[#1D395F]">
+              <Phone className="w-4 h-4 text-amber-600" />
             </div>
             <div className="flex flex-col text-left">
-              <span className="text-[10.5px] text-purple-200/80 font-normal leading-tight">
+              <span className="text-[10.5px] text-[#1D395F] font-normal leading-tight">
                 Order Line:
               </span>
               <a
                 href="tel:0244149464"
-                className="text-xs font-bold text-white hover:text-amber-200 transition-colors"
+                className="text-xs font-bold text-[#1D395F] hover:text-[#581C87] transition-colors"
               >
                 0244149464
               </a>
             </div>
           </div>
 
-          <div className="hidden xl:block h-7 w-[1px] bg-white/15"></div>
+          <div className="hidden xl:block h-7 w-[1px] bg-gray-200"></div>
 
           {/* Track Order Button (Desktop & Tablet) */}
           <button
             onClick={() => setIsOrderTrackingOpen(true)}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-medium cursor-pointer transition-all active:scale-95"
+            className="hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-purple-50 hover:bg-purple-100 text-[#1D395F] text-xs font-medium cursor-pointer transition-all active:scale-95"
             title="Track Guest Order"
           >
-            <PackageCheck className="w-4 h-4 text-purple-200" />
+            <PackageCheck className="w-4 h-4 text-[#581C87]" />
             <span>Track Order</span>
           </button>
 
@@ -207,7 +207,7 @@ export const Header: React.FC<{
               )}
             </div>
             <div className="flex flex-col text-left">
-              <span className="text-[9.5px] sm:text-[10px] text-purple-200 font-medium leading-none">
+              <span className="text-[9.5px] sm:text-[10px] text-white font-medium leading-none">
                 Bag
               </span>
               <span className="text-xs font-bold text-white leading-tight mt-0.5">

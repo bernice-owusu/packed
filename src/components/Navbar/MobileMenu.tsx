@@ -47,14 +47,14 @@ export const MobileMenu: React.FC<{
       >
         <div>
           {/* Top Bar with Brand and Close button */}
-          <div className="bg-[#1E0B36] text-white p-4 flex items-center justify-between border-b border-purple-900/50">
-            <img src={logo} alt="Packed by Dolyn Logo" className="h-10 sm:h-12 w-auto object-contain shrink-0" />
+          <div className="bg-white text-[#1D395F] p-4 flex items-center justify-between border-b border-purple-100">
+            <img src={logo} alt="Packed by Dolyn Logo" className="h-12 sm:h-16 w-auto object-contain shrink-0" />
             <button
               onClick={onClose}
-              className="p-1.5 rounded-full text-white/70 hover:text-white hover:bg-white/10 cursor-pointer"
+              className="p-1.5 rounded-full text-[#1D395F]/70 hover:text-[#581C87] hover:bg-purple-50 cursor-pointer"
               aria-label="Close Mobile Menu"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5 text-[#1D395F]" />
             </button>
           </div>
 

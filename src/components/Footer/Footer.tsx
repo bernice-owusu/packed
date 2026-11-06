@@ -99,11 +99,13 @@ export const Footer: React.FC<{
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-10 border-b border-purple-900/40 text-xs">
           {/* Col 1: Brand & Contact Info */}
           <div className="space-y-4">
-            <img
-              src={logo}
-              alt="Packed by Dolyn Logo"
-              className="h-10 sm:h-12 w-auto object-contain shrink-0"
-            />
+            <div className="flex items-center gap-2 bg-white p-3 rounded-xl shadow-sm inline-block">
+              <img
+                src={logo}
+                alt="Packed by Dolyn Logo"
+                className="h-12 sm:h-16 w-auto object-contain shrink-0"
+              />
+            </div>
 
             <p className="text-purple-200/80 leading-relaxed text-xs">
               Registered Ghanaian enterprise dedicated to pure shea butter
