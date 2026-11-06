@@ -1,0 +1,244 @@
+{
+  "categories": [
+    {
+      "id": "cold-flu",
+      "title": "Cold & Flu",
+      "count": "5 Products",
+      "icon": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/cat-icon-1.png"
+    },
+    {
+      "id": "pain-relief",
+      "title": "Pain Relief",
+      "count": "8 Products",
+      "icon": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/cat-icon-2.png"
+    },
+    {
+      "id": "blood-pressure",
+      "title": "Blood Pressure",
+      "count": "2 Products",
+      "icon": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/cat-icon-3.png"
+    },
+    {
+      "id": "bandages",
+      "title": "Bandages",
+      "count": "3 Products",
+      "icon": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/cat-icon-4.png"
+    },
+    {
+      "id": "supplements",
+      "title": "Supplements",
+      "count": "4 Products",
+      "icon": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/cat-icon-5.png"
+    },
+    {
+      "id": "personal-care",
+      "title": "Personal Care",
+      "count": "3 Products",
+      "icon": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/cat-icon-6.png"
+    },
+    {
+      "id": "medical-mask",
+      "title": "Medical Mask",
+      "count": "4 Products",
+      "icon": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/cat-icon-2.png"
+    }
+  ],
+  "heroSlides": [
+    {
+      "id": 1,
+      "title": "Essential Vitamins for Wellness",
+      "description": "Shop a curated range of daily vitamins developed to boost immunity, improve energy levels.",
+      "buttonText": "Shop Now",
+      "buttonLink": "/shop",
+      "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/home-2-slider-1.webp"
+    },
+    {
+      "id": 2,
+      "title": "Essential Health Tracking Devices",
+      "description": "Access dependable medical tools designed to monitor vital signs and support home health management.",
+      "buttonText": "Shop Now",
+      "buttonLink": "/shop",
+      "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/home-2-slider-2.webp"
+    },
+    {
+      "id": 3,
+      "title": "Hydrating Face Care Serum",
+      "description": "Target skin concerns with powerful formulas that strengthen and rejuvenate your complexion daily.",
+      "buttonText": "Shop Now",
+      "buttonLink": "/shop",
+      "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/home-2-slider-3.webp"
+    }
+  ],
+  "c4Banners": [
+    {
+      "id": 1,
+      "subtitle": "FOR RELIEF, CARE, AND WELLNESS",
+      "title": "Trusted Pills You Can Rely On",
+      "buttonText": "Shop Now",
+      "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/home-2-banner-1.webp"
+    },
+    {
+      "id": 2,
+      "subtitle": "FOR A BRIGHTER, HEALTHIER SMILE",
+      "title": "Quality Care You Can Trust",
+      "buttonText": "Shop Now",
+      "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/home-2-banner-2.webp"
+    }
+  ],
+  "c6Banner": {
+    "subtitle": "FOR RELIEF, CARE, AND WELLNESS",
+    "title": "Trusted Pills You Can Rely On",
+    "price": "$15.99",
+    "buttonText": "Shop Now",
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/home-2-banner-3.webp"
+  },
+  "c8Banners": [
+    {
+      "id": 1,
+      "subtitle": "FOR A BRIGHTER",
+      "title": "Powerful Cleaning Every Day",
+      "description": "Wellness essentials all from verified pharmacies healthcare brands.",
+      "buttonText": "Shop Now",
+      "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/home-2-banner-4.webp"
+    },
+    {
+      "id": 2,
+      "subtitle": "FOR RELIEF, AND WELLNESS",
+      "title": "Trusted Pills You Can Rely On",
+      "buttonText": "Shop Now",
+      "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/home-2-banner-5.webp"
+    },
+    {
+      "id": 3,
+      "subtitle": "FOR RELIEF, AND WELLNESS",
+      "title": "Trusted Pills You Can Rely On",
+      "buttonText": "Shop Now",
+      "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/home-2-banner-6.webp"
+    }
+  ],
+  "brands": [
+    {
+      "id": 1,
+      "name": "Brand 1",
+      "logo": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/brand-1.webp"
+    },
+    {
+      "id": 2,
+      "name": "Brand 2",
+      "logo": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/brand-2.webp"
+    },
+    {
+      "id": 3,
+      "name": "Brand 3",
+      "logo": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/brand-3.webp"
+    },
+    {
+      "id": 4,
+      "name": "Brand 4",
+      "logo": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/brand-4.webp"
+    },
+    {
+      "id": 5,
+      "name": "Brand 5",
+      "logo": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/brand-5.webp"
+    },
+    {
+      "id": 6,
+      "name": "Brand 6",
+      "logo": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/brand-6.webp"
+    },
+    {
+      "id": 7,
+      "name": "Brand 7",
+      "logo": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/brand-7.webp"
+    },
+    {
+      "id": 8,
+      "name": "Brand 8",
+      "logo": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/brand-8.webp"
+    },
+    {
+      "id": 9,
+      "name": "Brand 10",
+      "logo": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/brand-10.webp"
+    },
+    {
+      "id": 10,
+      "name": "Brand 11",
+      "logo": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/brand-11.webp"
+    },
+    {
+      "id": 11,
+      "name": "Brand 12",
+      "logo": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/brand-12.webp"
+    }
+  ],
+  "blogPosts": [
+    {
+      "id": 1,
+      "title": "Building a Stronger Daily Wellness Routine",
+      "category": "Wellness Tips",
+      "author": "by Xmedcar",
+      "date": "May 15, 2026",
+      "comments": "0 Comments",
+      "snippet": "Small, consistent healthy habits lead to remarkable lifelong longevity and vitality.",
+      "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/blog-1.webp"
+    },
+    {
+      "id": 2,
+      "title": "How Preventive Care Saves Your Future Health",
+      "category": "Healthcare",
+      "author": "by Xmedcar",
+      "date": "May 14, 2026",
+      "comments": "0 Comments",
+      "snippet": "Why annual screenings and regular vital tracking are the ultimate defense.",
+      "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/blog-2.webp"
+    },
+    {
+      "id": 3,
+      "title": "Smart Habits for Managing Stress and Energy",
+      "category": "Mental Health",
+      "author": "by Xmedcar",
+      "date": "May 12, 2026",
+      "comments": "0 Comments",
+      "snippet": "Mastering cortisol balance through science-backed adaptogens and sleep hygiene.",
+      "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/blog-3.webp"
+    },
+    {
+      "id": 4,
+      "title": "Essential Checkups Everyone Should Prioritize",
+      "category": "Checkups",
+      "author": "by Xmedcar",
+      "date": "May 10, 2026",
+      "comments": "0 Comments",
+      "snippet": "The 5 non-negotiable health biomarkers to test every single year.",
+      "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/blog-4.webp"
+    }
+  ],
+  "infoboxes": [
+    {
+      "id": 1,
+      "title": "30-Day Money Back",
+      "description": "Guaranteed refund within 30 days",
+      "icon": "RotateCcw"
+    },
+    {
+      "id": 2,
+      "title": "2-Year Warranty",
+      "description": "Full warranty coverage on all products",
+      "icon": "ShieldCheck"
+    },
+    {
+      "id": 3,
+      "title": "Free Shipping over $20",
+      "description": "Free standard shipping on orders over $20",
+      "icon": "Truck"
+    },
+    {
+      "id": 4,
+      "title": "Secure Payment",
+      "description": "100% secure payment with encryption",
+      "icon": "CreditCard"
+    }
+  ]
+}

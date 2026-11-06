@@ -1,0 +1,366 @@
+[
+  {
+    "id": 1,
+    "title": "Helps maintain emotional well-being Relax Gummies",
+    "category": "Cold & Flu",
+    "price": "$49.99",
+    "originalPrice": "$59.99",
+    "rating": 5,
+    "reviewCount": 3,
+    "badges": [
+      "-17%",
+      "Rx",
+      "Temp-Controlled"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-1-1-300x300.webp"
+  },
+  {
+    "id": 2,
+    "title": "Turmeric Supreme Extra Strength",
+    "category": "Cold & Flu",
+    "price": "$29.99",
+    "originalPrice": null,
+    "rating": 4.67,
+    "reviewCount": 3,
+    "badges": [
+      "Rx"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-2-1.webp"
+  },
+  {
+    "id": 3,
+    "title": "Incite Nutrition Vitamin D 5000 iu",
+    "category": "Cold & Flu",
+    "price": "$39.99",
+    "originalPrice": "$44.99",
+    "rating": 5,
+    "reviewCount": 3,
+    "badges": [
+      "Hot",
+      "-11%"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-3-1.webp"
+  },
+  {
+    "id": 4,
+    "title": "Gallbladder Formula Detoxify Urinary Tract",
+    "category": "Cold & Flu",
+    "price": "$29.99",
+    "originalPrice": "$39.99",
+    "rating": 5,
+    "reviewCount": 3,
+    "badges": [
+      "-25%"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-4-4-300x300.webp"
+  },
+  {
+    "id": 5,
+    "title": "AmericanPlus | Memormax - 60 Count",
+    "category": "Cold & Flu",
+    "price": "$29.99",
+    "originalPrice": null,
+    "rating": 3.67,
+    "reviewCount": 3,
+    "badges": [
+      "Rx",
+      "Temp-Controlled"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-5-1-300x300.webp"
+  },
+  {
+    "id": 6,
+    "title": "Life Extension Two-Per-Day Tablets 60 Tablets",
+    "category": "Pain Relief",
+    "price": "$29.99",
+    "originalPrice": null,
+    "rating": 4,
+    "reviewCount": 3,
+    "badges": [
+      "Hot"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-6-1.webp"
+  },
+  {
+    "id": 7,
+    "title": "Wedderspoon RAW Manuka Honey KFactor 16+ 500g",
+    "category": "Bandages",
+    "price": "$29.99",
+    "originalPrice": null,
+    "rating": 4,
+    "reviewCount": 3,
+    "badges": [
+      "Hot"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-10-1.webp"
+  },
+  {
+    "id": 8,
+    "title": "GoBiotix Multivitamin with Probiotics and Digestive Enzymes",
+    "category": "Pain Relief",
+    "price": "$29.99",
+    "originalPrice": "$39.99",
+    "rating": 3.5,
+    "reviewCount": 4,
+    "badges": [
+      "-25%"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-11-1-300x300.webp"
+  },
+  {
+    "id": 9,
+    "title": "Vitamin 1000 IU Softgel Capsules 200 Count",
+    "category": "Medical Mask",
+    "price": "$29.99",
+    "originalPrice": null,
+    "rating": 3.5,
+    "reviewCount": 2,
+    "badges": [
+      "Rx"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-12-1.webp"
+  },
+  {
+    "id": 10,
+    "title": "Glow Prenatal Vitamins Vital Nutrients for Healthy Pregnanc",
+    "category": "Bandages",
+    "price": "$29.99",
+    "originalPrice": null,
+    "rating": 4.33,
+    "reviewCount": 3,
+    "badges": [
+      "Rx",
+      "Temp-Controlled"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-13-1-300x300.webp"
+  },
+  {
+    "id": 11,
+    "title": "Helps maintain emotional well-being Relax Gummies",
+    "category": "Cold & Flu",
+    "price": "$49.99",
+    "originalPrice": "$59.99",
+    "rating": 5,
+    "reviewCount": 3,
+    "badges": [
+      "-17%",
+      "Rx",
+      "Temp-Controlled"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-1-1-300x300.webp"
+  },
+  {
+    "id": 12,
+    "title": "Turmeric Supreme Extra Strength",
+    "category": "Cold & Flu",
+    "price": "$29.99",
+    "originalPrice": null,
+    "rating": 4.67,
+    "reviewCount": 3,
+    "badges": [
+      "Rx"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-2-1.webp"
+  },
+  {
+    "id": 13,
+    "title": "Incite Nutrition Vitamin D 5000 iu",
+    "category": "Cold & Flu",
+    "price": "$39.99",
+    "originalPrice": "$44.99",
+    "rating": 5,
+    "reviewCount": 3,
+    "badges": [
+      "Hot",
+      "-11%"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-3-1.webp"
+  },
+  {
+    "id": 14,
+    "title": "Gallbladder Formula Detoxify Urinary Tract",
+    "category": "Cold & Flu",
+    "price": "$29.99",
+    "originalPrice": "$39.99",
+    "rating": 5,
+    "reviewCount": 3,
+    "badges": [
+      "-25%"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-4-4-300x300.webp"
+  },
+  {
+    "id": 15,
+    "title": "AmericanPlus | Memormax - 60 Count",
+    "category": "Cold & Flu",
+    "price": "$29.99",
+    "originalPrice": null,
+    "rating": 3.67,
+    "reviewCount": 3,
+    "badges": [
+      "Rx",
+      "Temp-Controlled"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-5-1-300x300.webp"
+  },
+  {
+    "id": 16,
+    "title": "Life Extension Two-Per-Day Tablets 60 Tablets",
+    "category": "Pain Relief",
+    "price": "$29.99",
+    "originalPrice": null,
+    "rating": 4,
+    "reviewCount": 3,
+    "badges": [
+      "Hot"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-6-1.webp"
+  },
+  {
+    "id": 17,
+    "title": "Fruit Prebiotic and Probiotic Gummies for Kids",
+    "category": "Pain Relief",
+    "price": "$29.99",
+    "originalPrice": null,
+    "rating": 2,
+    "reviewCount": 3,
+    "badges": [
+      "Temp-Controlled"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-7-1.webp"
+  },
+  {
+    "id": 18,
+    "title": "Amazon Elements Vitamin E, 400 IU, 100 Softgels",
+    "category": "Blood Pressure",
+    "price": "$29.99",
+    "originalPrice": null,
+    "rating": 3,
+    "reviewCount": 3,
+    "badges": [
+      "Rx"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-8-1-300x300.webp"
+  },
+  {
+    "id": 19,
+    "title": "EZ Melts Energy Memory & Mood Enhancer",
+    "category": "Pain Relief",
+    "price": "$34.99",
+    "originalPrice": "$44.99",
+    "rating": 4,
+    "reviewCount": 3,
+    "badges": [
+      "-22%"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-9-1.webp"
+  },
+  {
+    "id": 20,
+    "title": "Wedderspoon RAW Manuka Honey KFactor 16+ 500g",
+    "category": "Bandages",
+    "price": "$29.99",
+    "originalPrice": null,
+    "rating": 4,
+    "reviewCount": 3,
+    "badges": [
+      "Hot"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-10-1.webp"
+  },
+  {
+    "id": 21,
+    "title": "GoBiotix Multivitamin with Probiotics and Digestive Enzymes",
+    "category": "Pain Relief",
+    "price": "$29.99",
+    "originalPrice": "$39.99",
+    "rating": 3.5,
+    "reviewCount": 4,
+    "badges": [
+      "-25%"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-11-1-300x300.webp"
+  },
+  {
+    "id": 22,
+    "title": "Helps maintain emotional well-being Relax Gummies",
+    "category": "Cold & Flu",
+    "price": "$49.99",
+    "originalPrice": "$59.99",
+    "rating": 5,
+    "reviewCount": 3,
+    "badges": [
+      "-17%",
+      "Rx",
+      "Temp-Controlled"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-1-1-300x300.webp"
+  },
+  {
+    "id": 23,
+    "title": "Turmeric Supreme Extra Strength",
+    "category": "Cold & Flu",
+    "price": "$29.99",
+    "originalPrice": null,
+    "rating": 4.67,
+    "reviewCount": 3,
+    "badges": [
+      "Rx"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-2-1.webp"
+  },
+  {
+    "id": 24,
+    "title": "Incite Nutrition Vitamin D 5000 iu",
+    "category": "Cold & Flu",
+    "price": "$39.99",
+    "originalPrice": "$44.99",
+    "rating": 5,
+    "reviewCount": 3,
+    "badges": [
+      "Hot",
+      "-11%"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-3-1.webp"
+  },
+  {
+    "id": 25,
+    "title": "Gallbladder Formula Detoxify Urinary Tract",
+    "category": "Cold & Flu",
+    "price": "$29.99",
+    "originalPrice": "$39.99",
+    "rating": 5,
+    "reviewCount": 3,
+    "badges": [
+      "-25%"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-4-4-300x300.webp"
+  },
+  {
+    "id": 26,
+    "title": "AmericanPlus | Memormax - 60 Count",
+    "category": "Cold & Flu",
+    "price": "$29.99",
+    "originalPrice": null,
+    "rating": 3.67,
+    "reviewCount": 3,
+    "badges": [
+      "Rx",
+      "Temp-Controlled"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-5-1-300x300.webp"
+  },
+  {
+    "id": 27,
+    "title": "Life Extension Two-Per-Day Tablets 60 Tablets",
+    "category": "Pain Relief",
+    "price": "$29.99",
+    "originalPrice": null,
+    "rating": 4,
+    "reviewCount": 3,
+    "badges": [
+      "Hot"
+    ],
+    "image": "https://xmedcar.presslayouts.com/wp-content/uploads/2026/05/product-6-1.webp"
+  }
+]

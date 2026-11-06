@@ -1,0 +1,6 @@
+{
+  "name": "Packed by Dolyn - E-Commerce Store",
+  "description": "E-Commerce store for Packed by Dolyn Ghana: Shea butter products, cosmetics, custom gift packaging, event management, household sanitary items, and essential pharmaceuticals with AI order assistant.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
