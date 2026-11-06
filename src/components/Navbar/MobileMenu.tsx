@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import logo from '../../assets/logo.png';
 import { X, ChevronRight, ShoppingBag, Truck, Info, PhoneCall, MessageCircle, ShieldCheck } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { categories } from '../../data/mockData';
@@ -47,7 +48,7 @@ export const MobileMenu: React.FC<{
         <div>
           {/* Top Bar with Brand and Close button */}
           <div className="bg-[#1E0B36] text-white p-4 flex items-center justify-between border-b border-purple-900/50">
-            <img src="/src/assets/logo.png" alt="Packed by Dolyn Logo" className="h-10 sm:h-12 w-auto object-contain shrink-0" />
+            <img src={logo} alt="Packed by Dolyn Logo" className="h-10 sm:h-12 w-auto object-contain shrink-0" />
             <button
               onClick={onClose}
               className="p-1.5 rounded-full text-white/70 hover:text-white hover:bg-white/10 cursor-pointer"

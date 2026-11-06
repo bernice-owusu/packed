@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import logo from "../../assets/logo.png";
 import {
   Search,
   Phone,
@@ -71,7 +72,7 @@ export const Header: React.FC<{
             className="flex items-center gap-2 group cursor-pointer"
           >
             <img
-              src="/src/assets/logo.png"
+              src={logo}
               alt="Packed by Dolyn Logo"
               className="h-16 w-auto object-contain group-hover:scale-105 transition-transform shrink-0"
             />

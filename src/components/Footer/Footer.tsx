@@ -1,4 +1,5 @@
 import React from "react";
+import logo from "../../assets/logo.png";
 import {
   Phone,
   MapPin,
@@ -99,7 +100,7 @@ export const Footer: React.FC<{
           {/* Col 1: Brand & Contact Info */}
           <div className="space-y-4">
             <img
-              src="/src/assets/logo.png"
+              src={logo}
               alt="Packed by Dolyn Logo"
               className="h-10 sm:h-12 w-auto object-contain shrink-0"
             />
