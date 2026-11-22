@@ -3,7 +3,8 @@ import { X, Truck, CheckCircle2, Clock, Search, MapPin, Package, Phone } from 'l
 import { useApp } from '../../context/AppContext';
 
 export const OrderTrackingModal: React.FC = () => {
-  const { isOrderTrackingOpen, setIsOrderTrackingOpen, orders, currencySymbol } = useApp();
+  const { isOrderTrackingOpen, setIsOrderTrackingOpen, orders, currencySymbol, siteContent } = useApp();
+  const contact = siteContent.contact;
   const [orderQuery, setOrderQuery] = useState('DOLYN-GH-8291');
   const [searched, setSearched] = useState(false);
 
@@ -125,13 +126,13 @@ export const OrderTrackingModal: React.FC = () => {
             {/* Direct WhatsApp Callout */}
             <div className="pt-2">
               <a
-                href={`https://wa.me/233244149464?text=Hello%20Packed%20by%20Dolyn,%20I%20would%20like%20an%20update%20on%20my%20order%20${activeOrder.id}`}
+                href={`https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(`Hello Packed by Dolyn, I would like an update on my order ${activeOrder.id}`)}`}
                 target="_blank"
                 rel="noreferrer"
                 className="w-full py-2.5 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-emerald-200 transition-colors"
               >
                 <Phone className="w-3.5 h-3.5" />
-                <span>Contact Dispatch Rider via WhatsApp (0244149464)</span>
+                <span>Contact Dispatch Rider via WhatsApp ({contact.phone})</span>
               </a>
             </div>
           </div>

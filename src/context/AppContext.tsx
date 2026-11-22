@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product, CartItem, BlogPost, Order, MediaItem, Coupon, Category } from '../types';
+import { Product, CartItem, BlogPost, Order, MediaItem, Coupon, Category, SiteContent } from '../types';
 import { products as initialProducts, initialOrders, categories as initialCategories } from '../data/mockData';
 import { initialMediaItems } from '../data/initialMedia';
+import { initialSiteContent, normalizeSiteContent } from '../data/siteContent';
 import {
   isSupabaseConfigured,
   saveRuntimeSupabaseConfig,
@@ -27,7 +28,9 @@ import {
   deleteMediaFromCloud,
   seedMediaToCloud,
   pushStoreDataToCloud,
-  subscribeToCloudTable
+  subscribeToCloudTable,
+  fetchSiteContentFromCloud,
+  saveSiteContentToCloud
 } from '../services/supabase';
 
 export interface ToastMessage {
@@ -120,6 +123,10 @@ interface AppContextType {
   updateCategory: (id: string, updated: Partial<Category>) => void;
   deleteCategory: (id: string) => void;
 
+  // Editable Website Content
+  siteContent: SiteContent;
+  updateSiteContent: (patch: Partial<SiteContent>) => void;
+
   // Coupons & Promo Codes
   coupons: Coupon[];
   addCoupon: (newCoupon: Omit<Coupon, 'id' | 'usageCount'>) => void;
@@ -133,6 +140,7 @@ interface AppContextType {
     orders?: Order[];
     coupons?: Coupon[];
     categories?: Category[];
+    siteContent?: SiteContent;
   }) => void;
 
   // Cloud Database Sync
@@ -277,6 +285,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   });
 
+  // Editable website content (hero slides, banners, about & contact)
+  const [siteContent, setSiteContent] = useState<SiteContent>(() => {
+    try {
+      const saved = localStorage.getItem('dolyn_site_content');
+      return saved ? normalizeSiteContent(JSON.parse(saved)) : initialSiteContent;
+    } catch {
+      return initialSiteContent;
+    }
+  });
+
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [isCloudSyncActive, setIsCloudSyncActive] = useState<boolean>(() => isSupabaseConfigured());
@@ -342,6 +360,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           await seedMediaToCloud(mediaItems);
         }
       }
+
+      // Editable website content
+      const cloudSiteContent = await fetchSiteContentFromCloud();
+      if (!cancelled) {
+        if (cloudSiteContent) {
+          setSiteContent(cloudSiteContent);
+        } else {
+          await saveSiteContentToCloud(siteContent);
+        }
+      }
     };
 
     const startRealtime = () => {
@@ -397,6 +425,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           });
         })
       );
+
+      unsubscribers.push(
+        subscribeToCloudTable('site_content', () => {
+          fetchSiteContentFromCloud().then(cloud => {
+            if (!cancelled && cloud) setSiteContent(cloud);
+          });
+        })
+      );
     };
 
     hydrate().then(startRealtime);
@@ -429,12 +465,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     addToast('Syncing store data from Supabase Cloud Database...', 'info');
 
-    const [cloudOrders, cloudProducts, cloudCategories, cloudCoupons, cloudMedia] = await Promise.all([
+    const [cloudOrders, cloudProducts, cloudCategories, cloudCoupons, cloudMedia, cloudSiteContent] = await Promise.all([
       fetchOrdersFromCloud(),
       fetchProductsFromCloud(),
       fetchCategoriesFromCloud(),
       fetchCouponsFromCloud(),
       fetchMediaFromCloud(),
+      fetchSiteContentFromCloud(),
     ]);
 
     let collectionsSynced = 0;
@@ -488,6 +525,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       collectionsSynced++;
     }
 
+    // Editable website content
+    if (cloudSiteContent) {
+      setSiteContent(cloudSiteContent);
+      collectionsSynced++;
+    } else {
+      await saveSiteContentToCloud(siteContent);
+      collectionsSynced++;
+    }
+
     if (collectionsSynced > 0) {
       setIsCloudSyncActive(true);
       const productCount = cloudProducts?.length || productList.length;
@@ -496,7 +542,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const mediaCount = cloudMedia?.length || mediaItems.length;
       const orderCount = cloudOrders?.length || orders.length;
       addToast(
-        `Synced ${productCount} products, ${categoryCount} categories, ${couponCount} coupons, ${mediaCount} photos and ${orderCount} orders with the Cloud Database!`,
+        `Synced ${productCount} products, ${categoryCount} categories, ${couponCount} coupons, ${mediaCount} photos, ${orderCount} orders and website content with the Cloud Database!`,
         'success'
       );
     } else {
@@ -554,6 +600,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.setItem('dolyn_categories', JSON.stringify(categories));
     } catch { }
   }, [categories]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('dolyn_site_content', JSON.stringify(siteContent));
+    } catch { }
+  }, [siteContent]);
 
   const addToast = (message: string, type: 'success' | 'info' | 'warning' = 'success') => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -926,6 +978,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     addToast('Category removed from store', 'warning');
   };
 
+  // Editable website content management
+  const updateSiteContent = (patch: Partial<SiteContent>) => {
+    const next: SiteContent = { ...siteContent, ...patch };
+    setSiteContent(next);
+    localStorage.setItem('dolyn_site_content', JSON.stringify(next));
+    if (isSupabaseConfigured()) {
+      saveSiteContentToCloud(next).catch(err => {
+        console.warn('Cloud site content save error:', err);
+      });
+    }
+    addToast('Website content updated successfully!', 'success');
+  };
+
   // Store data restore from JSON backup
   const restoreStoreData = (data: {
     products?: Product[];
@@ -933,6 +998,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     orders?: Order[];
     coupons?: Coupon[];
     categories?: Category[];
+    siteContent?: SiteContent;
   }) => {
     if (data.products && Array.isArray(data.products) && data.products.length > 0) {
       const restoredProducts = sortProductsLatestFirst(data.products);
@@ -954,6 +1020,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (data.categories && Array.isArray(data.categories)) {
       setCategories(data.categories);
       localStorage.setItem('dolyn_categories', JSON.stringify(data.categories));
+    }
+    if (data.siteContent) {
+      const restoredSiteContent = normalizeSiteContent(data.siteContent);
+      setSiteContent(restoredSiteContent);
+      localStorage.setItem('dolyn_site_content', JSON.stringify(restoredSiteContent));
     }
     if (isSupabaseConfigured()) {
       pushStoreDataToCloud(data).catch(err => {
@@ -1020,6 +1091,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addCategory,
         updateCategory,
         deleteCategory,
+        siteContent,
+        updateSiteContent,
         restoreStoreData,
         isCloudSyncActive,
         connectCloudDatabase,

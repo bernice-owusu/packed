@@ -44,7 +44,8 @@ const FacebookIcon = ({ className = "" }: { className?: string }) => (
 export const Footer: React.FC<{
   onNavigatePage?: (page: string) => void;
 }> = ({ onNavigatePage }) => {
-  const { setIsOrderTrackingOpen, setIsPolicyModalOpen } = useApp();
+  const { setIsOrderTrackingOpen, setIsPolicyModalOpen, siteContent } = useApp();
+  const contact = siteContent.contact;
 
   const handleLink = (page: string) => {
     if (onNavigatePage) {
@@ -76,16 +77,16 @@ export const Footer: React.FC<{
 
           <div className="flex flex-wrap items-center gap-3">
             <a
-              href="https://wa.me/233244149464?text=Hello%20Packed%20by%20Dolyn,%20I%20have%20an%20inquiry%20regarding%20custom%20gift%20packaging/bulk%20orders"
+              href={`https://wa.me/${contact.whatsapp}?text=${encodeURIComponent("Hello Packed by Dolyn, I have an inquiry regarding custom gift packaging/bulk orders")}`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-full text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer"
             >
               <MessageCircle className="w-4 h-4" />
-              <span>Chat on WhatsApp (0244149464)</span>
+              <span>Chat on WhatsApp ({contact.phone})</span>
             </a>
             <a
-              href="tel:0244149464"
+              href={`tel:${contact.phone}`}
               className="inline-flex items-center space-x-2 bg-white/15 hover:bg-white/25 text-white border border-white/25 px-5 py-3 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer"
             >
               <Phone className="w-4 h-4 text-purple-200" />
@@ -117,23 +118,23 @@ export const Footer: React.FC<{
                 <Phone className="w-4 h-4 text-amber-300 shrink-0" />
                 <span>
                   Call & WhatsApp:{" "}
-                  <strong className="text-white">0244149464</strong>
+                  <strong className="text-white">{contact.phone}</strong>
                 </span>
               </div>
               <div className="flex items-center space-x-2.5">
                 <Mail className="w-4 h-4 text-amber-300 shrink-0" />
                 <span>
                   Email:{" "}
-                  <strong className="text-white">gbbyaa@gmail.com</strong>
+                  <strong className="text-white">{contact.email}</strong>
                 </span>
               </div>
               <div className="flex items-center space-x-2.5">
                 <MapPin className="w-4 h-4 text-amber-300 shrink-0" />
-                <span>Hub: Accra, Ghana (Nationwide Courier Dispatch)</span>
+                <span>Hub: {contact.addressShort || 'Accra, Ghana'} ({contact.addressNote || 'Nationwide Courier Dispatch'})</span>
               </div>
               <div className="flex items-center space-x-2.5">
                 <Clock className="w-4 h-4 text-amber-300 shrink-0" />
-                <span>Mon - Sat: 8:00 AM - 7:00 PM</span>
+                <span>{contact.hours}</span>
               </div>
             </div>
           </div>

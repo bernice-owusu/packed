@@ -36,7 +36,8 @@ const FacebookIcon = ({ className = "" }: { className?: string }) => (
 export const Topbar: React.FC<{
   onNavigatePage?: (page: string) => void;
 }> = ({ onNavigatePage }) => {
-  const { addToast } = useApp();
+  const { addToast, siteContent } = useApp();
+  const contact = siteContent.contact;
   const [copied, setCopied] = useState(false);
 
   const copyCode = () => {
@@ -52,14 +53,14 @@ export const Topbar: React.FC<{
         {/* Left: WhatsApp quick access (desktop only) */}
         <div className="hidden sm:flex items-center gap-2">
           <a
-            href="https://wa.me/233244149464?text=Hello%20Packed%20by%20Dolyn,%20I%20would%20like%20to%20inquire%20about%20your%20products"
+            href={`https://wa.me/${contact.whatsapp}?text=${encodeURIComponent("Hello Packed by Dolyn, I would like to inquire about your products")}`}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1 sm:gap-1.5 text-emerald-300 hover:text-emerald-200 transition-colors"
           >
             <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span className="hidden sm:inline-block">WhatsApp:</span>
-            <span className="font-medium">0244149464</span>
+            <span className="font-medium">{contact.phone}</span>
           </a>
         </div>
 

@@ -1,10 +1,10 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
-import { c4Banners } from '../../data/mockData';
 import { useApp } from '../../context/AppContext';
 
 export const DualBanners: React.FC = () => {
-  const { setSelectedCategory, addToast } = useApp();
+  const { setSelectedCategory, addToast, siteContent } = useApp();
+  const banners = siteContent.c4Banners;
 
   const handleBannerClick = (index: number) => {
     const category = index === 0 ? 'Perfumes & Fragrances' : 'Shea Butter & Cosmetics';
@@ -17,7 +17,7 @@ export const DualBanners: React.FC = () => {
     <section className="py-6 bg-white">
       <div className="pls-container">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-          {c4Banners.map((banner, index) => (
+          {banners.map((banner, index) => (
             <div
               key={banner.id}
               onClick={() => handleBannerClick(index)}

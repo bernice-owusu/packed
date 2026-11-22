@@ -1,5 +1,6 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { Order, Product, Category, Coupon, MediaItem } from '../types';
+import { Order, Product, Category, Coupon, MediaItem, SiteContent } from '../types';
+import { normalizeSiteContent } from '../data/siteContent';
 
 /**
  * Supabase Cloud Database Client & Realtime Sync Engine for Packed by Dolyn
@@ -80,7 +81,7 @@ export const isSupabaseConfigured = (): boolean => {
   return Boolean(url && anonKey && url.startsWith('http'));
 };
 
-export type CloudTable = 'orders' | 'products' | 'categories' | 'coupons' | 'media';
+export type CloudTable = 'orders' | 'products' | 'categories' | 'coupons' | 'media' | 'site_content';
 
 // =========================================================================
 // GENERIC HELPERS
@@ -501,6 +502,29 @@ export const seedMediaToCloud = (items: MediaItem[]): Promise<boolean> =>
   upsertRows('media', items.map(mediaToRow));
 
 // =========================================================================
+// WEBSITE CONTENT (HERO SLIDES, BANNERS, ABOUT & CONTACT) CLOUD SYNC
+// =========================================================================
+
+export const fetchSiteContentFromCloud = async (): Promise<SiteContent | null> => {
+  const rows = await fetchRows('site_content');
+  if (!rows || rows.length === 0) return null;
+
+  const mainRow = rows.find((row: any) => row.id === 'main') || rows[0];
+  if (!mainRow?.data) return null;
+
+  return normalizeSiteContent(mainRow.data);
+};
+
+export const saveSiteContentToCloud = (content: SiteContent): Promise<boolean> =>
+  upsertRows('site_content', [
+    {
+      id: 'main',
+      data: content,
+      updated_at: new Date().toISOString(),
+    },
+  ]);
+
+// =========================================================================
 // FULL STORE SEED (used after a JSON backup restore)
 // =========================================================================
 
@@ -510,6 +534,7 @@ export const pushStoreDataToCloud = async (data: {
   coupons?: Coupon[];
   media?: MediaItem[];
   orders?: Order[];
+  siteContent?: SiteContent;
 }): Promise<void> => {
   if (!isSupabaseConfigured()) return;
 
@@ -517,6 +542,7 @@ export const pushStoreDataToCloud = async (data: {
   if (data.categories?.length) await seedCategoriesToCloud(data.categories);
   if (data.coupons?.length) await seedCouponsToCloud(data.coupons);
   if (data.media?.length) await seedMediaToCloud(data.media);
+  if (data.siteContent) await saveSiteContentToCloud(data.siteContent);
   if (data.orders?.length) {
     for (const order of data.orders) {
       await saveOrderToCloud(order);

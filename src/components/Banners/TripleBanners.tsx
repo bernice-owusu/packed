@@ -1,10 +1,10 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
-import { c8Banners } from '../../data/mockData';
 import { useApp } from '../../context/AppContext';
 
 export const TripleBanners: React.FC = () => {
-  const { setSelectedCategory, addToast } = useApp();
+  const { setSelectedCategory, addToast, siteContent } = useApp();
+  const banners = siteContent.c8Banners;
 
   const handleBannerClick = (index: number) => {
     const cats = ['Pharmacy & Drugs', 'Shea Butter & Cosmetics', 'Household & Sanitary'];
@@ -18,7 +18,7 @@ export const TripleBanners: React.FC = () => {
     <section className="py-6 bg-white">
       <div className="pls-container">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-          {c8Banners.map((banner, index) => (
+          {banners.map((banner, index) => (
             <div
               key={banner.id}
               onClick={() => handleBannerClick(index)}

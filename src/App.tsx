@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AppProvider } from './context/AppContext';
+import { AppProvider, useApp } from './context/AppContext';
 import { Topbar } from './components/Navbar/Topbar';
 import { Header } from './components/Navbar/Header';
 import { Navigation } from './components/Navbar/Navigation';
@@ -30,6 +30,33 @@ import { ElectronicReceiptModal } from './components/Modals/ElectronicReceiptMod
 import { PolicyModal } from './components/Modals/PolicyModal';
 import { ToastContainer } from './components/Notifications/ToastContainer';
 import { MessageCircle } from 'lucide-react';
+
+const FloatingWhatsAppButton = () => {
+  const { siteContent } = useApp();
+  const contact = siteContent.contact;
+  const rawDigits = (contact.whatsapp || contact.phone || '233244149464').replace(/[^0-9]/g, '');
+  const whatsappNumber = rawDigits.startsWith('0')
+    ? `233${rawDigits.slice(1)}`
+    : rawDigits.startsWith('233')
+    ? rawDigits
+    : `233${rawDigits}`;
+  const displayPhone = contact.phone || '0244149464';
+
+  return (
+    <a
+      href={`https://wa.me/${whatsappNumber}?text=Hello%20Packed%20by%20Dolyn,%20I%20have%20an%20inquiry%20regarding%20products/orders`}
+      target="_blank"
+      rel="noreferrer"
+      className="flex fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40 bg-emerald-500 hover:bg-emerald-600 text-white p-3 sm:p-4 rounded-full shadow-2xl items-center justify-center transition-all duration-300 hover:scale-110 group border-2 border-white/80"
+      title="Chat with Gwendolyn on WhatsApp"
+    >
+      <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+      <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 ease-in-out text-xs font-bold pl-0 group-hover:pl-2 hidden sm:inline">
+        WhatsApp {displayPhone}
+      </span>
+    </a>
+  );
+};
 
 export default function App() {
   const getLayoutFromPath = (): string => {
@@ -154,18 +181,7 @@ export default function App() {
         <Footer onNavigatePage={navigateTo} />
 
         {/* Floating WhatsApp Quick Concierge (Mobile & Desktop) */}
-        <a
-          href="https://wa.me/233244149464?text=Hello%20Packed%20by%20Dolyn,%20I%20have%20an%20inquiry%20regarding%20products/orders"
-          target="_blank"
-          rel="noreferrer"
-          className="flex fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40 bg-emerald-500 hover:bg-emerald-600 text-white p-3 sm:p-4 rounded-full shadow-2xl items-center justify-center transition-all duration-300 hover:scale-110 group border-2 border-white/80"
-          title="Chat with Gwendolyn on WhatsApp"
-        >
-          <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
-          <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 ease-in-out text-xs font-bold pl-0 group-hover:pl-2 hidden sm:inline">
-            WhatsApp 0244149464
-          </span>
-        </a>
+        <FloatingWhatsAppButton />
 
         {/* Modals & Slide-out Drawers */}
         <QuickViewModal />

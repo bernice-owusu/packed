@@ -24,7 +24,9 @@ export const Header: React.FC<{
     setSelectedCategory,
     currencySymbol,
     categories,
+    siteContent,
   } = useApp();
+  const contact = siteContent.contact;
 
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
 
@@ -170,10 +172,10 @@ export const Header: React.FC<{
                 Order Line:
               </span>
               <a
-                href="tel:0244149464"
+                href={`tel:${contact.phone}`}
                 className="text-xs font-bold text-[#1D395F] hover:text-[#581C87] transition-colors"
               >
-                0244149464
+                {contact.phone}
               </a>
             </div>
           </div>

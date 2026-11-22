@@ -96,14 +96,22 @@ CREATE TABLE IF NOT EXISTS public.media (
     size TEXT
 );
 
+-- 6. Editable Website Content (hero slides, promo banners, about & contact)
+CREATE TABLE IF NOT EXISTS public.site_content (
+    id TEXT PRIMARY KEY,
+    data JSONB NOT NULL DEFAULT '{}'::jsonb,
+    updated_at TEXT NOT NULL DEFAULT NOW()::text
+);
+
 -- =========================================================================
--- 6. Row Level Security (RLS) Policies
+-- 7. Row Level Security (RLS) Policies
 -- =========================================================================
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.coupons ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.media ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.site_content ENABLE ROW LEVEL SECURITY;
 
 -- Orders: guest checkout inserts, public reads, admin status updates
 DROP POLICY IF EXISTS "Public insert orders" ON public.orders;
@@ -142,8 +150,13 @@ DROP POLICY IF EXISTS "Public manage media" ON public.media;
 CREATE POLICY "Public manage media" ON public.media
     FOR ALL USING (true) WITH CHECK (true);
 
+-- Editable website content
+DROP POLICY IF EXISTS "Public manage site content" ON public.site_content;
+CREATE POLICY "Public manage site content" ON public.site_content
+    FOR ALL USING (true) WITH CHECK (true);
+
 -- =========================================================================
--- 7. Enable Supabase Realtime for instant multi-device sync
+-- 8. Enable Supabase Realtime for instant multi-device sync
 -- =========================================================================
 DO $$
 BEGIN
@@ -172,5 +185,11 @@ END $$;
 DO $$
 BEGIN
     ALTER PUBLICATION supabase_realtime ADD TABLE public.media;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.site_content;
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;

@@ -4,7 +4,8 @@ import { X, Printer, CheckCircle2, MapPin, Phone, Mail, ShieldCheck } from 'luci
 import { useApp } from '../../context/AppContext';
 
 export const ElectronicReceiptModal: React.FC = () => {
-  const { activeReceiptOrder, setActiveReceiptOrder, currencySymbol } = useApp();
+  const { activeReceiptOrder, setActiveReceiptOrder, currencySymbol, siteContent } = useApp();
+  const contact = siteContent.contact;
 
   if (!activeReceiptOrder) return null;
 
@@ -59,7 +60,7 @@ export const ElectronicReceiptModal: React.FC = () => {
               Registered Packaging, Event Management, Cosmetics & Pharmacy
             </p>
             <p className="text-[10px] text-gray-400 mt-0.5">
-              Accra, Ghana • Phone: 0244149464 • Email: gbbyaa@gmail.com
+              {contact.addressShort || 'Accra, Ghana'} • Phone: {contact.phone} • Email: {contact.email}
             </p>
           </div>
 
@@ -176,7 +177,7 @@ export const ElectronicReceiptModal: React.FC = () => {
           <div className="p-3 bg-purple-50/60 rounded-xl border border-purple-100 text-[10px] text-gray-500 text-center leading-relaxed">
             <ShieldCheck className="w-4 h-4 text-[#581C87] inline mr-1" />
             <span>
-              This serves as an authentic electronic proof of purchase for Packed by Dolyn. In compliance with Ghanaian sanitary standards, items are non-refundable once dispatched. For inquiries, contact 0244149464.
+              This serves as an authentic electronic proof of purchase for Packed by Dolyn. In compliance with Ghanaian sanitary standards, items are non-refundable once dispatched. For inquiries, contact {contact.phone}.
             </span>
           </div>
         </div>

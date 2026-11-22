@@ -3,7 +3,8 @@ import { X, ShieldAlert, Truck, FileText, Lock } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export const PolicyModal: React.FC = () => {
-  const { isPolicyModalOpen, setIsPolicyModalOpen } = useApp();
+  const { isPolicyModalOpen, setIsPolicyModalOpen, siteContent } = useApp();
+  const contact = siteContent.contact;
   const [activeTab, setActiveTab] = useState<'returns' | 'delivery' | 'terms'>('returns');
 
   if (!isPolicyModalOpen) return null;
@@ -92,7 +93,7 @@ export const PolicyModal: React.FC = () => {
               </ul>
               <h4 className="font-bold text-[#1E0B36] pt-1">Damages During Transit:</h4>
               <p>
-                In the rare instance an item is physically damaged during courier transit, please notify Gwendolyn Barnie Boahen via WhatsApp on <strong>0244149464</strong> within 24 hours of delivery with photographic evidence for a free replacement.
+                In the rare instance an item is physically damaged during courier transit, please notify {contact.primaryContactName} via WhatsApp on <strong>{contact.phone}</strong> within 24 hours of delivery with photographic evidence for a free replacement.
               </p>
             </div>
           )}

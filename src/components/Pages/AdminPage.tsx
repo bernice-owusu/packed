@@ -55,12 +55,15 @@ import {
   Smartphone,
   BadgePercent,
   Menu,
-  MoreVertical
+  MoreVertical,
+  Globe,
+  Sparkles
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import logo from '../../assets/logo.png';
 import logoWhite from '../../assets/logo_white.png';
-import { Product, Order, MediaItem, Coupon, Category } from '../../types';
+import { Product, Order, MediaItem, Coupon, Category, SiteContent, HeroSlide, PromoBanner } from '../../types';
+import { initialSiteContent } from '../../data/siteContent';
 import { compressAndReadImage, formatFileSize, validateImageFile } from '../../utils/imageUtils';
 import {
   exportOrdersToCSV,
@@ -101,7 +104,9 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     connectCloudDatabase,
     disconnectCloudDatabase,
     refreshCloudData,
-    isCloudSyncActive
+    isCloudSyncActive,
+    siteContent,
+    updateSiteContent
   } = useApp();
 
   // ==========================================
@@ -267,9 +272,34 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   // NAVIGATION & TAB STATE
   // ==========================================
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'products' | 'categories' | 'media' | 'orders' | 'coupons' | 'ai' | 'settings'
+    'overview' | 'products' | 'categories' | 'media' | 'orders' | 'coupons' | 'ai' | 'settings' | 'content'
   >('products');
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+
+  // Site Content Editor State
+  const [contentSubTab, setContentSubTab] = useState<'hero' | 'banners' | 'about' | 'contact'>('hero');
+  const [draftContent, setDraftContent] = useState<SiteContent>(siteContent);
+  const [isSavingContent, setIsSavingContent] = useState(false);
+
+  useEffect(() => {
+    setDraftContent(siteContent);
+  }, [siteContent]);
+
+  const handleSaveDraftContent = () => {
+    setIsSavingContent(true);
+    updateSiteContent(draftContent);
+    setTimeout(() => {
+      setIsSavingContent(false);
+    }, 350);
+  };
+
+  const handleResetDraftContent = () => {
+    if (confirm('Are you sure you want to restore all website content, slides, banners, and contact info to original brand defaults?')) {
+      setDraftContent(initialSiteContent);
+      updateSiteContent(initialSiteContent);
+      addToast('Website content restored to brand defaults', 'info');
+    }
+  };
 
   // Live Accra GMT Clock
   const [currentTime, setCurrentTime] = useState<string>('');
@@ -767,7 +797,7 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
 *PAYMENT STATUS:* ${order.paymentMethod} (PAID IN FULL — DO NOT COLLECT CASH)
 *Total Value:* GH₵ ${order.total.toFixed(2)}
 
-*SENDER:* Gwendolyn Barnie Boahen • Packed by Dolyn • Tel: 0244149464 (Accra Hub)`;
+*SENDER:* ${siteContent.contact.primaryContactName} • Packed by Dolyn • Tel: ${siteContent.contact.phone} (${siteContent.contact.addressShort || 'Accra Hub'})`;
 
     navigator.clipboard?.writeText(message);
     addToast('Dispatch Rider manifest copied to clipboard!', 'success');
@@ -1282,6 +1312,22 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
 
               <button
                 onClick={() => {
+                  setActiveTab('content');
+                  setIsMobileNavOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'content'
+                  ? 'bg-gradient-to-r from-[#1E0B36] to-purple-900 text-white shadow-xs'
+                  : 'text-slate-600 hover:bg-purple-50/70 hover:text-[#581C87]'
+                  }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <SlidersHorizontal className={`w-4 h-4 ${activeTab === 'content' ? 'text-amber-300' : 'text-slate-400'}`} />
+                  <span>Site Content & Banners</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
                   setActiveTab('settings');
                   setIsMobileNavOpen(false);
                 }}
@@ -1302,7 +1348,7 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
               <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200/60">
                 <span className="text-[10px] font-bold text-slate-400 uppercase block">Enterprise Hub</span>
                 <strong className="text-slate-800 block text-xs">Accra, Greater Accra</strong>
-                <span className="text-slate-600 text-[10.5px]">Tel: 0244149464</span>
+                <span className="text-slate-600 text-[10.5px]">Tel: {siteContent.contact.phone}</span>
               </div>
             </div>
           </div>
@@ -1541,10 +1587,10 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                   </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-nowrap items-center gap-1.5 sm:gap-2 max-w-full overflow-x-auto no-scrollbar">
                   <button
                     onClick={() => exportProductsToCSV(productList)}
-                    className="px-3 py-2 border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+                    className="shrink-0 whitespace-nowrap px-3 py-2 border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
                     title="Export products to CSV / Excel"
                   >
                     <Download className="w-3.5 h-3.5" />
@@ -1552,7 +1598,7 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                   </button>
 
                   {/* Segmented View Switcher */}
-                  <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/70">
+                  <div className="shrink-0 flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/70">
                     <button
                       onClick={() => setProductViewMode('grid')}
                       className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${productViewMode === 'grid'
@@ -1579,7 +1625,7 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
 
                   <button
                     onClick={() => handleOpenAddModal()}
-                    className="px-4 py-2 bg-[#581C87] hover:bg-[#4C1D95] text-white rounded-xl text-xs font-black transition-all shadow-xs hover:shadow flex items-center gap-1.5 cursor-pointer active:scale-95"
+                    className="shrink-0 whitespace-nowrap px-4 py-2 bg-[#581C87] hover:bg-[#4C1D95] text-white rounded-xl text-xs font-black transition-all shadow-xs hover:shadow flex items-center gap-1.5 cursor-pointer active:scale-95"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Add Product</span>
@@ -2544,7 +2590,7 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                             {/* Quick WhatsApp update */}
                             <a
                               href={`https://wa.me/${order.customerPhone.replace(/\D/g, '')}?text=${encodeURIComponent(
-                                `Hello ${order.customerName}, this is Packed by Dolyn. Your order ${order.id} is currently: ${order.status}. Contact 0244149464 for any logistics inquiries. Thank you!`
+                                `Hello ${order.customerName}, this is Packed by Dolyn. Your order ${order.id} is currently: ${order.status}. Contact ${siteContent.contact.phone} for any logistics inquiries. Thank you!`
                               )}`}
                               target="_blank"
                               rel="noreferrer"
@@ -3044,11 +3090,11 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                   </div>
                   <div>
                     <span className="text-slate-400 block font-semibold">Contact Phone & WhatsApp</span>
-                    <strong className="text-slate-900">0244149464</strong>
+                    <strong className="text-slate-900">{siteContent.contact.phone}</strong>
                   </div>
                   <div>
                     <span className="text-slate-400 block font-semibold">Official Email</span>
-                    <strong className="text-slate-900">gbbyaa@gmail.com</strong>
+                    <strong className="text-slate-900">{siteContent.contact.email}</strong>
                   </div>
                 </div>
 
@@ -3070,6 +3116,995 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                     <span className="text-slate-600">Warehouse Customer Pickup</span>
                     <strong className="text-emerald-700">Free (GH₵ 0.00)</strong>
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* =========================================================================
+              TAB 8: STOREFRONT CONTENT & BANNERS (CMS)
+             ========================================================================= */}
+          {activeTab === 'content' && (
+            <div className="bg-white rounded-3xl p-5 sm:p-7 border border-slate-200/90 shadow-2xs space-y-6">
+              {/* Header Title & Actions */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 rounded-lg bg-purple-100 text-[#581C87]">
+                      <SlidersHorizontal className="w-4 h-4" />
+                    </span>
+                    <h3 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
+                      Storefront Content & Banners CMS
+                    </h3>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Live edit hero carousel slides, promotional campaign banners, the brand story, and direct contact details.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleResetDraftContent}
+                    className="px-3.5 py-2 border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+                    title="Restore default brand content"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Reset Defaults</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleSaveDraftContent}
+                    disabled={isSavingContent}
+                    className="px-4 py-2 bg-[#581C87] hover:bg-[#4C1D95] text-white rounded-xl text-xs font-black transition-all shadow-xs hover:shadow flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  >
+                    {isSavingContent ? (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-300" />
+                    ) : (
+                      <Check className="w-3.5 h-3.5 text-amber-300" />
+                    )}
+                    <span>{isSavingContent ? 'Saving...' : 'Save & Publish'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Sub-Tabs Selector */}
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 text-xs">
+                {[
+                  { id: 'hero', label: `Hero Slider (${draftContent.heroSlides?.length || 0})`, icon: Sparkles },
+                  { id: 'banners', label: 'Promo Banners (6)', icon: Layers },
+                  { id: 'about', label: 'About Story & Pillars', icon: ShieldCheck },
+                  { id: 'contact', label: 'Contact & Support Hotline', icon: Phone },
+                ].map(tab => {
+                  const Icon = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setContentSubTab(tab.id as any)}
+                      className={`px-3.5 py-2 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${contentSubTab === tab.id
+                        ? 'bg-gradient-to-r from-[#1E0B36] to-purple-900 text-white shadow-xs'
+                        : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80 hover:text-slate-900'
+                        }`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* SUBTAB 1: HERO SLIDER */}
+              {contentSubTab === 'hero' && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                    <div>
+                      <h4 className="font-extrabold text-sm text-slate-900">Hero Carousel Slides</h4>
+                      <p className="text-xs text-slate-500">
+                        Top banner carousel slides rotated automatically on the storefront homepage.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newSlide: HeroSlide = {
+                          id: Date.now(),
+                          title: 'New Featured Promotion',
+                          subtitle: 'Handcrafted in Ghana',
+                          description: 'Discover luxury shea butter and bespoke gift hampers made with care.',
+                          buttonText: 'Shop Now',
+                          buttonLink: '/shop',
+                          image: 'https://images.unsplash.com/photo-1608248597359-0a6f875e5270?w=1600&auto=format&fit=crop&q=80',
+                          tag: 'New Season'
+                        };
+                        setDraftContent(prev => ({
+                          ...prev,
+                          heroSlides: [...prev.heroSlides, newSlide]
+                        }));
+                      }}
+                      className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-[#581C87] border border-purple-200 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add Slide</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {draftContent.heroSlides.map((slide, idx) => (
+                      <div
+                        key={slide.id || idx}
+                        className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition-all space-y-4"
+                      >
+                        <div className="flex items-center justify-between border-b border-slate-200/60 pb-3">
+                          <div className="flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-lg bg-[#581C87] text-white text-xs font-black flex items-center justify-center">
+                              {idx + 1}
+                            </span>
+                            <span className="font-black text-xs text-slate-900">{slide.title || 'Untitled Slide'}</span>
+                            {slide.tag && (
+                              <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">
+                                {slide.tag}
+                              </span>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            disabled={draftContent.heroSlides.length <= 1}
+                            onClick={() => {
+                              if (draftContent.heroSlides.length <= 1) {
+                                addToast('At least one hero slide is required.', 'warning');
+                                return;
+                              }
+                              setDraftContent(prev => ({
+                                ...prev,
+                                heroSlides: prev.heroSlides.filter((_, i) => i !== idx)
+                              }));
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="Delete slide"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="md:col-span-1 space-y-2">
+                            <label className="text-[11px] font-bold text-slate-600 block">Slide Image URL</label>
+                            <input
+                              type="text"
+                              value={slide.image}
+                              onChange={e => {
+                                const val = e.target.value;
+                                setDraftContent(prev => {
+                                  const slides = [...prev.heroSlides];
+                                  slides[idx] = { ...slides[idx], image: val };
+                                  return { ...prev, heroSlides: slides };
+                                });
+                              }}
+                              className="w-full p-2 bg-white rounded-xl text-xs border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                              placeholder="https://..."
+                            />
+                            {mediaItems.length > 0 && (
+                              <select
+                                onChange={e => {
+                                  if (e.target.value) {
+                                    const val = e.target.value;
+                                    setDraftContent(prev => {
+                                      const slides = [...prev.heroSlides];
+                                      slides[idx] = { ...slides[idx], image: val };
+                                      return { ...prev, heroSlides: slides };
+                                    });
+                                  }
+                                }}
+                                className="w-full p-1.5 bg-white rounded-xl text-[11px] border border-slate-200 text-slate-600 cursor-pointer"
+                              >
+                                <option value="">Choose from Picture Library...</option>
+                                {mediaItems.map(m => (
+                                  <option key={m.id} value={m.url}>
+                                    {m.title} ({m.category})
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                            <div className="h-28 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center">
+                              <img
+                                src={slide.image}
+                                alt={slide.title}
+                                className="w-full h-full object-cover"
+                                onError={(e: any) => {
+                                  e.target.src = 'https://images.unsplash.com/photo-1608248597359-0a6f875e5270?w=800';
+                                }}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <div className="space-y-1">
+                              <label className="text-[11px] font-bold text-slate-600 block">Main Headline</label>
+                              <input
+                                type="text"
+                                value={slide.title}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setDraftContent(prev => {
+                                    const slides = [...prev.heroSlides];
+                                    slides[idx] = { ...slides[idx], title: val };
+                                    return { ...prev, heroSlides: slides };
+                                  });
+                                }}
+                                className="w-full p-2 bg-white rounded-xl text-xs border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[11px] font-bold text-slate-600 block">Tagline / Subtitle</label>
+                              <input
+                                type="text"
+                                value={slide.subtitle || ''}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setDraftContent(prev => {
+                                    const slides = [...prev.heroSlides];
+                                    slides[idx] = { ...slides[idx], subtitle: val };
+                                    return { ...prev, heroSlides: slides };
+                                  });
+                                }}
+                                className="w-full p-2 bg-white rounded-xl text-xs border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                              />
+                            </div>
+
+                            <div className="sm:col-span-2 space-y-1">
+                              <label className="text-[11px] font-bold text-slate-600 block">Description Text</label>
+                              <textarea
+                                rows={2}
+                                value={slide.description}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setDraftContent(prev => {
+                                    const slides = [...prev.heroSlides];
+                                    slides[idx] = { ...slides[idx], description: val };
+                                    return { ...prev, heroSlides: slides };
+                                  });
+                                }}
+                                className="w-full p-2 bg-white rounded-xl text-xs border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[11px] font-bold text-slate-600 block">CTA Button Label</label>
+                              <input
+                                type="text"
+                                value={slide.buttonText}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setDraftContent(prev => {
+                                    const slides = [...prev.heroSlides];
+                                    slides[idx] = { ...slides[idx], buttonText: val };
+                                    return { ...prev, heroSlides: slides };
+                                  });
+                                }}
+                                className="w-full p-2 bg-white rounded-xl text-xs border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[11px] font-bold text-slate-600 block">Button Destination Link</label>
+                              <input
+                                type="text"
+                                value={slide.buttonLink}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setDraftContent(prev => {
+                                    const slides = [...prev.heroSlides];
+                                    slides[idx] = { ...slides[idx], buttonLink: val };
+                                    return { ...prev, heroSlides: slides };
+                                  });
+                                }}
+                                className="w-full p-2 bg-white rounded-xl text-xs border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* SUBTAB 2: PROMOTIONAL BANNERS */}
+              {contentSubTab === 'banners' && (
+                <div className="space-y-8">
+                  {/* Category 4 Dual Banners */}
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-extrabold text-sm text-slate-900">Dual Campaign Banners (Top Half Grid)</h4>
+                      <p className="text-xs text-slate-500">
+                        The two featured promotional banners displayed side-by-side on the homepage.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {draftContent.c4Banners.map((banner, idx) => (
+                        <div key={banner.id || idx} className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-3">
+                          <span className="font-bold text-xs text-[#581C87] block">Banner #{idx + 1}</span>
+                          <div className="space-y-2 text-xs">
+                            <div>
+                              <label className="text-[11px] font-bold text-slate-600 block">Top Tag / Subtitle</label>
+                              <input
+                                type="text"
+                                value={banner.subtitle}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setDraftContent(prev => {
+                                    const banners = [...prev.c4Banners];
+                                    banners[idx] = { ...banners[idx], subtitle: val };
+                                    return { ...prev, c4Banners: banners };
+                                  });
+                                }}
+                                className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-bold text-slate-600 block">Banner Title</label>
+                              <input
+                                type="text"
+                                value={banner.title}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setDraftContent(prev => {
+                                    const banners = [...prev.c4Banners];
+                                    banners[idx] = { ...banners[idx], title: val };
+                                    return { ...prev, c4Banners: banners };
+                                  });
+                                }}
+                                className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-bold text-slate-600 block">Price Highlight / Tag</label>
+                              <input
+                                type="text"
+                                value={banner.price || ''}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setDraftContent(prev => {
+                                    const banners = [...prev.c4Banners];
+                                    banners[idx] = { ...banners[idx], price: val };
+                                    return { ...prev, c4Banners: banners };
+                                  });
+                                }}
+                                className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-bold text-slate-600 block">Button Text</label>
+                              <input
+                                type="text"
+                                value={banner.buttonText}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setDraftContent(prev => {
+                                    const banners = [...prev.c4Banners];
+                                    banners[idx] = { ...banners[idx], buttonText: val };
+                                    return { ...prev, c4Banners: banners };
+                                  });
+                                }}
+                                className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-bold text-slate-600 block">Image URL</label>
+                              <input
+                                type="text"
+                                value={banner.image}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setDraftContent(prev => {
+                                    const banners = [...prev.c4Banners];
+                                    banners[idx] = { ...banners[idx], image: val };
+                                    return { ...prev, c4Banners: banners };
+                                  });
+                                }}
+                                className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Wide Banner (c6Banner) */}
+                  <div className="space-y-4 pt-4 border-t border-slate-100">
+                    <div>
+                      <h4 className="font-extrabold text-sm text-slate-900">Wide Strip Campaign Banner</h4>
+                      <p className="text-xs text-slate-500">
+                        The full-width middle section banner highlighting featured collections or discounts.
+                      </p>
+                    </div>
+
+                    <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-bold text-slate-600 block">Subtitle</label>
+                          <input
+                            type="text"
+                            value={draftContent.c6Banner.subtitle}
+                            onChange={e => {
+                              const val = e.target.value;
+                              setDraftContent(prev => ({
+                                ...prev,
+                                c6Banner: { ...prev.c6Banner, subtitle: val }
+                              }));
+                            }}
+                            className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-bold text-slate-600 block">Headline Title</label>
+                          <input
+                            type="text"
+                            value={draftContent.c6Banner.title}
+                            onChange={e => {
+                              const val = e.target.value;
+                              setDraftContent(prev => ({
+                                ...prev,
+                                c6Banner: { ...prev.c6Banner, title: val }
+                              }));
+                            }}
+                            className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                          />
+                        </div>
+
+                        <div className="sm:col-span-2 space-y-1">
+                          <label className="text-[11px] font-bold text-slate-600 block">Description</label>
+                          <textarea
+                            rows={2}
+                            value={draftContent.c6Banner.description || ''}
+                            onChange={e => {
+                              const val = e.target.value;
+                              setDraftContent(prev => ({
+                                ...prev,
+                                c6Banner: { ...prev.c6Banner, description: val }
+                              }));
+                            }}
+                            className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-bold text-slate-600 block">Button Text</label>
+                          <input
+                            type="text"
+                            value={draftContent.c6Banner.buttonText}
+                            onChange={e => {
+                              const val = e.target.value;
+                              setDraftContent(prev => ({
+                                ...prev,
+                                c6Banner: { ...prev.c6Banner, buttonText: val }
+                              }));
+                            }}
+                            className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-bold text-slate-600 block">Image URL</label>
+                          <input
+                            type="text"
+                            value={draftContent.c6Banner.image}
+                            onChange={e => {
+                              const val = e.target.value;
+                              setDraftContent(prev => ({
+                                ...prev,
+                                c6Banner: { ...prev.c6Banner, image: val }
+                              }));
+                            }}
+                            className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Triple Banners (c8Banners) */}
+                  <div className="space-y-4 pt-4 border-t border-slate-100">
+                    <div>
+                      <h4 className="font-extrabold text-sm text-slate-900">Triple Highlight Banners (Bottom 3 Grid)</h4>
+                      <p className="text-xs text-slate-500">
+                        Three promotional banners highlighting Gift Sets, Fragrances, and Organic Shea.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {draftContent.c8Banners.map((banner, idx) => (
+                        <div key={banner.id || idx} className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-3">
+                          <span className="font-bold text-xs text-[#581C87] block">Card #{idx + 1}</span>
+                          <div className="space-y-2 text-xs">
+                            <div>
+                              <label className="text-[11px] font-bold text-slate-600 block">Subtitle</label>
+                              <input
+                                type="text"
+                                value={banner.subtitle}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setDraftContent(prev => {
+                                    const banners = [...prev.c8Banners];
+                                    banners[idx] = { ...banners[idx], subtitle: val };
+                                    return { ...prev, c8Banners: banners };
+                                  });
+                                }}
+                                className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-bold text-slate-600 block">Title</label>
+                              <input
+                                type="text"
+                                value={banner.title}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setDraftContent(prev => {
+                                    const banners = [...prev.c8Banners];
+                                    banners[idx] = { ...banners[idx], title: val };
+                                    return { ...prev, c8Banners: banners };
+                                  });
+                                }}
+                                className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-bold text-slate-600 block">Button Text</label>
+                              <input
+                                type="text"
+                                value={banner.buttonText}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setDraftContent(prev => {
+                                    const banners = [...prev.c8Banners];
+                                    banners[idx] = { ...banners[idx], buttonText: val };
+                                    return { ...prev, c8Banners: banners };
+                                  });
+                                }}
+                                className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-bold text-slate-600 block">Image URL</label>
+                              <input
+                                type="text"
+                                value={banner.image}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setDraftContent(prev => {
+                                    const banners = [...prev.c8Banners];
+                                    banners[idx] = { ...banners[idx], image: val };
+                                    return { ...prev, c8Banners: banners };
+                                  });
+                                }}
+                                className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SUBTAB 3: ABOUT PAGE STORY */}
+              {contentSubTab === 'about' && (
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="font-extrabold text-sm text-slate-900">About Packed by Dolyn Brand Story</h4>
+                    <p className="text-xs text-slate-500">
+                      Edit the brand history, mission statement, pillars, and founder executive quote on the About page.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 block">Badge Label</label>
+                        <input
+                          type="text"
+                          value={draftContent.about.badge}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setDraftContent(prev => ({
+                              ...prev,
+                              about: { ...prev.about, badge: val }
+                            }));
+                          }}
+                          className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 block">Page Title</label>
+                        <input
+                          type="text"
+                          value={draftContent.about.title}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setDraftContent(prev => ({
+                              ...prev,
+                              about: { ...prev.about, title: val }
+                            }));
+                          }}
+                          className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2 space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 block">Company Introduction</label>
+                        <textarea
+                          rows={3}
+                          value={draftContent.about.intro}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setDraftContent(prev => ({
+                              ...prev,
+                              about: { ...prev.about, intro: val }
+                            }));
+                          }}
+                          className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4 Stats */}
+                  <div className="space-y-3 pt-2">
+                    <h5 className="font-extrabold text-xs text-slate-900">Key Statistics Cards</h5>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                      {draftContent.about.stats.map((stat, idx) => (
+                        <div key={idx} className="p-3 bg-white rounded-xl border border-slate-200 space-y-2">
+                          <span className="text-[10px] font-bold text-slate-400 block uppercase">Stat #{idx + 1}</span>
+                          <div>
+                            <label className="text-[10px] text-slate-500 block">Value / Figure</label>
+                            <input
+                              type="text"
+                              value={stat.value}
+                              onChange={e => {
+                                const val = e.target.value;
+                                setDraftContent(prev => {
+                                  const stats = [...prev.about.stats];
+                                  stats[idx] = { ...stats[idx], value: val };
+                                  return { ...prev, about: { ...prev.about, stats } };
+                                });
+                              }}
+                              className="w-full p-1.5 bg-slate-50 rounded-lg border border-slate-200 font-bold"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-slate-500 block">Label</label>
+                            <input
+                              type="text"
+                              value={stat.label}
+                              onChange={e => {
+                                const val = e.target.value;
+                                setDraftContent(prev => {
+                                  const stats = [...prev.about.stats];
+                                  stats[idx] = { ...stats[idx], label: val };
+                                  return { ...prev, about: { ...prev.about, stats } };
+                                });
+                              }}
+                              className="w-full p-1.5 bg-slate-50 rounded-lg border border-slate-200"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 3 Pillars */}
+                  <div className="space-y-3 pt-2">
+                    <h5 className="font-extrabold text-xs text-slate-900">Core Business Pillars</h5>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                      {draftContent.about.pillars.map((pillar, idx) => (
+                        <div key={idx} className="p-4 bg-white rounded-xl border border-slate-200 space-y-2">
+                          <span className="text-[10px] font-bold text-[#581C87] block uppercase">Pillar #{idx + 1}</span>
+                          <div>
+                            <label className="text-[10px] text-slate-500 block">Title</label>
+                            <input
+                              type="text"
+                              value={pillar.title}
+                              onChange={e => {
+                                const val = e.target.value;
+                                setDraftContent(prev => {
+                                  const pillars = [...prev.about.pillars];
+                                  pillars[idx] = { ...pillars[idx], title: val };
+                                  return { ...prev, about: { ...prev.about, pillars } };
+                                });
+                              }}
+                              className="w-full p-1.5 bg-slate-50 rounded-lg border border-slate-200 font-bold"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-slate-500 block">Description</label>
+                            <textarea
+                              rows={3}
+                              value={pillar.description}
+                              onChange={e => {
+                                const val = e.target.value;
+                                setDraftContent(prev => {
+                                  const pillars = [...prev.about.pillars];
+                                  pillars[idx] = { ...pillars[idx], description: val };
+                                  return { ...prev, about: { ...prev.about, pillars } };
+                                });
+                              }}
+                              className="w-full p-1.5 bg-slate-50 rounded-lg border border-slate-200"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Founder Profile */}
+                  <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-4 pt-4">
+                    <h5 className="font-extrabold text-xs text-slate-900">Founder & Executive Bio</h5>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 block">Founder Title / Label</label>
+                        <input
+                          type="text"
+                          value={draftContent.about.founderLabel}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setDraftContent(prev => ({
+                              ...prev,
+                              about: { ...prev.about, founderLabel: val }
+                            }));
+                          }}
+                          className="w-full p-2 bg-white rounded-xl border border-slate-200"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 block">Full Name</label>
+                        <input
+                          type="text"
+                          value={draftContent.about.founderName}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setDraftContent(prev => ({
+                              ...prev,
+                              about: { ...prev.about, founderName: val }
+                            }));
+                          }}
+                          className="w-full p-2 bg-white rounded-xl border border-slate-200 font-bold"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 block">Initials</label>
+                        <input
+                          type="text"
+                          value={draftContent.about.founderInitials}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setDraftContent(prev => ({
+                              ...prev,
+                              about: { ...prev.about, founderInitials: val }
+                            }));
+                          }}
+                          className="w-full p-2 bg-white rounded-xl border border-slate-200"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-3 space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 block">Founder Quote</label>
+                        <textarea
+                          rows={3}
+                          value={draftContent.about.founderQuote}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setDraftContent(prev => ({
+                              ...prev,
+                              about: { ...prev.about, founderQuote: val }
+                            }));
+                          }}
+                          className="w-full p-2 bg-white rounded-xl border border-slate-200"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SUBTAB 4: CONTACT & SUPPORT HOTLINE */}
+              {contentSubTab === 'contact' && (
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="font-extrabold text-sm text-slate-900">Direct Contact & Customer Support Details</h4>
+                    <p className="text-xs text-slate-500">
+                      These details are used site-wide: in the header, mobile menu, footer, order receipts, and WhatsApp routing.
+                    </p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs">
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 block">Primary Phone / Hotline</label>
+                        <input
+                          type="text"
+                          value={draftContent.contact.phone}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setDraftContent(prev => ({
+                              ...prev,
+                              contact: { ...prev.contact, phone: val }
+                            }));
+                          }}
+                          className="w-full p-2 bg-white rounded-xl border border-slate-200 font-bold focus:border-[#581C87]"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 block">WhatsApp Digits (with country code)</label>
+                        <input
+                          type="text"
+                          value={draftContent.contact.whatsapp}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setDraftContent(prev => ({
+                              ...prev,
+                              contact: { ...prev.contact, whatsapp: val }
+                            }));
+                          }}
+                          placeholder="233244149464"
+                          className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:border-[#581C87]"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 block">WhatsApp Display Text</label>
+                        <input
+                          type="text"
+                          value={draftContent.contact.whatsappDisplay}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setDraftContent(prev => ({
+                              ...prev,
+                              contact: { ...prev.contact, whatsappDisplay: val }
+                            }));
+                          }}
+                          placeholder="+233 24 414 9464"
+                          className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:border-[#581C87]"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 block">Official Support Email</label>
+                        <input
+                          type="email"
+                          value={draftContent.contact.email}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setDraftContent(prev => ({
+                              ...prev,
+                              contact: { ...prev.contact, email: val }
+                            }));
+                          }}
+                          className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:border-[#581C87]"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 block">Primary Contact Person</label>
+                        <input
+                          type="text"
+                          value={draftContent.contact.primaryContactName}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setDraftContent(prev => ({
+                              ...prev,
+                              contact: { ...prev.contact, primaryContactName: val }
+                            }));
+                          }}
+                          className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:border-[#581C87]"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 block">Operating Hours</label>
+                        <input
+                          type="text"
+                          value={draftContent.contact.hours}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setDraftContent(prev => ({
+                              ...prev,
+                              contact: { ...prev.contact, hours: val }
+                            }));
+                          }}
+                          className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:border-[#581C87]"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2 space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 block">Full Physical Address</label>
+                        <input
+                          type="text"
+                          value={draftContent.contact.addressLine1}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setDraftContent(prev => ({
+                              ...prev,
+                              contact: { ...prev.contact, addressLine1: val }
+                            }));
+                          }}
+                          className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:border-[#581C87]"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 block">Short Location Label</label>
+                        <input
+                          type="text"
+                          value={draftContent.contact.addressShort}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setDraftContent(prev => ({
+                              ...prev,
+                              contact: { ...prev.contact, addressShort: val }
+                            }));
+                          }}
+                          className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:border-[#581C87]"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-3 space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 block">Shipping / Courier Note</label>
+                        <input
+                          type="text"
+                          value={draftContent.contact.addressNote}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setDraftContent(prev => ({
+                              ...prev,
+                              contact: { ...prev.contact, addressNote: val }
+                            }));
+                          }}
+                          className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:border-[#581C87]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Bottom Sticky Action Bar */}
+              <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <span className="text-slate-400 font-medium">
+                  Changes sync immediately to local browser storage & cloud Supabase database.
+                </span>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleResetDraftContent}
+                    className="px-3.5 py-2 border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl font-bold cursor-pointer transition-colors"
+                  >
+                    Reset
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveDraftContent}
+                    disabled={isSavingContent}
+                    className="px-5 py-2 bg-[#581C87] hover:bg-[#4C1D95] text-white rounded-xl font-black transition-all shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  >
+                    {isSavingContent ? (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-300" />
+                    ) : (
+                      <Check className="w-3.5 h-3.5 text-amber-300" />
+                    )}
+                    <span>{isSavingContent ? 'Saving...' : 'Save & Publish All Content'}</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -3624,10 +4659,10 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                 <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 block">
                   FROM (SENDER)
                 </span>
-                <strong className="text-slate-950 block">Gwendolyn Barnie Boahen</strong>
+                <strong className="text-slate-950 block">{siteContent.contact.primaryContactName}</strong>
                 <p className="text-slate-700">Packed by Dolyn</p>
-                <p className="font-bold text-[#581C87]">Tel: 0244149464</p>
-                <p className="text-slate-500 text-[10.5px]">Hub: Accra, Greater Accra</p>
+                <p className="font-bold text-[#581C87]">Tel: {siteContent.contact.phone}</p>
+                <p className="text-slate-500 text-[10.5px]">Hub: {siteContent.contact.addressShort || 'Accra, Ghana'}</p>
               </div>
 
               <div className="p-3 border-2 border-slate-900 rounded-xl bg-purple-50/40 space-y-1">

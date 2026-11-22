@@ -15,8 +15,10 @@ export const MobileMenu: React.FC<{
     setIsOrderTrackingOpen,
     categories,
     productList,
-    addToast
+    addToast,
+    siteContent
   } = useApp();
+  const contact = siteContent.contact;
 
   const [activeTab, setActiveTab] = useState<'menu' | 'categories'>('menu');
 
@@ -207,13 +209,13 @@ export const MobileMenu: React.FC<{
           </button>
 
           <a
-            href="https://wa.me/233244149464?text=Hello%20Packed%20by%20Dolyn,%20I%20have%20an%20order%20inquiry"
+            href={`https://wa.me/${contact.whatsapp}?text=${encodeURIComponent("Hello Packed by Dolyn, I have an order inquiry")}`}
             target="_blank"
             rel="noreferrer"
             className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 transition-colors cursor-pointer"
           >
             <MessageCircle className="w-4 h-4" />
-            <span>WhatsApp Order: 0244149464</span>
+            <span>WhatsApp Order: {contact.phone}</span>
           </a>
         </div>
       </div>

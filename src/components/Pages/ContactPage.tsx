@@ -4,7 +4,8 @@ import { useApp } from '../../context/AppContext';
 import { dolynFAQs } from '../../data/mockData';
 
 export const ContactPage: React.FC = () => {
-  const { addToast } = useApp();
+  const { addToast, siteContent } = useApp();
+  const contact = siteContent.contact;
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
@@ -46,10 +47,10 @@ export const ContactPage: React.FC = () => {
               </div>
               <div>
                 <h4 className="text-sm font-bold text-[#1E0B36]">Phone & WhatsApp</h4>
-                <a href="tel:0244149464" className="text-xs font-bold text-[#581C87] hover:underline mt-1 block">
-                  0244149464
+                <a href={`tel:${contact.phone}`} className="text-xs font-bold text-[#581C87] hover:underline mt-1 block">
+                  {contact.phone}
                 </a>
-                <p className="text-[11px] text-gray-500 mt-0.5">Primary Contact: Gwendolyn Barnie Boahen</p>
+                <p className="text-[11px] text-gray-500 mt-0.5">Primary Contact: {contact.primaryContactName}</p>
               </div>
             </div>
 
@@ -60,12 +61,12 @@ export const ContactPage: React.FC = () => {
               <div>
                 <h4 className="text-sm font-bold text-[#1E0B36]">WhatsApp Concierge</h4>
                 <a
-                  href="https://wa.me/233244149464?text=Hello%20Packed%20by%20Dolyn,%20I%20have%20an%20inquiry"
+                  href={`https://wa.me/${contact.whatsapp}?text=${encodeURIComponent("Hello Packed by Dolyn, I have an inquiry")}`}
                   target="_blank"
                   rel="noreferrer"
                   className="text-xs font-bold text-emerald-700 hover:underline mt-1 block"
                 >
-                  Chat: +233 24 414 9464
+                  Chat: {contact.whatsappDisplay || `+${contact.whatsapp}`}
                 </a>
                 <p className="text-[11px] text-gray-500 mt-0.5">Direct response for custom gifts & bulk</p>
               </div>
@@ -77,8 +78,8 @@ export const ContactPage: React.FC = () => {
               </div>
               <div>
                 <h4 className="text-sm font-bold text-[#1E0B36]">Official Email</h4>
-                <a href="mailto:gbbyaa@gmail.com" className="text-xs font-bold text-[#581C87] hover:underline mt-1 block">
-                  gbbyaa@gmail.com
+                <a href={`mailto:${contact.email}`} className="text-xs font-bold text-[#581C87] hover:underline mt-1 block">
+                  {contact.email}
                 </a>
                 <p className="text-[11px] text-gray-500 mt-0.5">Corporate quotations & collaborations</p>
               </div>
@@ -90,8 +91,8 @@ export const ContactPage: React.FC = () => {
               </div>
               <div>
                 <h4 className="text-sm font-bold text-[#1E0B36]">Fulfillment Hub</h4>
-                <p className="text-xs text-gray-600 mt-1">Accra, Greater Accra Region, Ghana</p>
-                <p className="text-[11px] text-purple-700 font-semibold mt-0.5">Nationwide Courier Shipping</p>
+                <p className="text-xs text-gray-600 mt-1">{contact.addressLine1}</p>
+                <p className="text-[11px] text-purple-700 font-semibold mt-0.5">{contact.addressNote}</p>
               </div>
             </div>
           </div>

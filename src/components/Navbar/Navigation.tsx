@@ -15,8 +15,10 @@ export const Navigation: React.FC<{
     cartTotal,
     setIsCartOpen,
     currencySymbol,
-    addToast
+    addToast,
+    siteContent
   } = useApp();
+  const contact = siteContent.contact;
 
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const categoriesRef = useRef<HTMLDivElement>(null);
@@ -172,13 +174,13 @@ export const Navigation: React.FC<{
         {/* Right: Quick Direct WhatsApp Callout & Cart Drawer Access */}
         <div className="flex items-center gap-2.5 sm:gap-3 text-xs text-[#1D395F] shrink-0">
           <a
-            href="https://wa.me/233244149464?text=Hello%20Packed%20by%20Dolyn,%20I%20have%20an%20inquiry%20regarding%20products/orders"
+            href={`https://wa.me/${contact.whatsapp}?text=${encodeURIComponent("Hello Packed by Dolyn, I have an inquiry regarding products/orders")}`}
             target="_blank"
             rel="noreferrer"
             className="hidden lg:inline-flex items-center space-x-1.5 text-emerald-700 hover:text-emerald-800 transition-colors font-semibold bg-emerald-50 hover:bg-emerald-100/70 px-3 py-1.5 rounded-full border border-emerald-200/60"
           >
             <MessageCircle className="w-4 h-4 text-emerald-600" />
-            <span>WhatsApp 0244149464</span>
+            <span>WhatsApp {contact.phone}</span>
           </a>
 
           <button

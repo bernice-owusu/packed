@@ -142,3 +142,46 @@ export interface DeliveryOption {
   price: number;
   estimatedTime: string;
 }
+
+export interface AboutStat {
+  value: string;
+  label: string;
+}
+
+export interface AboutPillar {
+  title: string;
+  description: string;
+}
+
+export interface AboutContent {
+  badge: string;
+  title: string;
+  intro: string;
+  stats: AboutStat[];
+  pillars: AboutPillar[];
+  founderLabel: string;
+  founderName: string;
+  founderInitials: string;
+  founderQuote: string;
+}
+
+export interface ContactContent {
+  phone: string;
+  whatsapp: string;
+  whatsappDisplay: string;
+  email: string;
+  primaryContactName: string;
+  addressLine1: string;
+  addressShort: string;
+  addressNote: string;
+  hours: string;
+}
+
+export interface SiteContent {
+  heroSlides: HeroSlide[];
+  c4Banners: PromoBanner[];
+  c6Banner: PromoBanner;
+  c8Banners: PromoBanner[];
+  about: AboutContent;
+  contact: ContactContent;
+}
