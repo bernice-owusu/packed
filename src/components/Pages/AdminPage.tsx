@@ -70,8 +70,6 @@ import {
 } from '../../utils/exportUtils';
 import {
   getSupabaseConfig,
-  saveRuntimeSupabaseConfig,
-  clearRuntimeSupabaseConfig,
   testSupabaseConnection,
   isSupabaseConfigured
 } from '../../services/supabase';
@@ -100,7 +98,9 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     currencySymbol,
     addToast,
     setActiveReceiptOrder,
-    refreshCloudOrders,
+    connectCloudDatabase,
+    disconnectCloudDatabase,
+    refreshCloudData,
     isCloudSyncActive
   } = useApp();
 
@@ -149,17 +149,14 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
       addToast('Please enter both Supabase URL and Anon Key.', 'warning');
       return;
     }
-    saveRuntimeSupabaseConfig(supabaseUrlInput, supabaseKeyInput);
-    addToast('Supabase credentials saved! Connecting and syncing orders...', 'success');
-    await refreshCloudOrders();
+    await connectCloudDatabase(supabaseUrlInput, supabaseKeyInput);
   };
 
   const handleDisconnectCloud = () => {
-    clearRuntimeSupabaseConfig();
+    disconnectCloudDatabase();
     setSupabaseUrlInput('');
     setSupabaseKeyInput('');
     setCloudTestResult(null);
-    addToast('Supabase disconnected. Operating in local-first storage mode.', 'info');
   };
 
   // Handle PIN input
@@ -2865,14 +2862,14 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                       )}
                     </div>
                     <p className="text-slate-500 text-[11px]">
-                      Enables real-time order notifications and multi-device database sync between customer phones and your executive laptop.
+                      Persists your products, categories, coupons, picture library and orders to the cloud, with real-time sync between customer phones and your executive laptop.
                     </p>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => refreshCloudOrders()}
+                      onClick={() => refreshCloudData()}
                       className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold cursor-pointer transition-colors flex items-center gap-1"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />

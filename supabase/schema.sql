@@ -1,6 +1,7 @@
 -- =========================================================================
 -- PACKED BY DOLYN GHANA — SUPABASE CLOUD DATABASE SCHEMA
 -- Run this in your Supabase Project Dashboard -> SQL Editor -> Run
+-- Safe to run multiple times (idempotent).
 -- =========================================================================
 
 -- 1. Orders Table
@@ -35,7 +36,7 @@ CREATE TABLE IF NOT EXISTS public.products (
     title TEXT NOT NULL,
     category TEXT NOT NULL,
     price TEXT NOT NULL,
-    numeric_price NUMERIC NOT NULL,
+    numeric_price NUMERIC NOT NULL DEFAULT 0,
     original_price TEXT,
     rating NUMERIC DEFAULT 5.0,
     review_count INTEGER DEFAULT 0,
@@ -44,37 +45,132 @@ CREATE TABLE IF NOT EXISTS public.products (
     description TEXT,
     sku TEXT,
     in_stock BOOLEAN DEFAULT TRUE,
+    is_pre_order BOOLEAN DEFAULT FALSE,
     stock_count INTEGER DEFAULT 50,
     sizes TEXT[] DEFAULT '{}',
     varieties TEXT[] DEFAULT '{}',
     wholesale_box_quantity INTEGER,
     wholesale_box_price TEXT,
+    is_customizable BOOLEAN DEFAULT FALSE,
+    customization_options TEXT[] DEFAULT '{}',
+    is_drug_or_healthcare BOOLEAN DEFAULT FALSE,
+    dosage_or_usage TEXT,
     ingredients TEXT
 );
 
--- 3. Row Level Security (RLS) Policies
+-- Add any newer product columns to databases created before this update
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS is_pre_order BOOLEAN DEFAULT FALSE;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS is_customizable BOOLEAN DEFAULT FALSE;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS customization_options TEXT[] DEFAULT '{}';
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS is_drug_or_healthcare BOOLEAN DEFAULT FALSE;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS dosage_or_usage TEXT;
+
+-- 3. Categories Table
+CREATE TABLE IF NOT EXISTS public.categories (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    count TEXT NOT NULL DEFAULT '0 Products',
+    icon TEXT NOT NULL DEFAULT 'Package',
+    description TEXT
+);
+
+-- 4. Coupons / Promo Codes Table
+CREATE TABLE IF NOT EXISTS public.coupons (
+    id TEXT PRIMARY KEY,
+    code TEXT NOT NULL,
+    discount_percent NUMERIC NOT NULL DEFAULT 0,
+    min_spend NUMERIC,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    description TEXT,
+    usage_count INTEGER NOT NULL DEFAULT 0
+);
+
+-- 5. Media / Picture Library Table
+CREATE TABLE IF NOT EXISTS public.media (
+    id TEXT PRIMARY KEY,
+    url TEXT NOT NULL,
+    title TEXT NOT NULL,
+    category TEXT NOT NULL,
+    uploaded_at TEXT NOT NULL DEFAULT NOW()::text,
+    is_custom BOOLEAN DEFAULT FALSE,
+    size TEXT
+);
+
+-- =========================================================================
+-- 6. Row Level Security (RLS) Policies
+-- =========================================================================
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.coupons ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.media ENABLE ROW LEVEL SECURITY;
 
--- Allow public clients to insert orders (guest checkout)
+-- Orders: guest checkout inserts, public reads, admin status updates
+DROP POLICY IF EXISTS "Public insert orders" ON public.orders;
 CREATE POLICY "Public insert orders" ON public.orders
     FOR INSERT WITH CHECK (true);
 
--- Allow public / authorized reads of orders
+DROP POLICY IF EXISTS "Public select orders" ON public.orders;
 CREATE POLICY "Public select orders" ON public.orders
     FOR SELECT USING (true);
 
--- Allow updates to order status (e.g. from Admin Portal)
+DROP POLICY IF EXISTS "Public update orders" ON public.orders;
 CREATE POLICY "Public update orders" ON public.orders
     FOR UPDATE USING (true);
 
--- Allow public reads of product catalog
+-- Products
+DROP POLICY IF EXISTS "Public read products" ON public.products;
 CREATE POLICY "Public read products" ON public.products
     FOR SELECT USING (true);
 
--- Allow updates to products
+DROP POLICY IF EXISTS "Public manage products" ON public.products;
 CREATE POLICY "Public manage products" ON public.products
-    FOR ALL USING (true);
+    FOR ALL USING (true) WITH CHECK (true);
 
--- 4. Enable Supabase Realtime for instant multi-device order alerts
-ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;
+-- Categories
+DROP POLICY IF EXISTS "Public manage categories" ON public.categories;
+CREATE POLICY "Public manage categories" ON public.categories
+    FOR ALL USING (true) WITH CHECK (true);
+
+-- Coupons
+DROP POLICY IF EXISTS "Public manage coupons" ON public.coupons;
+CREATE POLICY "Public manage coupons" ON public.coupons
+    FOR ALL USING (true) WITH CHECK (true);
+
+-- Media library
+DROP POLICY IF EXISTS "Public manage media" ON public.media;
+CREATE POLICY "Public manage media" ON public.media
+    FOR ALL USING (true) WITH CHECK (true);
+
+-- =========================================================================
+-- 7. Enable Supabase Realtime for instant multi-device sync
+-- =========================================================================
+DO $$
+BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.products;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.categories;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.coupons;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.media;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;

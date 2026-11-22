@@ -4,6 +4,9 @@ import { Order, Product, Category, Coupon, MediaItem } from '../types';
 /**
  * Supabase Cloud Database Client & Realtime Sync Engine for Packed by Dolyn
  * Enables multi-device real-time sync across mobile, desktop, and client storefronts.
+ *
+ * The app is local-first: when Supabase is not configured every helper below
+ * returns null/false and the app keeps working from localStorage.
  */
 
 interface SupabaseConfig {
@@ -77,9 +80,117 @@ export const isSupabaseConfigured = (): boolean => {
   return Boolean(url && anonKey && url.startsWith('http'));
 };
 
+export type CloudTable = 'orders' | 'products' | 'categories' | 'coupons' | 'media';
+
+// =========================================================================
+// GENERIC HELPERS
+// =========================================================================
+
+const fetchRows = async (table: CloudTable): Promise<any[] | null> => {
+  const supabase = getSupabaseClient();
+  if (!supabase) return null;
+
+  try {
+    const { data, error } = await supabase.from(table).select('*');
+    if (error) {
+      console.warn(`Supabase fetch ${table} error:`, error.message);
+      return null;
+    }
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.warn(`Failed to fetch ${table} from Supabase:`, err);
+    return null;
+  }
+};
+
+const upsertRows = async (table: CloudTable, rows: any[]): Promise<boolean> => {
+  const supabase = getSupabaseClient();
+  if (!supabase || rows.length === 0) return false;
+
+  try {
+    const { error } = await supabase.from(table).upsert(rows, { onConflict: 'id' });
+    if (error) {
+      console.warn(`Supabase upsert ${table} error:`, error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn(`Failed to save ${table} to Supabase:`, err);
+    return false;
+  }
+};
+
+const deleteRow = async (table: CloudTable, id: string | number): Promise<boolean> => {
+  const supabase = getSupabaseClient();
+  if (!supabase) return false;
+
+  try {
+    const { error } = await supabase.from(table).delete().eq('id', id);
+    if (error) {
+      console.warn(`Supabase delete ${table} error:`, error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn(`Failed to delete ${table} from Supabase:`, err);
+    return false;
+  }
+};
+
+export const subscribeToCloudTable = (
+  table: Exclude<CloudTable, 'orders'>,
+  onChange: () => void
+): (() => void) => {
+  const supabase = getSupabaseClient();
+  if (!supabase) return () => {};
+
+  try {
+    const channel = supabase
+      .channel(`public:${table}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table },
+        () => onChange()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  } catch (err) {
+    console.warn(`Failed to subscribe to Supabase ${table} realtime:`, err);
+    return () => {};
+  }
+};
+
 // =========================================================================
 // ORDERS CLOUD SYNC
 // =========================================================================
+
+const rowToOrder = (row: any): Order => ({
+  id: row.id,
+  createdAt: row.created_at,
+  customerName: row.customer_name,
+  customerPhone: row.customer_phone,
+  customerEmail: row.customer_email || '',
+  deliveryRegion: row.delivery_region,
+  deliveryAddress: row.delivery_address,
+  deliveryType: row.delivery_type,
+  preferredDeliveryDate: row.preferred_delivery_date || '',
+  preferredDeliveryTime: row.preferred_delivery_time || '',
+  deliveryFee: Number(row.delivery_fee) || 0,
+  paymentMethod: row.payment_method,
+  paymentRef: row.payment_ref || undefined,
+  momoNumber: row.momo_number || undefined,
+  paymentStatus: row.payment_status,
+  items: typeof row.items === 'string' ? JSON.parse(row.items) : row.items || [],
+  subtotal: Number(row.subtotal) || 0,
+  discount: Number(row.discount) || 0,
+  total: Number(row.total) || 0,
+  status: row.status,
+  customNotes: row.custom_notes || undefined,
+  trackingNumber: row.tracking_number,
+});
 
 export const fetchOrdersFromCloud = async (): Promise<Order[] | null> => {
   const supabase = getSupabaseClient();
@@ -98,30 +209,7 @@ export const fetchOrdersFromCloud = async (): Promise<Order[] | null> => {
 
     if (!Array.isArray(data)) return [];
 
-    return data.map((row: any) => ({
-      id: row.id,
-      createdAt: row.created_at,
-      customerName: row.customer_name,
-      customerPhone: row.customer_phone,
-      customerEmail: row.customer_email || '',
-      deliveryRegion: row.delivery_region,
-      deliveryAddress: row.delivery_address,
-      deliveryType: row.delivery_type,
-      preferredDeliveryDate: row.preferred_delivery_date || '',
-      preferredDeliveryTime: row.preferred_delivery_time || '',
-      deliveryFee: Number(row.delivery_fee) || 0,
-      paymentMethod: row.payment_method,
-      paymentRef: row.payment_ref || undefined,
-      momoNumber: row.momo_number || undefined,
-      paymentStatus: row.payment_status,
-      items: typeof row.items === 'string' ? JSON.parse(row.items) : row.items || [],
-      subtotal: Number(row.subtotal) || 0,
-      discount: Number(row.discount) || 0,
-      total: Number(row.total) || 0,
-      status: row.status,
-      customNotes: row.custom_notes || undefined,
-      trackingNumber: row.tracking_number,
-    }));
+    return data.map(rowToOrder);
   } catch (err) {
     console.warn('Failed to fetch cloud orders:', err);
     return null;
@@ -197,10 +285,6 @@ export const updateOrderStatusInCloud = async (
   }
 };
 
-// =========================================================================
-// REALTIME SUBSCRIPTION FOR ORDERS (MULTI-DEVICE LIVE NOTIFICATIONS)
-// =========================================================================
-
 export const subscribeToCloudOrders = (
   onOrderChange: (order: Order) => void
 ): (() => void) => {
@@ -216,33 +300,7 @@ export const subscribeToCloudOrders = (
         (payload: any) => {
           const row = payload.new;
           if (!row || !row.id) return;
-
-          const mappedOrder: Order = {
-            id: row.id,
-            createdAt: row.created_at,
-            customerName: row.customer_name,
-            customerPhone: row.customer_phone,
-            customerEmail: row.customer_email || '',
-            deliveryRegion: row.delivery_region,
-            deliveryAddress: row.delivery_address,
-            deliveryType: row.delivery_type,
-            preferredDeliveryDate: row.preferred_delivery_date || '',
-            preferredDeliveryTime: row.preferred_delivery_time || '',
-            deliveryFee: Number(row.delivery_fee) || 0,
-            paymentMethod: row.payment_method,
-            paymentRef: row.payment_ref || undefined,
-            momoNumber: row.momo_number || undefined,
-            paymentStatus: row.payment_status,
-            items: typeof row.items === 'string' ? JSON.parse(row.items) : row.items || [],
-            subtotal: Number(row.subtotal) || 0,
-            discount: Number(row.discount) || 0,
-            total: Number(row.total) || 0,
-            status: row.status,
-            customNotes: row.custom_notes || undefined,
-            trackingNumber: row.tracking_number,
-          };
-
-          onOrderChange(mappedOrder);
+          onOrderChange(rowToOrder(row));
         }
       )
       .subscribe();
@@ -253,6 +311,216 @@ export const subscribeToCloudOrders = (
   } catch (err) {
     console.warn('Failed to subscribe to Supabase orders realtime:', err);
     return () => {};
+  }
+};
+
+// =========================================================================
+// PRODUCTS CLOUD SYNC
+// =========================================================================
+
+const rowToProduct = (row: any): Product => ({
+  id: Number(row.id),
+  title: row.title,
+  category: row.category,
+  price: row.price,
+  numericPrice: Number(row.numeric_price) || 0,
+  originalPrice: row.original_price ?? null,
+  rating: Number(row.rating) || 5,
+  reviewCount: Number(row.review_count) || 0,
+  badges: Array.isArray(row.badges) ? row.badges : [],
+  image: row.image,
+  description: row.description || undefined,
+  sku: row.sku || undefined,
+  inStock: row.in_stock ?? true,
+  isPreOrder: row.is_pre_order ?? false,
+  stockCount: Number(row.stock_count) || 0,
+  sizes: Array.isArray(row.sizes) ? row.sizes : [],
+  varieties: Array.isArray(row.varieties) ? row.varieties : [],
+  wholesaleBoxQuantity: row.wholesale_box_quantity ?? undefined,
+  wholesaleBoxPrice: row.wholesale_box_price ?? undefined,
+  isCustomizable: row.is_customizable ?? false,
+  customizationOptions: Array.isArray(row.customization_options) ? row.customization_options : [],
+  isDrugOrHealthcare: row.is_drug_or_healthcare ?? false,
+  dosageOrUsage: row.dosage_or_usage || undefined,
+  ingredients: row.ingredients || undefined,
+});
+
+const productToRow = (product: Product) => ({
+  id: product.id,
+  title: product.title,
+  category: product.category,
+  price: product.price,
+  numeric_price: product.numericPrice ?? 0,
+  original_price: product.originalPrice ?? null,
+  rating: product.rating ?? 5,
+  review_count: product.reviewCount ?? 0,
+  badges: product.badges ?? [],
+  image: product.image,
+  description: product.description ?? null,
+  sku: product.sku ?? null,
+  in_stock: product.inStock ?? true,
+  is_pre_order: product.isPreOrder ?? false,
+  stock_count: product.stockCount ?? 0,
+  sizes: product.sizes ?? [],
+  varieties: product.varieties ?? [],
+  wholesale_box_quantity: product.wholesaleBoxQuantity ?? null,
+  wholesale_box_price: product.wholesaleBoxPrice ?? null,
+  is_customizable: product.isCustomizable ?? false,
+  customization_options: product.customizationOptions ?? [],
+  is_drug_or_healthcare: product.isDrugOrHealthcare ?? false,
+  dosage_or_usage: product.dosageOrUsage ?? null,
+  ingredients: product.ingredients ?? null,
+});
+
+export const fetchProductsFromCloud = async (): Promise<Product[] | null> => {
+  const rows = await fetchRows('products');
+  if (!rows) return null;
+  return rows.map(rowToProduct).sort((a, b) => a.id - b.id);
+};
+
+export const saveProductToCloud = (product: Product): Promise<boolean> =>
+  upsertRows('products', [productToRow(product)]);
+
+export const deleteProductFromCloud = (id: number): Promise<boolean> =>
+  deleteRow('products', id);
+
+export const seedProductsToCloud = (products: Product[]): Promise<boolean> =>
+  upsertRows('products', products.map(productToRow));
+
+// =========================================================================
+// CATEGORIES CLOUD SYNC
+// =========================================================================
+
+const rowToCategory = (row: any): Category => ({
+  id: row.id,
+  title: row.title,
+  count: row.count ?? '0 Products',
+  icon: row.icon ?? 'Package',
+  description: row.description || undefined,
+});
+
+const categoryToRow = (category: Category) => ({
+  id: category.id,
+  title: category.title,
+  count: category.count ?? '0 Products',
+  icon: category.icon ?? 'Package',
+  description: category.description ?? null,
+});
+
+export const fetchCategoriesFromCloud = async (): Promise<Category[] | null> => {
+  const rows = await fetchRows('categories');
+  if (!rows) return null;
+  return rows.map(rowToCategory);
+};
+
+export const saveCategoryToCloud = (category: Category): Promise<boolean> =>
+  upsertRows('categories', [categoryToRow(category)]);
+
+export const deleteCategoryFromCloud = (id: string): Promise<boolean> =>
+  deleteRow('categories', id);
+
+export const seedCategoriesToCloud = (categories: Category[]): Promise<boolean> =>
+  upsertRows('categories', categories.map(categoryToRow));
+
+// =========================================================================
+// COUPONS CLOUD SYNC
+// =========================================================================
+
+const rowToCoupon = (row: any): Coupon => ({
+  id: row.id,
+  code: row.code,
+  discountPercent: Number(row.discount_percent) || 0,
+  minSpend: row.min_spend == null ? undefined : Number(row.min_spend),
+  isActive: row.is_active ?? true,
+  description: row.description || undefined,
+  usageCount: Number(row.usage_count) || 0,
+});
+
+const couponToRow = (coupon: Coupon) => ({
+  id: coupon.id,
+  code: coupon.code,
+  discount_percent: coupon.discountPercent ?? 0,
+  min_spend: coupon.minSpend ?? null,
+  is_active: coupon.isActive ?? true,
+  description: coupon.description ?? null,
+  usage_count: coupon.usageCount ?? 0,
+});
+
+export const fetchCouponsFromCloud = async (): Promise<Coupon[] | null> => {
+  const rows = await fetchRows('coupons');
+  if (!rows) return null;
+  return rows.map(rowToCoupon);
+};
+
+export const saveCouponToCloud = (coupon: Coupon): Promise<boolean> =>
+  upsertRows('coupons', [couponToRow(coupon)]);
+
+export const deleteCouponFromCloud = (id: string): Promise<boolean> =>
+  deleteRow('coupons', id);
+
+export const seedCouponsToCloud = (coupons: Coupon[]): Promise<boolean> =>
+  upsertRows('coupons', coupons.map(couponToRow));
+
+// =========================================================================
+// MEDIA / PICTURE LIBRARY CLOUD SYNC
+// =========================================================================
+
+const rowToMediaItem = (row: any): MediaItem => ({
+  id: row.id,
+  url: row.url,
+  title: row.title,
+  category: row.category,
+  uploadedAt: row.uploaded_at,
+  isCustom: row.is_custom ?? false,
+  size: row.size || undefined,
+});
+
+const mediaToRow = (item: MediaItem) => ({
+  id: item.id,
+  url: item.url,
+  title: item.title,
+  category: item.category,
+  uploaded_at: item.uploadedAt,
+  is_custom: item.isCustom ?? false,
+  size: item.size ?? null,
+});
+
+export const fetchMediaFromCloud = async (): Promise<MediaItem[] | null> => {
+  const rows = await fetchRows('media');
+  if (!rows) return null;
+  return rows.map(rowToMediaItem);
+};
+
+export const saveMediaToCloud = (item: MediaItem): Promise<boolean> =>
+  upsertRows('media', [mediaToRow(item)]);
+
+export const deleteMediaFromCloud = (id: string): Promise<boolean> =>
+  deleteRow('media', id);
+
+export const seedMediaToCloud = (items: MediaItem[]): Promise<boolean> =>
+  upsertRows('media', items.map(mediaToRow));
+
+// =========================================================================
+// FULL STORE SEED (used after a JSON backup restore)
+// =========================================================================
+
+export const pushStoreDataToCloud = async (data: {
+  products?: Product[];
+  categories?: Category[];
+  coupons?: Coupon[];
+  media?: MediaItem[];
+  orders?: Order[];
+}): Promise<void> => {
+  if (!isSupabaseConfigured()) return;
+
+  if (data.products?.length) await seedProductsToCloud(data.products);
+  if (data.categories?.length) await seedCategoriesToCloud(data.categories);
+  if (data.coupons?.length) await seedCouponsToCloud(data.coupons);
+  if (data.media?.length) await seedMediaToCloud(data.media);
+  if (data.orders?.length) {
+    for (const order of data.orders) {
+      await saveOrderToCloud(order);
+    }
   }
 };
 

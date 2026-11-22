@@ -4,10 +4,30 @@ import { products as initialProducts, initialOrders, categories as initialCatego
 import { initialMediaItems } from '../data/initialMedia';
 import {
   isSupabaseConfigured,
+  saveRuntimeSupabaseConfig,
+  clearRuntimeSupabaseConfig,
   fetchOrdersFromCloud,
   saveOrderToCloud,
   updateOrderStatusInCloud,
-  subscribeToCloudOrders
+  subscribeToCloudOrders,
+  fetchProductsFromCloud,
+  saveProductToCloud,
+  deleteProductFromCloud,
+  seedProductsToCloud,
+  fetchCategoriesFromCloud,
+  saveCategoryToCloud,
+  deleteCategoryFromCloud,
+  seedCategoriesToCloud,
+  fetchCouponsFromCloud,
+  saveCouponToCloud,
+  deleteCouponFromCloud,
+  seedCouponsToCloud,
+  fetchMediaFromCloud,
+  saveMediaToCloud,
+  deleteMediaFromCloud,
+  seedMediaToCloud,
+  pushStoreDataToCloud,
+  subscribeToCloudTable
 } from '../services/supabase';
 
 export interface ToastMessage {
@@ -117,7 +137,9 @@ interface AppContextType {
 
   // Cloud Database Sync
   isCloudSyncActive: boolean;
-  refreshCloudOrders: () => Promise<void>;
+  connectCloudDatabase: (url: string, anonKey: string) => Promise<void>;
+  disconnectCloudDatabase: () => void;
+  refreshCloudData: () => Promise<void>;
 
   // Toasts
   toasts: ToastMessage[];
@@ -243,16 +265,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [isCloudSyncActive, setIsCloudSyncActive] = useState<boolean>(() => isSupabaseConfigured());
+  const [cloudSyncNonce, setCloudSyncNonce] = useState<number>(0);
 
-  // Cloud Database Initial Sync & Realtime Subscription
+  // Cloud Database Initial Sync & Realtime Subscription (all collections)
   useEffect(() => {
     if (!isSupabaseConfigured()) return;
 
     setIsCloudSyncActive(true);
+    let cancelled = false;
+    const unsubscribers: Array<() => void> = [];
 
-    // Initial fetch from cloud
-    fetchOrdersFromCloud().then(cloudOrders => {
-      if (cloudOrders && cloudOrders.length > 0) {
+    const hydrate = async () => {
+      // Orders: merge cloud + local so offline orders are never lost
+      const cloudOrders = await fetchOrdersFromCloud();
+      if (!cancelled && cloudOrders && cloudOrders.length > 0) {
         setOrders(prev => {
           const existingIds = new Set(cloudOrders.map(o => o.id));
           const uniqueLocal = prev.filter(o => !existingIds.has(o.id));
@@ -261,44 +287,205 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           return merged;
         });
       }
-    });
 
-    // Real-time subscription to incoming orders from other devices
-    const unsubscribe = subscribeToCloudOrders(incomingOrder => {
-      setOrders(prev => {
-        const index = prev.findIndex(o => o.id === incomingOrder.id);
-        let updated: Order[];
-        if (index >= 0) {
-          updated = [...prev];
-          updated[index] = incomingOrder;
+      // Products: cloud wins, seed local catalog if cloud is empty
+      const cloudProducts = await fetchProductsFromCloud();
+      if (!cancelled && cloudProducts) {
+        if (cloudProducts.length > 0) {
+          setProductList(cloudProducts);
         } else {
-          updated = [incomingOrder, ...prev];
-          addToast(`🔔 Live Cloud Alert: New order #${incomingOrder.id} received!`, 'success');
+          await seedProductsToCloud(productList);
         }
-        localStorage.setItem('dolyn_orders', JSON.stringify(updated));
-        return updated;
-      });
-    });
+      }
+
+      // Categories
+      const cloudCategories = await fetchCategoriesFromCloud();
+      if (!cancelled && cloudCategories) {
+        if (cloudCategories.length > 0) {
+          setCategories(cloudCategories);
+        } else {
+          await seedCategoriesToCloud(categories);
+        }
+      }
+
+      // Coupons
+      const cloudCoupons = await fetchCouponsFromCloud();
+      if (!cancelled && cloudCoupons) {
+        if (cloudCoupons.length > 0) {
+          setCoupons(cloudCoupons);
+        } else {
+          await seedCouponsToCloud(coupons);
+        }
+      }
+
+      // Media / picture library
+      const cloudMedia = await fetchMediaFromCloud();
+      if (!cancelled && cloudMedia) {
+        if (cloudMedia.length > 0) {
+          setMediaItems(cloudMedia);
+        } else {
+          await seedMediaToCloud(mediaItems);
+        }
+      }
+    };
+
+    const startRealtime = () => {
+      if (cancelled) return;
+
+      // Incoming orders from other devices
+      unsubscribers.push(
+        subscribeToCloudOrders(incomingOrder => {
+          setOrders(prev => {
+            const index = prev.findIndex(o => o.id === incomingOrder.id);
+            let updated: Order[];
+            if (index >= 0) {
+              updated = [...prev];
+              updated[index] = incomingOrder;
+            } else {
+              updated = [incomingOrder, ...prev];
+              addToast(`🔔 Live Cloud Alert: New order #${incomingOrder.id} received!`, 'success');
+            }
+            localStorage.setItem('dolyn_orders', JSON.stringify(updated));
+            return updated;
+          });
+        })
+      );
+
+      unsubscribers.push(
+        subscribeToCloudTable('products', () => {
+          fetchProductsFromCloud().then(cloud => {
+            if (!cancelled && cloud) setProductList(cloud);
+          });
+        })
+      );
+
+      unsubscribers.push(
+        subscribeToCloudTable('categories', () => {
+          fetchCategoriesFromCloud().then(cloud => {
+            if (!cancelled && cloud) setCategories(cloud);
+          });
+        })
+      );
+
+      unsubscribers.push(
+        subscribeToCloudTable('coupons', () => {
+          fetchCouponsFromCloud().then(cloud => {
+            if (!cancelled && cloud) setCoupons(cloud);
+          });
+        })
+      );
+
+      unsubscribers.push(
+        subscribeToCloudTable('media', () => {
+          fetchMediaFromCloud().then(cloud => {
+            if (!cancelled && cloud) setMediaItems(cloud);
+          });
+        })
+      );
+    };
+
+    hydrate().then(startRealtime);
 
     return () => {
-      unsubscribe();
+      cancelled = true;
+      unsubscribers.forEach(unsub => unsub());
     };
-  }, []);
+  }, [cloudSyncNonce]);
 
-  const refreshCloudOrders = async () => {
+  const connectCloudDatabase = async (url: string, anonKey: string) => {
+    saveRuntimeSupabaseConfig(url, anonKey);
+    setIsCloudSyncActive(true);
+    addToast('Supabase credentials saved! Connecting and syncing store data...', 'success');
+    setCloudSyncNonce(n => n + 1);
+    await refreshCloudData();
+  };
+
+  const disconnectCloudDatabase = () => {
+    clearRuntimeSupabaseConfig();
+    setIsCloudSyncActive(false);
+    setCloudSyncNonce(n => n + 1);
+    addToast('Supabase disconnected. Operating in local-first storage mode.', 'info');
+  };
+
+  const refreshCloudData = async () => {
     if (!isSupabaseConfigured()) {
       addToast('Supabase is not configured yet. Add your Project URL & Anon Key in settings.', 'warning');
       return;
     }
-    addToast('Syncing orders from Supabase Cloud Database...', 'info');
-    const cloudOrders = await fetchOrdersFromCloud();
+    addToast('Syncing store data from Supabase Cloud Database...', 'info');
+
+    const [cloudOrders, cloudProducts, cloudCategories, cloudCoupons, cloudMedia] = await Promise.all([
+      fetchOrdersFromCloud(),
+      fetchProductsFromCloud(),
+      fetchCategoriesFromCloud(),
+      fetchCouponsFromCloud(),
+      fetchMediaFromCloud(),
+    ]);
+
+    let collectionsSynced = 0;
+
+    // Orders: pull cloud orders when present, otherwise keep local orders intact
     if (cloudOrders) {
-      setOrders(cloudOrders);
-      localStorage.setItem('dolyn_orders', JSON.stringify(cloudOrders));
+      if (cloudOrders.length > 0) {
+        setOrders(cloudOrders);
+        localStorage.setItem('dolyn_orders', JSON.stringify(cloudOrders));
+      }
+      collectionsSynced++;
+    }
+
+    // Products: pull when present, otherwise seed the local catalog up to the cloud
+    if (cloudProducts) {
+      if (cloudProducts.length > 0) {
+        setProductList(cloudProducts);
+      } else if (productList.length > 0) {
+        await seedProductsToCloud(productList);
+      }
+      collectionsSynced++;
+    }
+
+    // Categories
+    if (cloudCategories) {
+      if (cloudCategories.length > 0) {
+        setCategories(cloudCategories);
+      } else if (categories.length > 0) {
+        await seedCategoriesToCloud(categories);
+      }
+      collectionsSynced++;
+    }
+
+    // Coupons
+    if (cloudCoupons) {
+      if (cloudCoupons.length > 0) {
+        setCoupons(cloudCoupons);
+      } else if (coupons.length > 0) {
+        await seedCouponsToCloud(coupons);
+      }
+      collectionsSynced++;
+    }
+
+    // Media / picture library
+    if (cloudMedia) {
+      if (cloudMedia.length > 0) {
+        setMediaItems(cloudMedia);
+      } else if (mediaItems.length > 0) {
+        await seedMediaToCloud(mediaItems);
+      }
+      collectionsSynced++;
+    }
+
+    if (collectionsSynced > 0) {
       setIsCloudSyncActive(true);
-      addToast(`Synced ${cloudOrders.length} orders from Cloud Database!`, 'success');
+      const productCount = cloudProducts?.length || productList.length;
+      const categoryCount = cloudCategories?.length || categories.length;
+      const couponCount = cloudCoupons?.length || coupons.length;
+      const mediaCount = cloudMedia?.length || mediaItems.length;
+      const orderCount = cloudOrders?.length || orders.length;
+      addToast(
+        `Synced ${productCount} products, ${categoryCount} categories, ${couponCount} coupons, ${mediaCount} photos and ${orderCount} orders with the Cloud Database!`,
+        'success'
+      );
     } else {
-      addToast('Could not fetch orders from Supabase. Check credentials or network.', 'warning');
+      addToast('Could not fetch store data from Supabase. Check credentials or network.', 'warning');
     }
   };
 
@@ -445,9 +632,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
       setAppliedCoupon(cleaned);
       setDiscountPercent(existingCoupon.discountPercent);
-      setCoupons(prev =>
-        prev.map(c => (c.id === existingCoupon.id ? { ...c, usageCount: c.usageCount + 1 } : c))
-      );
+      const updatedCoupon: Coupon = {
+        ...existingCoupon,
+        usageCount: existingCoupon.usageCount + 1
+      };
+      setCoupons(prev => prev.map(c => (c.id === updatedCoupon.id ? updatedCoupon : c)));
+      if (isSupabaseConfigured()) {
+        saveCouponToCloud(updatedCoupon).catch(err => {
+          console.warn('Cloud coupon update error:', err);
+        });
+      }
       addToast(`Promo code "${cleaned}" applied! ${existingCoupon.discountPercent}% discount activated.`, 'success');
       return true;
     }
@@ -573,18 +767,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     setProductList(prev => [fullProduct, ...prev]);
+    if (isSupabaseConfigured()) {
+      saveProductToCloud(fullProduct).catch(err => {
+        console.warn('Cloud product save error:', err);
+      });
+    }
     addToast(`Product "${fullProduct.title}" added to catalog!`, 'success');
   };
 
   const updateProduct = (id: number, updated: Partial<Product>) => {
+    const existing = productList.find(p => p.id === id);
+    const merged = existing ? { ...existing, ...updated } : null;
+
     setProductList(prev =>
       prev.map(p => (p.id === id ? { ...p, ...updated } : p))
     );
+    if (merged && isSupabaseConfigured()) {
+      saveProductToCloud(merged).catch(err => {
+        console.warn('Cloud product update error:', err);
+      });
+    }
     addToast(`Product #${id} updated successfully`, 'info');
   };
 
   const deleteProduct = (id: number) => {
     setProductList(prev => prev.filter(p => p.id !== id));
+    if (isSupabaseConfigured()) {
+      deleteProductFromCloud(id).catch(err => {
+        console.warn('Cloud product delete error:', err);
+      });
+    }
     addToast(`Product #${id} removed from catalog`, 'warning');
   };
 
@@ -597,11 +809,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       isCustom: true
     };
     setMediaItems(prev => [newItem, ...prev]);
+    if (isSupabaseConfigured()) {
+      saveMediaToCloud(newItem).catch(err => {
+        console.warn('Cloud media save error:', err);
+      });
+    }
     addToast(`Photo "${newItem.title}" added to ${newItem.category}!`, 'success');
   };
 
   const deleteMediaItem = (id: string) => {
     setMediaItems(prev => prev.filter(m => m.id !== id));
+    if (isSupabaseConfigured()) {
+      deleteMediaFromCloud(id).catch(err => {
+        console.warn('Cloud media delete error:', err);
+      });
+    }
     addToast('Picture removed from library', 'info');
   };
 
@@ -614,18 +836,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       usageCount: 0
     };
     setCoupons(prev => [coupon, ...prev]);
+    if (isSupabaseConfigured()) {
+      saveCouponToCloud(coupon).catch(err => {
+        console.warn('Cloud coupon save error:', err);
+      });
+    }
     addToast(`Promo code "${coupon.code}" created!`, 'success');
   };
 
   const deleteCoupon = (id: string) => {
     setCoupons(prev => prev.filter(c => c.id !== id));
+    if (isSupabaseConfigured()) {
+      deleteCouponFromCloud(id).catch(err => {
+        console.warn('Cloud coupon delete error:', err);
+      });
+    }
     addToast('Coupon deleted', 'info');
   };
 
   const toggleCouponStatus = (id: string) => {
+    const existing = coupons.find(c => c.id === id);
+    const updated = existing ? { ...existing, isActive: !existing.isActive } : null;
+
     setCoupons(prev =>
       prev.map(c => (c.id === id ? { ...c, isActive: !c.isActive } : c))
     );
+    if (updated && isSupabaseConfigured()) {
+      saveCouponToCloud(updated).catch(err => {
+        console.warn('Cloud coupon status update error:', err);
+      });
+    }
     addToast('Coupon status updated', 'info');
   };
 
@@ -640,16 +880,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       count: '0 Products'
     };
     setCategories(prev => [...prev, newCat]);
+    if (isSupabaseConfigured()) {
+      saveCategoryToCloud(newCat).catch(err => {
+        console.warn('Cloud category save error:', err);
+      });
+    }
     addToast(`Category "${newCat.title}" created successfully!`, 'success');
   };
 
   const updateCategory = (id: string, updated: Partial<Category>) => {
+    const existing = categories.find(c => c.id === id);
+    const merged = existing ? { ...existing, ...updated } : null;
+
     setCategories(prev => prev.map(c => (c.id === id ? { ...c, ...updated } : c)));
+    if (merged && isSupabaseConfigured()) {
+      saveCategoryToCloud(merged).catch(err => {
+        console.warn('Cloud category update error:', err);
+      });
+    }
     addToast('Category updated', 'info');
   };
 
   const deleteCategory = (id: string) => {
     setCategories(prev => prev.filter(c => c.id !== id));
+    if (isSupabaseConfigured()) {
+      deleteCategoryFromCloud(id).catch(err => {
+        console.warn('Cloud category delete error:', err);
+      });
+    }
     addToast('Category removed from store', 'warning');
   };
 
@@ -680,6 +938,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (data.categories && Array.isArray(data.categories)) {
       setCategories(data.categories);
       localStorage.setItem('dolyn_categories', JSON.stringify(data.categories));
+    }
+    if (isSupabaseConfigured()) {
+      pushStoreDataToCloud(data).catch(err => {
+        console.warn('Cloud store restore push error:', err);
+      });
     }
     addToast('Store data successfully restored from backup!', 'success');
   };
@@ -743,7 +1006,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         deleteCategory,
         restoreStoreData,
         isCloudSyncActive,
-        refreshCloudOrders,
+        connectCloudDatabase,
+        disconnectCloudDatabase,
+        refreshCloudData,
         toasts,
         addToast,
         removeToast
