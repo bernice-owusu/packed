@@ -165,6 +165,21 @@ const sanitizeCatalogPrices = (prods: Product[]): Product[] => {
   });
 };
 
+// Seeded catalog IDs are treated as legacy; anything above the seed max is a new upload
+// and is shown first (newest upload first), while the original catalog order is preserved.
+const INITIAL_CATALOG_MAX_ID = initialProducts.reduce((max, p) => Math.max(max, p.id), 0);
+
+const sortProductsLatestFirst = (prods: Product[]): Product[] => {
+  return [...prods].sort((a, b) => {
+    const aIsNew = a.id > INITIAL_CATALOG_MAX_ID;
+    const bIsNew = b.id > INITIAL_CATALOG_MAX_ID;
+    if (aIsNew && bIsNew) return b.id - a.id;
+    if (aIsNew) return -1;
+    if (bIsNew) return 1;
+    return a.id - b.id;
+  });
+};
+
 const initialCoupons: Coupon[] = [
   { id: 'c1', code: 'DOLYN10', discountPercent: 10, isActive: true, usageCount: 42, description: '10% Welcome Discount for Packed by Dolyn' },
   { id: 'c2', code: 'WELCOMEGH', discountPercent: 10, isActive: true, usageCount: 18, description: 'New Customer Ghana Promo' },
@@ -181,16 +196,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (saved && savedVersion === CATALOG_VERSION) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          return sanitizeCatalogPrices(parsed);
+          return sortProductsLatestFirst(sanitizeCatalogPrices(parsed));
         }
       }
       // Force refresh catalog to include all 38 newly added category products and capped 5 cedis test pricing
-      const freshCatalog = sanitizeCatalogPrices(initialProducts);
+      const freshCatalog = sortProductsLatestFirst(sanitizeCatalogPrices(initialProducts));
       localStorage.setItem('dolyn_catalog_version', CATALOG_VERSION);
       localStorage.setItem('dolyn_products', JSON.stringify(freshCatalog));
       return freshCatalog;
     } catch {
-      return sanitizeCatalogPrices(initialProducts);
+      return sortProductsLatestFirst(sanitizeCatalogPrices(initialProducts));
     }
   });
 
@@ -292,7 +307,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const cloudProducts = await fetchProductsFromCloud();
       if (!cancelled && cloudProducts) {
         if (cloudProducts.length > 0) {
-          setProductList(cloudProducts);
+          setProductList(sortProductsLatestFirst(cloudProducts));
         } else {
           await seedProductsToCloud(productList);
         }
@@ -354,7 +369,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       unsubscribers.push(
         subscribeToCloudTable('products', () => {
           fetchProductsFromCloud().then(cloud => {
-            if (!cancelled && cloud) setProductList(cloud);
+            if (!cancelled && cloud) setProductList(sortProductsLatestFirst(cloud));
           });
         })
       );
@@ -436,7 +451,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // Products: pull when present, otherwise seed the local catalog up to the cloud
     if (cloudProducts) {
       if (cloudProducts.length > 0) {
-        setProductList(cloudProducts);
+        setProductList(sortProductsLatestFirst(cloudProducts));
       } else if (productList.length > 0) {
         await seedProductsToCloud(productList);
       }
@@ -766,7 +781,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       dosageOrUsage: newProd.dosageOrUsage
     };
 
-    setProductList(prev => [fullProduct, ...prev]);
+    setProductList(prev => sortProductsLatestFirst([fullProduct, ...prev]));
     if (isSupabaseConfigured()) {
       saveProductToCloud(fullProduct).catch(err => {
         console.warn('Cloud product save error:', err);
@@ -920,8 +935,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     categories?: Category[];
   }) => {
     if (data.products && Array.isArray(data.products) && data.products.length > 0) {
-      setProductList(data.products);
-      localStorage.setItem('dolyn_products', JSON.stringify(data.products));
+      const restoredProducts = sortProductsLatestFirst(data.products);
+      setProductList(restoredProducts);
+      localStorage.setItem('dolyn_products', JSON.stringify(restoredProducts));
     }
     if (data.media && Array.isArray(data.media)) {
       setMediaItems(data.media);

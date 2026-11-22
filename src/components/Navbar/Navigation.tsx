@@ -59,7 +59,7 @@ export const Navigation: React.FC<{
 
   return (
     <div className="hidden md:block sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-purple-100/90 text-[#1D395F] font-medium text-[13px] shadow-sm transition-all duration-200">
-      <div className="pls-container flex items-center justify-between h-[50px] sm:h-[54px] overflow-x-auto no-scrollbar">
+      <div className="pls-container flex items-center justify-between h-[50px] sm:h-[54px]">
         {/* Left: Shop By Categories Button */}
         <div ref={categoriesRef} className="relative shrink-0">
           <button

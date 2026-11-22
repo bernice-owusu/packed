@@ -37,7 +37,7 @@ export const Header: React.FC<{
   };
 
   return (
-    <header className="sticky top-0 md:static z-40 bg-white/95 backdrop-blur-md text-[#1D395F] py-2 sm:py-3 md:py-4 shadow-xs md:shadow-2xs border-b border-purple-100/70 transition-all">
+    <header className="sticky top-0 md:static z-50 bg-white/95 backdrop-blur-md text-[#1D395F] py-2 sm:py-3 md:py-4 shadow-xs md:shadow-2xs border-b border-purple-100/70 transition-all">
       <div className="pls-container flex items-center justify-between gap-2.5 sm:gap-4 lg:gap-8">
         {/* Hamburger Menu & Brand Logo */}
         <div className="flex items-center space-x-1.5 sm:space-x-3">

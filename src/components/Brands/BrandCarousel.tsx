@@ -25,7 +25,7 @@ export const BrandCarousel: React.FC<{ compact?: boolean }> = ({ compact = false
             {[...partnerBrands, ...partnerBrands].map((brand, idx) => (
               <div
                 key={`${brand.id}-${idx}`}
-                className="shrink-0 w-28 sm:w-36 h-14 sm:h-16 bg-slate-50/80 hover:bg-white rounded-xl border border-slate-200/80 hover:border-purple-300 p-2 sm:p-2.5 flex items-center justify-center transition-all shadow-2xs hover:shadow-xs group cursor-pointer"
+                className="shrink-0 w-28 sm:w-36 h-14 sm:h-16 bg-white hover:bg-white rounded-xl border border-slate-200/80 hover:border-purple-300 p-2 sm:p-2.5 flex items-center justify-center transition-all shadow-2xs hover:shadow-xs group cursor-pointer"
               >
                 <img
                   src={brand.image}

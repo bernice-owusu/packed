@@ -5,7 +5,6 @@ import { useApp } from '../../context/AppContext';
 
 export const FeaturedProducts: React.FC<{ onNavigateShop?: () => void }> = ({ onNavigateShop }) => {
   const { productList, selectedCategory, setSelectedCategory, addToast } = useApp();
-  const [activeTab, setActiveTab] = useState<string>('All');
   const [showAllInView, setShowAllInView] = useState<boolean>(false);
 
   const filterTabs = [
@@ -18,7 +17,7 @@ export const FeaturedProducts: React.FC<{ onNavigateShop?: () => void }> = ({ on
     { label: 'Flash Deals', cat: 'Flash Deals & Specials' }
   ];
 
-  const currentCategory = activeTab !== 'All' ? activeTab : selectedCategory;
+  const currentCategory = selectedCategory;
 
   const matchingProducts = productList.filter(p => {
     if (currentCategory === 'All') return true;
@@ -35,7 +34,6 @@ export const FeaturedProducts: React.FC<{ onNavigateShop?: () => void }> = ({ on
       : matchingProducts;
 
   const handleTabChange = (cat: string) => {
-    setActiveTab(cat);
     setSelectedCategory(cat);
     setShowAllInView(false);
     addToast(cat === 'All' ? 'Showing all featured products' : `Viewing ${cat}`);
