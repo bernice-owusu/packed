@@ -33,7 +33,9 @@ const FacebookIcon = ({ className = "" }: { className?: string }) => (
   </svg>
 );
 
-export const Topbar: React.FC = () => {
+export const Topbar: React.FC<{
+  onNavigatePage?: (page: string) => void;
+}> = ({ onNavigatePage }) => {
   const { addToast } = useApp();
   const [copied, setCopied] = useState(false);
 
@@ -80,8 +82,8 @@ export const Topbar: React.FC = () => {
           </button>
         </div>
 
-        {/* Right: Socials (desktop only) */}
-        <div className="hidden sm:flex items-center gap-1">
+        {/* Right: Socials & Owner Portal link */}
+        <div className="hidden sm:flex items-center gap-1.5">
           <a
             href="https://instagram.com"
             target="_blank"
@@ -104,7 +106,7 @@ export const Topbar: React.FC = () => {
             href="https://tiktok.com"
             target="_blank"
             rel="noreferrer"
-            className="p-0.5 sm:p-1 hover:bg-white/10 rounded-full transition-colors"
+            className="p-0.5 sm:p-1 hover:bg-white/10 rounded-full transition-colors text-white/80"
             aria-label="TikTok"
           >
             <span className="text-[9px] sm:text-[10px] font-bold">TT</span>

@@ -33,6 +33,26 @@ export interface Category {
   description?: string;
 }
 
+export interface MediaItem {
+  id: string;
+  url: string;
+  title: string;
+  category: string;
+  uploadedAt: string;
+  isCustom?: boolean;
+  size?: string;
+}
+
+export interface Coupon {
+  id: string;
+  code: string;
+  discountPercent: number;
+  minSpend?: number;
+  isActive: boolean;
+  description?: string;
+  usageCount: number;
+}
+
 export interface HeroSlide {
   id: number;
   title: string;
@@ -102,7 +122,8 @@ export interface Order {
   preferredDeliveryDate: string;
   preferredDeliveryTime: string;
   deliveryFee: number;
-  paymentMethod: 'MTN MoMo' | 'Telecel Cash' | 'AT Money' | 'Card (Paystack)';
+  paymentMethod: 'MTN MoMo' | 'Telecel Cash' | 'AT Money' | 'Card (Paystack)' | 'Paystack (Card/MoMo)' | string;
+  paymentRef?: string;
   momoNumber?: string;
   paymentStatus: 'Paid' | 'Pre-order Confirmed' | 'Pending';
   items: CartItem[];

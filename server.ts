@@ -75,6 +75,33 @@ Write an executive, structured, professional operational report for Gwendolyn in
   }
 });
 
+// API Route: Paystack Transaction Verification
+app.post('/api/verify-paystack', async (req, res) => {
+  try {
+    const { reference } = req.body || {};
+    if (!reference) {
+      return res.status(400).json({ error: 'Transaction reference is required' });
+    }
+
+    const secretKey = process.env.PAYSTACK_SECRET_KEY;
+    if (!secretKey) {
+      return res.status(500).json({ error: 'PAYSTACK_SECRET_KEY is not configured on the server' });
+    }
+    const response = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${secretKey}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+    return res.status(200).json(data);
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Payment verification failed' });
+  }
+});
+
 async function startServer() {
   const port = Number(process.env.PORT) || 3000;
   const isProd = process.env.NODE_ENV === 'production';

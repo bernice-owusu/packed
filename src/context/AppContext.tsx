@@ -1,6 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product, CartItem, BlogPost, Order } from '../types';
-import { products as initialProducts, initialOrders } from '../data/mockData';
+import { Product, CartItem, BlogPost, Order, MediaItem, Coupon, Category } from '../types';
+import { products as initialProducts, initialOrders, categories as initialCategories } from '../data/mockData';
+import { initialMediaItems } from '../data/initialMedia';
+import {
+  isSupabaseConfigured,
+  fetchOrdersFromCloud,
+  saveOrderToCloud,
+  updateOrderStatusInCloud,
+  subscribeToCloudOrders
+} from '../services/supabase';
 
 export interface ToastMessage {
   id: string;
@@ -33,6 +41,7 @@ interface AppContextType {
   cartTotal: number;
   cartCount: number;
   discount: number;
+  discountPercent: number;
   appliedCoupon: string | null;
   applyCoupon: (code: string) => boolean;
   removeCoupon: () => void;
@@ -80,6 +89,36 @@ interface AppContextType {
   createOrder: (orderData: Omit<Order, 'id' | 'createdAt' | 'trackingNumber'>) => Order;
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
 
+  // Media & Picture Library
+  mediaItems: MediaItem[];
+  addMediaItem: (item: Omit<MediaItem, 'id' | 'uploadedAt'>) => void;
+  deleteMediaItem: (id: string) => void;
+
+  // Dynamic Categories Management
+  categories: Category[];
+  addCategory: (newCategory: Omit<Category, 'id' | 'count'>) => void;
+  updateCategory: (id: string, updated: Partial<Category>) => void;
+  deleteCategory: (id: string) => void;
+
+  // Coupons & Promo Codes
+  coupons: Coupon[];
+  addCoupon: (newCoupon: Omit<Coupon, 'id' | 'usageCount'>) => void;
+  deleteCoupon: (id: string) => void;
+  toggleCouponStatus: (id: string) => void;
+
+  // Backup & Restore
+  restoreStoreData: (data: {
+    products?: Product[];
+    media?: MediaItem[];
+    orders?: Order[];
+    coupons?: Coupon[];
+    categories?: Category[];
+  }) => void;
+
+  // Cloud Database Sync
+  isCloudSyncActive: boolean;
+  refreshCloudOrders: () => Promise<void>;
+
   // Toasts
   toasts: ToastMessage[];
   addToast: (message: string, type?: 'success' | 'info' | 'warning') => void;
@@ -88,7 +127,28 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const CATALOG_VERSION = 'v5_packed_by_dolyn_verified_images';
+const CATALOG_VERSION = 'v6_paystack_live_test_max5cedis';
+const MAX_TEST_PRICE = 5.0;
+
+const sanitizeCatalogPrices = (prods: Product[]): Product[] => {
+  return prods.map(p => {
+    const numPrice = typeof p.numericPrice === 'number' && p.numericPrice > 0 ? p.numericPrice : 5.0;
+    const cappedPrice = Math.min(numPrice, MAX_TEST_PRICE);
+    return {
+      ...p,
+      numericPrice: cappedPrice,
+      price: cappedPrice < numPrice || !p.price ? `GH₵ ${cappedPrice.toFixed(2)}` : p.price,
+      wholesaleBoxPrice: 'GH₵ 5.00',
+    };
+  });
+};
+
+const initialCoupons: Coupon[] = [
+  { id: 'c1', code: 'DOLYN10', discountPercent: 10, isActive: true, usageCount: 42, description: '10% Welcome Discount for Packed by Dolyn' },
+  { id: 'c2', code: 'WELCOMEGH', discountPercent: 10, isActive: true, usageCount: 18, description: 'New Customer Ghana Promo' },
+  { id: 'c3', code: 'VALENTINE15', discountPercent: 15, isActive: true, usageCount: 9, description: 'Gift Hamper & Fragrance Special' },
+  { id: 'c4', code: 'VIP20', discountPercent: 20, isActive: true, usageCount: 5, description: 'Corporate & VIP Bulk Buyers' },
+];
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Products state (persisted with catalog version check)
@@ -98,16 +158,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const saved = localStorage.getItem('dolyn_products');
       if (saved && savedVersion === CATALOG_VERSION) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length >= initialProducts.length) {
-          return parsed;
+        if (Array.isArray(parsed)) {
+          return sanitizeCatalogPrices(parsed);
         }
       }
-      // Force refresh catalog to include all 38 newly added category products
+      // Force refresh catalog to include all 38 newly added category products and capped 5 cedis test pricing
+      const freshCatalog = sanitizeCatalogPrices(initialProducts);
       localStorage.setItem('dolyn_catalog_version', CATALOG_VERSION);
-      localStorage.setItem('dolyn_products', JSON.stringify(initialProducts));
-      return initialProducts;
+      localStorage.setItem('dolyn_products', JSON.stringify(freshCatalog));
+      return freshCatalog;
     } catch {
-      return initialProducts;
+      return sanitizeCatalogPrices(initialProducts);
     }
   });
 
@@ -131,8 +192,115 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   });
 
+  // Media items state (persisted)
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('dolyn_media');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+      return initialMediaItems;
+    } catch {
+      return initialMediaItems;
+    }
+  });
+
+  // Coupons state (persisted)
+  const [coupons, setCoupons] = useState<Coupon[]>(() => {
+    try {
+      const saved = localStorage.getItem('dolyn_coupons');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+      return initialCoupons;
+    } catch {
+      return initialCoupons;
+    }
+  });
+
+  // Categories state (persisted)
+  const [categories, setCategories] = useState<Category[]>(() => {
+    try {
+      const saved = localStorage.getItem('dolyn_categories');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+      return initialCategories;
+    } catch {
+      return initialCategories;
+    }
+  });
+
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [discountPercent, setDiscountPercent] = useState<number>(0);
+  const [isCloudSyncActive, setIsCloudSyncActive] = useState<boolean>(() => isSupabaseConfigured());
+
+  // Cloud Database Initial Sync & Realtime Subscription
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+
+    setIsCloudSyncActive(true);
+
+    // Initial fetch from cloud
+    fetchOrdersFromCloud().then(cloudOrders => {
+      if (cloudOrders && cloudOrders.length > 0) {
+        setOrders(prev => {
+          const existingIds = new Set(cloudOrders.map(o => o.id));
+          const uniqueLocal = prev.filter(o => !existingIds.has(o.id));
+          const merged = [...cloudOrders, ...uniqueLocal];
+          localStorage.setItem('dolyn_orders', JSON.stringify(merged));
+          return merged;
+        });
+      }
+    });
+
+    // Real-time subscription to incoming orders from other devices
+    const unsubscribe = subscribeToCloudOrders(incomingOrder => {
+      setOrders(prev => {
+        const index = prev.findIndex(o => o.id === incomingOrder.id);
+        let updated: Order[];
+        if (index >= 0) {
+          updated = [...prev];
+          updated[index] = incomingOrder;
+        } else {
+          updated = [incomingOrder, ...prev];
+          addToast(`🔔 Live Cloud Alert: New order #${incomingOrder.id} received!`, 'success');
+        }
+        localStorage.setItem('dolyn_orders', JSON.stringify(updated));
+        return updated;
+      });
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  const refreshCloudOrders = async () => {
+    if (!isSupabaseConfigured()) {
+      addToast('Supabase is not configured yet. Add your Project URL & Anon Key in settings.', 'warning');
+      return;
+    }
+    addToast('Syncing orders from Supabase Cloud Database...', 'info');
+    const cloudOrders = await fetchOrdersFromCloud();
+    if (cloudOrders) {
+      setOrders(cloudOrders);
+      localStorage.setItem('dolyn_orders', JSON.stringify(cloudOrders));
+      setIsCloudSyncActive(true);
+      addToast(`Synced ${cloudOrders.length} orders from Cloud Database!`, 'success');
+    } else {
+      addToast('Could not fetch orders from Supabase. Check credentials or network.', 'warning');
+    }
+  };
 
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [selectedArticle, setSelectedArticle] = useState<BlogPost | null>(null);
@@ -152,20 +320,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     try {
       localStorage.setItem('dolyn_products', JSON.stringify(productList));
-    } catch {}
+    } catch { }
   }, [productList]);
 
   useEffect(() => {
     try {
       localStorage.setItem('dolyn_cart', JSON.stringify(cart));
-    } catch {}
+    } catch { }
   }, [cart]);
 
   useEffect(() => {
     try {
       localStorage.setItem('dolyn_orders', JSON.stringify(orders));
-    } catch {}
+    } catch { }
   }, [orders]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('dolyn_media', JSON.stringify(mediaItems));
+    } catch { }
+  }, [mediaItems]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('dolyn_coupons', JSON.stringify(coupons));
+    } catch { }
+  }, [coupons]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('dolyn_categories', JSON.stringify(categories));
+    } catch { }
+  }, [categories]);
 
   const addToast = (message: string, type: 'success' | 'info' | 'warning' = 'success') => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -250,13 +436,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const applyCoupon = (code: string) => {
     const cleaned = code.trim().toUpperCase();
+    const existingCoupon = coupons.find(c => c.code === cleaned);
+
+    if (existingCoupon) {
+      if (!existingCoupon.isActive) {
+        addToast(`Promo code "${cleaned}" is currently inactive.`, 'warning');
+        return false;
+      }
+      setAppliedCoupon(cleaned);
+      setDiscountPercent(existingCoupon.discountPercent);
+      setCoupons(prev =>
+        prev.map(c => (c.id === existingCoupon.id ? { ...c, usageCount: c.usageCount + 1 } : c))
+      );
+      addToast(`Promo code "${cleaned}" applied! ${existingCoupon.discountPercent}% discount activated.`, 'success');
+      return true;
+    }
+
     if (cleaned === 'DOLYN10' || cleaned === 'FIRST10' || cleaned === 'WELCOMEGH') {
       setAppliedCoupon(cleaned);
       setDiscountPercent(10);
       addToast(`Promo code ${cleaned} applied! 10% discount added.`, 'success');
       return true;
     }
-    addToast('Invalid promo code. Use DOLYN10 for 10% off', 'warning');
+
+    addToast('Invalid or inactive promo code. Use DOLYN10 for 10% off', 'warning');
     return false;
   };
 
@@ -317,6 +520,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     clearCart();
     setActiveReceiptOrder(newOrder);
     addToast(`Order ${newId} confirmed successfully!`, 'success');
+
+    // Push to Supabase Cloud Database if configured
+    if (isSupabaseConfigured()) {
+      saveOrderToCloud(newOrder).catch(err => {
+        console.warn('Cloud order background push error:', err);
+      });
+    }
+
     return newOrder;
   };
 
@@ -325,6 +536,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       prev.map(o => (o.id === orderId ? { ...o, status } : o))
     );
     addToast(`Order ${orderId} status updated to: ${status}`, 'info');
+
+    if (isSupabaseConfigured()) {
+      updateOrderStatusInCloud(orderId, status).catch(err => {
+        console.warn('Cloud order status update error:', err);
+      });
+    }
   };
 
   // Product management for Admin Dashboard
@@ -371,6 +588,102 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     addToast(`Product #${id} removed from catalog`, 'warning');
   };
 
+  // Media Library actions
+  const addMediaItem = (item: Omit<MediaItem, 'id' | 'uploadedAt'>) => {
+    const newItem: MediaItem = {
+      ...item,
+      id: `med-custom-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      uploadedAt: new Date().toISOString().split('T')[0],
+      isCustom: true
+    };
+    setMediaItems(prev => [newItem, ...prev]);
+    addToast(`Photo "${newItem.title}" added to ${newItem.category}!`, 'success');
+  };
+
+  const deleteMediaItem = (id: string) => {
+    setMediaItems(prev => prev.filter(m => m.id !== id));
+    addToast('Picture removed from library', 'info');
+  };
+
+  // Coupons management
+  const addCoupon = (newCoupon: Omit<Coupon, 'id' | 'usageCount'>) => {
+    const coupon: Coupon = {
+      ...newCoupon,
+      id: `coup-${Date.now()}`,
+      code: newCoupon.code.trim().toUpperCase(),
+      usageCount: 0
+    };
+    setCoupons(prev => [coupon, ...prev]);
+    addToast(`Promo code "${coupon.code}" created!`, 'success');
+  };
+
+  const deleteCoupon = (id: string) => {
+    setCoupons(prev => prev.filter(c => c.id !== id));
+    addToast('Coupon deleted', 'info');
+  };
+
+  const toggleCouponStatus = (id: string) => {
+    setCoupons(prev =>
+      prev.map(c => (c.id === id ? { ...c, isActive: !c.isActive } : c))
+    );
+    addToast('Coupon status updated', 'info');
+  };
+
+  // Categories management
+  const addCategory = (newCategory: Omit<Category, 'id' | 'count'>) => {
+    const slug =
+      newCategory.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') ||
+      `cat-${Date.now()}`;
+    const newCat: Category = {
+      ...newCategory,
+      id: slug,
+      count: '0 Products'
+    };
+    setCategories(prev => [...prev, newCat]);
+    addToast(`Category "${newCat.title}" created successfully!`, 'success');
+  };
+
+  const updateCategory = (id: string, updated: Partial<Category>) => {
+    setCategories(prev => prev.map(c => (c.id === id ? { ...c, ...updated } : c)));
+    addToast('Category updated', 'info');
+  };
+
+  const deleteCategory = (id: string) => {
+    setCategories(prev => prev.filter(c => c.id !== id));
+    addToast('Category removed from store', 'warning');
+  };
+
+  // Store data restore from JSON backup
+  const restoreStoreData = (data: {
+    products?: Product[];
+    media?: MediaItem[];
+    orders?: Order[];
+    coupons?: Coupon[];
+    categories?: Category[];
+  }) => {
+    if (data.products && Array.isArray(data.products) && data.products.length > 0) {
+      setProductList(data.products);
+      localStorage.setItem('dolyn_products', JSON.stringify(data.products));
+    }
+    if (data.media && Array.isArray(data.media)) {
+      setMediaItems(data.media);
+      localStorage.setItem('dolyn_media', JSON.stringify(data.media));
+    }
+    if (data.orders && Array.isArray(data.orders)) {
+      setOrders(data.orders);
+      localStorage.setItem('dolyn_orders', JSON.stringify(data.orders));
+    }
+    if (data.coupons && Array.isArray(data.coupons)) {
+      setCoupons(data.coupons);
+      localStorage.setItem('dolyn_coupons', JSON.stringify(data.coupons));
+    }
+    if (data.categories && Array.isArray(data.categories)) {
+      setCategories(data.categories);
+      localStorage.setItem('dolyn_categories', JSON.stringify(data.categories));
+    }
+    addToast('Store data successfully restored from backup!', 'success');
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -386,6 +699,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         cartTotal,
         cartCount,
         discount,
+        discountPercent,
         appliedCoupon,
         applyCoupon,
         removeCoupon,
@@ -416,6 +730,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         orders,
         createOrder,
         updateOrderStatus,
+        mediaItems,
+        addMediaItem,
+        deleteMediaItem,
+        coupons,
+        addCoupon,
+        deleteCoupon,
+        toggleCouponStatus,
+        categories,
+        addCategory,
+        updateCategory,
+        deleteCategory,
+        restoreStoreData,
+        isCloudSyncActive,
+        refreshCloudOrders,
         toasts,
         addToast,
         removeToast

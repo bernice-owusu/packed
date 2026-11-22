@@ -8,7 +8,6 @@ import {
   PackageCheck,
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
-import { categories } from "../../data/mockData";
 
 export const Header: React.FC<{
   onToggleMobileMenu?: () => void;
@@ -24,6 +23,7 @@ export const Header: React.FC<{
     selectedCategory,
     setSelectedCategory,
     currencySymbol,
+    categories,
   } = useApp();
 
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
@@ -37,14 +37,14 @@ export const Header: React.FC<{
   };
 
   return (
-    <header className="bg-white text-[#1D395F] py-3.5 sm:py-4 sticky top-0 z-50 shadow-md border-b border-purple-100">
-      <div className="pls-container flex items-center justify-between gap-3 sm:gap-4 lg:gap-8">
-        {/* Brand Logo */}
-        <div className="flex items-center space-x-2 sm:space-x-3">
+    <header className="sticky top-0 md:static z-40 bg-white/95 backdrop-blur-md text-[#1D395F] py-2 sm:py-3 md:py-4 shadow-xs md:shadow-2xs border-b border-purple-100/70 transition-all">
+      <div className="pls-container flex items-center justify-between gap-2.5 sm:gap-4 lg:gap-8">
+        {/* Hamburger Menu & Brand Logo */}
+        <div className="flex items-center space-x-1.5 sm:space-x-3">
           {onToggleMobileMenu && (
             <button
               onClick={onToggleMobileMenu}
-              className="lg:hidden p-2 text-[#1D395F] hover:text-[#581C87] focus:outline-none cursor-pointer"
+              className="lg:hidden p-1.5 -ml-1 text-[#1D395F] hover:text-[#581C87] hover:bg-purple-50 rounded-xl focus:outline-none cursor-pointer transition-colors shrink-0"
               aria-label="Toggle Menu"
             >
               <svg
@@ -69,12 +69,12 @@ export const Header: React.FC<{
               e.preventDefault();
               if (onLogoClick) onLogoClick();
             }}
-            className="flex items-center gap-2 group cursor-pointer"
+            className="flex items-center gap-2 group cursor-pointer shrink-0"
           >
             <img
               src={logo}
               alt="Packed by Dolyn Logo"
-              className="h-20 w-auto object-contain group-hover:scale-105 transition-transform shrink-0"
+              className="h-11 sm:h-16 md:h-20 w-auto object-contain group-hover:scale-105 transition-transform shrink-0"
             />
           </a>
         </div>
@@ -108,11 +108,10 @@ export const Header: React.FC<{
                       setSelectedCategory("All");
                       setCategoryDropdownOpen(false);
                     }}
-                    className={`w-full text-left px-4 py-2.5 hover:bg-purple-50 hover:text-[#6B21A8] transition-colors ${
-                      selectedCategory === "All"
-                        ? "text-[#6B21A8] font-bold bg-purple-50"
-                        : ""
-                    }`}
+                    className={`w-full text-left px-4 py-2.5 hover:bg-purple-50 hover:text-[#6B21A8] transition-colors ${selectedCategory === "All"
+                      ? "text-[#6B21A8] font-bold bg-purple-50"
+                      : ""
+                      }`}
                   >
                     All Categories
                   </button>
@@ -124,11 +123,10 @@ export const Header: React.FC<{
                         setSelectedCategory(c.title);
                         setCategoryDropdownOpen(false);
                       }}
-                      className={`w-full text-left px-4 py-2 hover:bg-purple-50 hover:text-[#6B21A8] transition-colors ${
-                        selectedCategory === c.title
-                          ? "text-[#6B21A8] font-bold bg-purple-50"
-                          : ""
-                      }`}
+                      className={`w-full text-left px-4 py-2 hover:bg-purple-50 hover:text-[#6B21A8] transition-colors ${selectedCategory === c.title
+                        ? "text-[#6B21A8] font-bold bg-purple-50"
+                        : ""
+                        }`}
                     >
                       {c.title}
                     </button>
@@ -219,23 +217,24 @@ export const Header: React.FC<{
       </div>
 
       {/* Mobile Search Bar */}
-      <div className="md:hidden px-4 mt-3">
+      <div className="md:hidden px-3 sm:px-4 mt-2 pb-0.5">
         <form
           onSubmit={handleSearchSubmit}
-          className="flex items-center bg-white rounded-full overflow-hidden p-1 shadow"
+          className="flex items-center bg-purple-50/70 rounded-full overflow-hidden p-1 border border-purple-100 shadow-2xs"
         >
           <input
             type="text"
             placeholder="Search products, hampers, drugs..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 text-xs text-[#1D395F] focus:outline-none"
+            className="w-full px-3 py-1.5 text-xs text-[#1D395F] bg-transparent focus:outline-none"
           />
           <button
             type="submit"
-            className="bg-[#6B21A8] text-white p-2 rounded-full flex items-center justify-center"
+            className="bg-[#581C87] hover:bg-[#4C1D95] text-white p-1.5 rounded-full flex items-center justify-center cursor-pointer shadow-xs"
+            aria-label="Submit Search"
           >
-            <Search className="w-4 h-4" />
+            <Search className="w-3.5 h-3.5" />
           </button>
         </form>
       </div>

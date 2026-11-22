@@ -1,4 +1,5 @@
 import React from 'react';
+import logo from '../../assets/logo.png';
 import { X, Printer, CheckCircle2, MapPin, Phone, Mail, ShieldCheck } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -47,12 +48,12 @@ export const ElectronicReceiptModal: React.FC = () => {
         <div className="p-6 sm:p-8 overflow-y-auto space-y-6 text-xs text-[#1D395F]" id="printable-receipt">
           {/* Header */}
           <div className="text-center pb-4 border-b border-gray-200">
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <div className="w-7 h-7 rounded-lg bg-[#581C87] flex items-center justify-center text-white">
-              </div>
-              <h2 className="text-xl font-black text-[#1E0B36] tracking-tight">
-                PACKED BY DOLYN
-              </h2>
+            <div className="flex flex-col items-center justify-center mb-2">
+              <img
+                src={logo}
+                alt="Packed by Dolyn Official Logo"
+                className="h-16 w-auto object-contain shrink-0"
+              />
             </div>
             <p className="text-[11px] text-gray-500 font-medium">
               Registered Packaging, Event Management, Cosmetics & Pharmacy
@@ -77,6 +78,12 @@ export const ElectronicReceiptModal: React.FC = () => {
               <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold text-[10px]">
                 {activeReceiptOrder.paymentStatus}
               </span>
+              {activeReceiptOrder.paymentRef && (
+                <div className="mt-1">
+                  <span className="text-gray-400 block text-[9px] uppercase font-bold">Paystack Ref:</span>
+                  <strong className="text-[#581C87] font-mono text-[9.5px] block truncate">{activeReceiptOrder.paymentRef}</strong>
+                </div>
+              )}
             </div>
           </div>
 

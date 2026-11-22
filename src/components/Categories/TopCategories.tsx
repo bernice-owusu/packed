@@ -1,9 +1,8 @@
 import React from 'react';
-import { categories } from '../../data/mockData';
 import { useApp } from '../../context/AppContext';
 
 export const TopCategories: React.FC = () => {
-  const { selectedCategory, setSelectedCategory, addToast } = useApp();
+  const { categories, productList, selectedCategory, setSelectedCategory, addToast } = useApp();
 
   const handleCategoryClick = (title: string) => {
     setSelectedCategory(title);
@@ -59,7 +58,7 @@ export const TopCategories: React.FC = () => {
 
                 {/* Product Count */}
                 <span className="text-[11px] text-gray-500 mt-1 font-medium">
-                  {cat.count}
+                  {productList.filter(p => p.category === cat.title).length} Products
                 </span>
               </div>
             );

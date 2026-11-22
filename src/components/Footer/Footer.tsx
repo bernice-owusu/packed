@@ -1,12 +1,11 @@
 import React from "react";
-import logo from "../../assets/logo.png";
+import logoWhite from "../../assets/logo_white.png";
 import {
   Phone,
   MapPin,
   Mail,
   Clock,
   MessageCircle,
-  ShieldCheck,
   ArrowRight,
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
@@ -63,8 +62,8 @@ export const Footer: React.FC<{
         {/* WhatsApp Concierge Banner (Replaces standard generic newsletter) */}
         <div className="bg-gradient-to-r from-[#3B0764] via-[#581C87] to-[#3B0764] rounded-2xl p-6 sm:p-8 mb-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 border border-purple-400/30 shadow-xl">
           <div className="space-y-1.5 max-w-lg">
-              <div className="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-amber-300 bg-white/10 px-2.5 py-0.5 rounded-full">
-                <span>Personalized Packaging & Collaborations</span>
+            <div className="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-amber-300 bg-white/10 px-2.5 py-0.5 rounded-full">
+              <span>Personalized Packaging & Collaborations</span>
             </div>
             <h3 className="text-xl sm:text-2xl font-extrabold text-white">
               Need Custom Event Hampers or Bulk Wholesale?
@@ -99,11 +98,11 @@ export const Footer: React.FC<{
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-10 border-b border-purple-900/40 text-xs">
           {/* Col 1: Brand & Contact Info */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 bg-white p-3 rounded-xl shadow-sm inline-block">
+            <div className="flex items-center gap-2">
               <img
-                src={logo}
+                src={logoWhite}
                 alt="Packed by Dolyn Logo"
-                className="h-12 sm:h-16 w-auto object-contain shrink-0"
+                className="h-16 sm:h-20 w-auto object-contain shrink-0"
               />
             </div>
 
@@ -298,7 +297,7 @@ export const Footer: React.FC<{
           </div>
         </div>
 
-        {/* Bottom Copyright and Payment Gateways */}
+        {/* Bottom Copyright */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-purple-300/70 gap-3">
           <p className="text-center sm:text-left">
             © 2026 Packed by Dolyn. Registered in Ghana. All Rights Reserved.

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import logo from '../../assets/logo.png';
-import { X, ChevronRight, ShoppingBag, Truck, Info, PhoneCall, MessageCircle, ShieldCheck } from 'lucide-react';
+import { X, ChevronRight, ShoppingBag, Truck, Info, PhoneCall, MessageCircle } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { categories } from '../../data/mockData';
 
 export const MobileMenu: React.FC<{
   isOpen: boolean;
@@ -14,6 +13,8 @@ export const MobileMenu: React.FC<{
     setSelectedCategory,
     setIsCartOpen,
     setIsOrderTrackingOpen,
+    categories,
+    productList,
     addToast
   } = useApp();
 
@@ -62,21 +63,19 @@ export const MobileMenu: React.FC<{
           <div className="flex border-b border-gray-200 text-xs font-bold">
             <button
               onClick={() => setActiveTab('menu')}
-              className={`flex-1 py-3 text-center transition-colors cursor-pointer ${
-                activeTab === 'menu'
+              className={`flex-1 py-3 text-center transition-colors cursor-pointer ${activeTab === 'menu'
                   ? 'border-b-2 border-[#581C87] text-[#581C87] bg-purple-50/50'
                   : 'text-gray-500 hover:text-gray-700'
-              }`}
+                }`}
             >
               Main Menu
             </button>
             <button
               onClick={() => setActiveTab('categories')}
-              className={`flex-1 py-3 text-center transition-colors cursor-pointer ${
-                activeTab === 'categories'
+              className={`flex-1 py-3 text-center transition-colors cursor-pointer ${activeTab === 'categories'
                   ? 'border-b-2 border-[#581C87] text-[#581C87] bg-purple-50/50'
                   : 'text-gray-500 hover:text-gray-700'
-              }`}
+                }`}
             >
               Categories ({categories.length})
             </button>
@@ -88,9 +87,8 @@ export const MobileMenu: React.FC<{
               {/* Home */}
               <button
                 onClick={() => handleNavigate('home2')}
-                className={`flex items-center justify-between w-full py-2.5 px-3 rounded-xl hover:bg-purple-50 text-left transition-colors cursor-pointer ${
-                  activeLayout === 'home2' ? 'text-[#581C87] font-bold bg-purple-50' : 'text-gray-700'
-                }`}
+                className={`flex items-center justify-between w-full py-2.5 px-3 rounded-xl hover:bg-purple-50 text-left transition-colors cursor-pointer ${activeLayout === 'home2' ? 'text-[#581C87] font-bold bg-purple-50' : 'text-gray-700'
+                  }`}
               >
                 <span>Home</span>
                 <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
@@ -99,9 +97,8 @@ export const MobileMenu: React.FC<{
               {/* Shop */}
               <button
                 onClick={() => handleNavigate('shop')}
-                className={`flex items-center justify-between w-full py-2.5 px-3 rounded-xl hover:bg-purple-50 text-left transition-colors cursor-pointer ${
-                  activeLayout === 'shop' ? 'text-[#581C87] font-bold bg-purple-50' : 'text-gray-700'
-                }`}
+                className={`flex items-center justify-between w-full py-2.5 px-3 rounded-xl hover:bg-purple-50 text-left transition-colors cursor-pointer ${activeLayout === 'shop' ? 'text-[#581C87] font-bold bg-purple-50' : 'text-gray-700'
+                  }`}
               >
                 <span>Shop Catalog</span>
                 <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
@@ -137,9 +134,8 @@ export const MobileMenu: React.FC<{
               {/* About Us */}
               <button
                 onClick={() => handleNavigate('about')}
-                className={`flex items-center justify-between w-full py-2.5 px-3 rounded-xl hover:bg-purple-50 text-left transition-colors cursor-pointer ${
-                  activeLayout === 'about' ? 'text-[#581C87] font-bold bg-purple-50' : 'text-gray-700'
-                }`}
+                className={`flex items-center justify-between w-full py-2.5 px-3 rounded-xl hover:bg-purple-50 text-left transition-colors cursor-pointer ${activeLayout === 'about' ? 'text-[#581C87] font-bold bg-purple-50' : 'text-gray-700'
+                  }`}
               >
                 <div className="flex items-center space-x-2">
                   <Info className="w-4 h-4 text-[#581C87]" />
@@ -151,9 +147,8 @@ export const MobileMenu: React.FC<{
               {/* Contact Us */}
               <button
                 onClick={() => handleNavigate('contact')}
-                className={`flex items-center justify-between w-full py-2.5 px-3 rounded-xl hover:bg-purple-50 text-left transition-colors cursor-pointer ${
-                  activeLayout === 'contact' ? 'text-[#581C87] font-bold bg-purple-50' : 'text-gray-700'
-                }`}
+                className={`flex items-center justify-between w-full py-2.5 px-3 rounded-xl hover:bg-purple-50 text-left transition-colors cursor-pointer ${activeLayout === 'contact' ? 'text-[#581C87] font-bold bg-purple-50' : 'text-gray-700'
+                  }`}
               >
                 <div className="flex items-center space-x-2">
                   <PhoneCall className="w-4 h-4 text-[#581C87]" />
@@ -189,7 +184,9 @@ export const MobileMenu: React.FC<{
                     <img src={cat.icon} alt={cat.title} className="w-6 h-6 object-cover rounded-md" />
                     <span className="font-semibold text-[#1D395F]">{cat.title}</span>
                   </div>
-                  <span className="text-[11px] text-gray-400">{cat.count}</span>
+                  <span className="text-[11px] text-gray-400">
+                    {productList.filter(p => p.category === cat.title).length} items
+                  </span>
                 </button>
               ))}
             </div>

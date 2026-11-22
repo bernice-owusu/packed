@@ -1,11 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { Filter, Grid, List, SlidersHorizontal, ArrowUpDown, ChevronDown, Check } from 'lucide-react';
-import { categories } from '../../data/mockData';
 import { ProductCard } from '../Products/ProductCard';
 import { useApp } from '../../context/AppContext';
 
 export const ShopPage: React.FC = () => {
-  const { productList, selectedCategory, setSelectedCategory, searchQuery, currencySymbol, exchangeRate } = useApp();
+  const { productList, selectedCategory, setSelectedCategory, searchQuery, currencySymbol, exchangeRate, categories } = useApp();
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
@@ -100,11 +99,10 @@ export const ShopPage: React.FC = () => {
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 max-w-full sm:flex-wrap">
             <button
               onClick={() => setSelectedCategory('All')}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
-                selectedCategory === 'All'
+              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer shrink-0 whitespace-nowrap ${selectedCategory === 'All'
                   ? 'bg-[#581C87] text-white shadow-sm'
                   : 'bg-gray-100 text-[#1D395F] hover:bg-purple-100'
-              }`}
+                }`}
             >
               All
             </button>
@@ -112,11 +110,10 @@ export const ShopPage: React.FC = () => {
               <button
                 key={c.id}
                 onClick={() => setSelectedCategory(c.title)}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
-                  selectedCategory === c.title
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer shrink-0 whitespace-nowrap ${selectedCategory === c.title
                     ? 'bg-[#581C87] text-white shadow-sm'
                     : 'bg-gray-100 text-[#1D395F] hover:bg-purple-100'
-                }`}
+                  }`}
               >
                 {c.title}
               </button>
@@ -148,9 +145,8 @@ export const ShopPage: React.FC = () => {
               <div className="space-y-1.5 text-xs font-medium">
                 <button
                   onClick={() => setSelectedCategory('All')}
-                  className={`flex items-center justify-between w-full py-1.5 text-left hover:text-[#581C87] transition-colors cursor-pointer ${
-                    selectedCategory === 'All' ? 'text-[#581C87] font-bold' : 'text-gray-600'
-                  }`}
+                  className={`flex items-center justify-between w-full py-1.5 text-left hover:text-[#581C87] transition-colors cursor-pointer ${selectedCategory === 'All' ? 'text-[#581C87] font-bold' : 'text-gray-600'
+                    }`}
                 >
                   <span>All Products</span>
                   <span className="text-gray-400">({productList.length})</span>
@@ -159,9 +155,8 @@ export const ShopPage: React.FC = () => {
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.title)}
-                    className={`flex items-center justify-between w-full py-1.5 text-left hover:text-[#581C87] transition-colors cursor-pointer ${
-                      selectedCategory === cat.title ? 'text-[#581C87] font-bold' : 'text-gray-600'
-                    }`}
+                    className={`flex items-center justify-between w-full py-1.5 text-left hover:text-[#581C87] transition-colors cursor-pointer ${selectedCategory === cat.title ? 'text-[#581C87] font-bold' : 'text-gray-600'
+                      }`}
                   >
                     <span>{cat.title}</span>
                     <span className="text-gray-400">({cat.count.replace(' Products', '')})</span>
@@ -258,18 +253,16 @@ export const ShopPage: React.FC = () => {
                 <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`p-1.5 transition-colors cursor-pointer ${
-                      viewMode === 'grid' ? 'bg-[#581C87] text-white' : 'text-gray-400 hover:text-gray-700'
-                    }`}
+                    className={`p-1.5 transition-colors cursor-pointer ${viewMode === 'grid' ? 'bg-[#581C87] text-white' : 'text-gray-400 hover:text-gray-700'
+                      }`}
                     title="Grid view"
                   >
                     <Grid className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`p-1.5 transition-colors cursor-pointer ${
-                      viewMode === 'list' ? 'bg-[#581C87] text-white' : 'text-gray-400 hover:text-gray-700'
-                    }`}
+                    className={`p-1.5 transition-colors cursor-pointer ${viewMode === 'list' ? 'bg-[#581C87] text-white' : 'text-gray-400 hover:text-gray-700'
+                      }`}
                     title="Compact view"
                   >
                     <List className="w-4 h-4" />

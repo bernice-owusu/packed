@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { Menu, ChevronDown, ChevronRight, Truck, MessageCircle } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Menu, ChevronDown, ChevronRight, Truck, MessageCircle, ShoppingBag } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { categories } from '../../data/mockData';
 
 export const Navigation: React.FC<{
   activeLayout: string;
@@ -11,10 +10,31 @@ export const Navigation: React.FC<{
     setSelectedCategory,
     setIsOrderTrackingOpen,
     setIsPolicyModalOpen,
+    categories,
+    cartCount,
+    cartTotal,
+    setIsCartOpen,
+    currencySymbol,
     addToast
   } = useApp();
 
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const categoriesRef = useRef<HTMLDivElement>(null);
+
+  // Close categories dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (categoriesRef.current && !categoriesRef.current.contains(e.target as Node)) {
+        setCategoriesOpen(false);
+      }
+    };
+    if (categoriesOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [categoriesOpen]);
 
   const navCategories = [
     { title: 'Shea Butter & Cosmetics', badge: 'Organic', badgeColor: 'bg-emerald-100 text-emerald-800' },
@@ -38,10 +58,10 @@ export const Navigation: React.FC<{
   };
 
   return (
-    <div className="hidden md:block bg-white border-b border-[#E4E4E4] relative z-20 text-[#1D395F] font-medium text-[13px] shadow-xs">
+    <div className="hidden md:block sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-purple-100/90 text-[#1D395F] font-medium text-[13px] shadow-sm transition-all duration-200">
       <div className="pls-container flex items-center justify-between h-[50px] sm:h-[54px] overflow-x-auto no-scrollbar">
         {/* Left: Shop By Categories Button */}
-        <div className="relative shrink-0">
+        <div ref={categoriesRef} className="relative shrink-0">
           <button
             onClick={() => setCategoriesOpen(!categoriesOpen)}
             className="flex items-center justify-between w-44 sm:w-56 lg:w-60 bg-[#581C87] hover:bg-[#4C1D95] text-white px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors cursor-pointer select-none font-semibold text-xs sm:text-sm shadow-sm"
@@ -55,20 +75,16 @@ export const Navigation: React.FC<{
 
           {/* Categories Dropdown */}
           {categoriesOpen && (
-            <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-[#E4E4E4] rounded-xl shadow-2xl py-2 z-50 animate-fade-in">
-              {navCategories.map(cat => (
+            <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-[#E4E4E4] rounded-xl shadow-2xl py-2 z-50 animate-fade-in max-h-96 overflow-y-auto">
+              {categories.map(cat => (
                 <button
-                  key={cat.title}
+                  key={cat.id}
                   onClick={() => handleCategorySelect(cat.title)}
                   className="flex items-center justify-between w-full px-4 py-2.5 hover:bg-purple-50 hover:text-[#581C87] text-left transition-colors cursor-pointer text-xs font-medium"
                 >
                   <div className="flex items-center space-x-2">
+                    <img src={cat.icon} alt={cat.title} className="w-5 h-5 object-cover rounded-md" />
                     <span className="truncate">{cat.title}</span>
-                    {cat.badge && (
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${cat.badgeColor}`}>
-                        {cat.badge}
-                      </span>
-                    )}
                   </div>
                   <ChevronRight className="w-3.5 h-3.5 opacity-40" />
                 </button>
@@ -85,9 +101,8 @@ export const Navigation: React.FC<{
               setActiveLayout('home2');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`hover:text-[#581C87] transition-colors py-2 text-xs sm:text-sm cursor-pointer font-medium ${
-              activeLayout === 'home2' ? 'text-[#581C87] font-bold border-b-2 border-[#581C87]' : ''
-            }`}
+            className={`hover:text-[#581C87] transition-colors py-2 text-xs sm:text-sm cursor-pointer font-medium ${activeLayout === 'home2' ? 'text-[#581C87] font-bold border-b-2 border-[#581C87]' : ''
+              }`}
           >
             Home
           </button>
@@ -98,9 +113,8 @@ export const Navigation: React.FC<{
               setActiveLayout('shop');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`hover:text-[#581C87] transition-colors py-2 text-xs sm:text-sm cursor-pointer font-medium ${
-              activeLayout === 'shop' ? 'text-[#581C87] font-bold border-b-2 border-[#581C87]' : ''
-            }`}
+            className={`hover:text-[#581C87] transition-colors py-2 text-xs sm:text-sm cursor-pointer font-medium ${activeLayout === 'shop' ? 'text-[#581C87] font-bold border-b-2 border-[#581C87]' : ''
+              }`}
           >
             Shop
           </button>
@@ -136,9 +150,8 @@ export const Navigation: React.FC<{
               setActiveLayout('about');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`hover:text-[#581C87] transition-colors py-2 text-xs sm:text-sm cursor-pointer font-medium hidden md:inline-block ${
-              activeLayout === 'about' ? 'text-[#581C87] font-bold border-b-2 border-[#581C87]' : ''
-            }`}
+            className={`hover:text-[#581C87] transition-colors py-2 text-xs sm:text-sm cursor-pointer font-medium hidden md:inline-block ${activeLayout === 'about' ? 'text-[#581C87] font-bold border-b-2 border-[#581C87]' : ''
+              }`}
           >
             About
           </button>
@@ -149,25 +162,40 @@ export const Navigation: React.FC<{
               setActiveLayout('contact');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`hover:text-[#581C87] transition-colors py-2 text-xs sm:text-sm cursor-pointer font-medium hidden md:inline-block ${
-              activeLayout === 'contact' ? 'text-[#581C87] font-bold border-b-2 border-[#581C87]' : ''
-            }`}
+            className={`hover:text-[#581C87] transition-colors py-2 text-xs sm:text-sm cursor-pointer font-medium hidden md:inline-block ${activeLayout === 'contact' ? 'text-[#581C87] font-bold border-b-2 border-[#581C87]' : ''
+              }`}
           >
             Contact
           </button>
         </nav>
 
-        {/* Right: Quick Direct WhatsApp Callout */}
-        <div className="hidden lg:flex items-center text-xs text-[#1D395F] shrink-0">
+        {/* Right: Quick Direct WhatsApp Callout & Cart Drawer Access */}
+        <div className="flex items-center gap-2.5 sm:gap-3 text-xs text-[#1D395F] shrink-0">
           <a
             href="https://wa.me/233244149464?text=Hello%20Packed%20by%20Dolyn,%20I%20have%20an%20inquiry%20regarding%20products/orders"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center space-x-1.5 text-emerald-700 hover:text-emerald-800 transition-colors font-semibold"
+            className="hidden lg:inline-flex items-center space-x-1.5 text-emerald-700 hover:text-emerald-800 transition-colors font-semibold bg-emerald-50 hover:bg-emerald-100/70 px-3 py-1.5 rounded-full border border-emerald-200/60"
           >
             <MessageCircle className="w-4 h-4 text-emerald-600" />
             <span>WhatsApp 0244149464</span>
           </a>
+
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 hover:bg-[#581C87] text-[#581C87] hover:text-white font-extrabold text-xs transition-all cursor-pointer border border-purple-200/80 shadow-2xs group"
+            title="Open Shopping Cart"
+          >
+            <div className="relative">
+              <ShoppingBag className="w-4 h-4 group-hover:scale-105 transition-transform" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-2 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 text-[9.5px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+                  {cartCount}
+                </span>
+              )}
+            </div>
+            <span className="hidden xl:inline">{currencySymbol} {cartTotal.toFixed(2)}</span>
+          </button>
         </div>
       </div>
     </div>

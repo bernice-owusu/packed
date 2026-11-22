@@ -3,6 +3,7 @@ import { X, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Tag, ShoppingBag, Chec
 import confetti from 'canvas-confetti';
 import { useApp } from '../../context/AppContext';
 import { deliveryRates } from '../../data/mockData';
+import { processPaystackPayment } from '../../utils/paystack';
 
 export const CartDrawer: React.FC = () => {
   const {
@@ -13,6 +14,7 @@ export const CartDrawer: React.FC = () => {
     updateQuantity,
     cartTotal,
     discount,
+    discountPercent,
     appliedCoupon,
     applyCoupon,
     removeCoupon,
@@ -40,6 +42,7 @@ export const CartDrawer: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<'MTN MoMo' | 'Telecel Cash' | 'AT Money' | 'Card (Paystack)'>('MTN MoMo');
   const [momoNumber, setMomoNumber] = useState('0244123456');
   const [createdOrder, setCreatedOrder] = useState<any>(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   if (!isCartOpen) return null;
 
@@ -57,46 +60,72 @@ export const CartDrawer: React.FC = () => {
   const handlePlaceOrder = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!guestName || !guestPhone || !deliveryAddress) {
-      addToast('Please complete name, phone, and address', 'warning');
+      addToast('Please complete name, phone, and delivery address', 'warning');
       return;
     }
 
-    const order = createOrder({
+    setIsProcessingPayment(true);
+    addToast('Opening Paystack Ghana Secure Gateway...', 'info');
+
+    // Trigger live Paystack gateway (Ghana Cedis GHS, MTN MoMo, Telecel Cash, AT Money, Bank Cards)
+    processPaystackPayment({
+      amount: grandTotal,
+      email: guestEmail || `${guestPhone.replace(/\D/g, '') || 'customer'}@packedbydolyn.com`,
+      phone: guestPhone,
       customerName: guestName,
-      customerPhone: guestPhone,
-      customerEmail: guestEmail,
-      deliveryRegion: currentRate.region,
-      deliveryAddress,
-      deliveryType: deliveryRegion.includes('Same-day')
-        ? 'Same-day'
-        : deliveryRegion.includes('Pickup')
-        ? 'Customer Pickup'
-        : deliveryRegion.includes('Standard')
-        ? 'Scheduled'
-        : 'Express',
-      preferredDeliveryDate: preferredDate,
-      preferredDeliveryTime: preferredTime,
-      deliveryFee,
-      paymentMethod,
-      momoNumber: paymentMethod.includes('MoMo') || paymentMethod.includes('Telecel') || paymentMethod.includes('AT') ? momoNumber : undefined,
-      paymentStatus: 'Paid',
-      items: [...cart],
-      subtotal: cartTotal + discount,
-      discount,
-      total: grandTotal,
-      status: 'Confirmed',
-      customNotes: customGiftNote
+      channels: paymentMethod === 'Card (Paystack)' ? ['card'] : ['mobile_money', 'card'],
+      onSuccess: (paymentRef: string) => {
+        setIsProcessingPayment(false);
+
+        const order = createOrder({
+          customerName: guestName,
+          customerPhone: guestPhone,
+          customerEmail: guestEmail,
+          deliveryRegion: currentRate.region,
+          deliveryAddress,
+          deliveryType: deliveryRegion.includes('Same-day')
+            ? 'Same-day'
+            : deliveryRegion.includes('Pickup')
+              ? 'Customer Pickup'
+              : deliveryRegion.includes('Standard')
+                ? 'Scheduled'
+                : 'Express',
+          preferredDeliveryDate: preferredDate,
+          preferredDeliveryTime: preferredTime,
+          deliveryFee,
+          paymentMethod: `${paymentMethod} (Paystack Live)`,
+          paymentRef,
+          momoNumber: momoNumber || guestPhone,
+          paymentStatus: 'Paid',
+          items: [...cart],
+          subtotal: cartTotal + discount,
+          discount,
+          total: grandTotal,
+          status: 'Confirmed',
+          customNotes: customGiftNote
+        });
+
+        setCreatedOrder(order);
+
+        confetti({
+          particleCount: 120,
+          spread: 80,
+          origin: { y: 0.6 }
+        });
+
+        addToast(`Payment of GH₵ ${grandTotal.toFixed(2)} confirmed via Paystack!`, 'success');
+        setCheckoutStep('success');
+      },
+      onCancel: () => {
+        setIsProcessingPayment(false);
+        addToast('Payment window closed. Your items remain in your bag.', 'info');
+      },
+      onError: (err: any) => {
+        setIsProcessingPayment(false);
+        console.error('Paystack error:', err);
+        addToast('Paystack gateway could not be loaded. Please check connection.', 'warning');
+      }
     });
-
-    setCreatedOrder(order);
-
-    confetti({
-      particleCount: 120,
-      spread: 80,
-      origin: { y: 0.6 }
-    });
-
-    setCheckoutStep('success');
   };
 
   const handleClose = () => {
@@ -113,21 +142,21 @@ export const CartDrawer: React.FC = () => {
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-purple-100 flex items-center justify-between bg-white z-10">
-          <div className="flex items-center space-x-2">
-            <ShoppingBag className="w-5 h-5 text-[#581C87]" />
-            <h3 className="text-base font-bold text-[#1E0B36]">
-              {checkoutStep === 'details' ? 'Guest Checkout (No Account Needed)' : checkoutStep === 'success' ? 'Order Confirmed!' : 'Your Shopping Bag'}
+        <div className="p-4 sm:p-5 border-b border-purple-100 flex items-center justify-between gap-2 bg-white z-10">
+          <div className="flex items-center space-x-2 min-w-0">
+            <ShoppingBag className="w-5 h-5 text-[#581C87] shrink-0" />
+            <h3 className="text-sm sm:text-base font-bold text-[#1E0B36] truncate">
+              {checkoutStep === 'details' ? 'Guest Checkout' : checkoutStep === 'success' ? 'Order Confirmed!' : 'Your Shopping Bag'}
             </h3>
             {checkoutStep === 'cart' && (
-              <span className="bg-purple-100 text-[#581C87] text-xs font-bold px-2 py-0.5 rounded-full">
+              <span className="bg-purple-100 text-[#581C87] text-xs font-bold px-2 py-0.5 rounded-full shrink-0">
                 {cart.reduce((c, i) => c + i.quantity, 0)}
               </span>
             )}
           </div>
           <button
             onClick={handleClose}
-            className="p-1.5 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
+            className="p-1.5 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer shrink-0"
             aria-label="Close Cart"
           >
             <X className="w-5 h-5" />
@@ -159,6 +188,12 @@ export const CartDrawer: React.FC = () => {
                 <span className="text-gray-500 font-medium">Payment Method:</span>
                 <span className="font-bold text-emerald-700">{createdOrder.paymentMethod} (Paid)</span>
               </div>
+              {createdOrder.paymentRef && (
+                <div className="flex justify-between items-center bg-white p-2 rounded-lg border border-purple-200">
+                  <span className="text-gray-500 font-medium">Paystack Ref:</span>
+                  <strong className="text-[#581C87] font-mono text-[11px]">{createdOrder.paymentRef}</strong>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-gray-500 font-medium">Delivery:</span>
                 <span className="font-bold text-[#1E0B36]">{createdOrder.deliveryRegion}</span>
@@ -193,12 +228,20 @@ export const CartDrawer: React.FC = () => {
         ) : checkoutStep === 'details' ? (
           /* Step 2: Guest Checkout Details Form */
           <form onSubmit={handlePlaceOrder} className="flex-1 p-4 sm:p-5 overflow-y-auto space-y-4 text-xs pb-16 sm:pb-8">
-            <div className="bg-purple-50 p-3.5 rounded-xl border border-purple-100 text-purple-950 flex items-center gap-2.5">
-              <ShieldCheck className="w-5 h-5 text-[#581C87] shrink-0" />
-              <div>
-                <p className="font-bold">Instant Guest Checkout</p>
-                <p className="text-[11px] text-purple-800">No account or password needed to complete purchase.</p>
+            <div className="bg-gradient-to-r from-purple-50 via-indigo-50 to-purple-50 p-3.5 rounded-xl border border-purple-200 text-purple-950 flex items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
+                <div>
+                  <p className="font-bold flex items-center gap-1.5">
+                    <span>Paystack Ghana Live Gateway</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  </p>
+                  <p className="text-[11px] text-purple-800">MoMo (MTN, Telecel, AT) & Cards active.</p>
+                </div>
               </div>
+              <span className="text-[9.5px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-full shrink-0">
+                Max GH₵ 5.00 Mode
+              </span>
             </div>
 
             {/* Customer Details */}
@@ -333,11 +376,10 @@ export const CartDrawer: React.FC = () => {
                     key={p.id}
                     type="button"
                     onClick={() => setPaymentMethod(p.id as any)}
-                    className={`flex items-center gap-2 p-2.5 rounded-xl border text-left cursor-pointer transition-all ${
-                      paymentMethod === p.id
-                        ? 'border-[#581C87] bg-purple-50 font-bold text-[#581C87]'
-                        : 'border-gray-200 hover:border-gray-300 text-gray-700'
-                    }`}
+                    className={`flex items-center gap-2 p-2.5 rounded-xl border text-left cursor-pointer transition-all ${paymentMethod === p.id
+                      ? 'border-[#581C87] bg-purple-50 font-bold text-[#581C87]'
+                      : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                      }`}
                   >
                     {p.icon}
                     <span className="truncate">{p.label}</span>
@@ -368,7 +410,7 @@ export const CartDrawer: React.FC = () => {
             <div className="pt-3 border-t border-gray-100 space-y-1.5">
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal:</span>
-                <span>{currencySymbol} {cartTotal.toFixed(2)}</span>
+                <span>{currencySymbol} {(cartTotal + discount).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Delivery ({currentRate.region.split('(')[0]}):</span>
@@ -390,10 +432,21 @@ export const CartDrawer: React.FC = () => {
             <div className="pt-2 space-y-2">
               <button
                 type="submit"
-                className="w-full py-3.5 bg-[#581C87] hover:bg-[#4C1D95] text-white rounded-xl font-bold flex items-center justify-center space-x-2 shadow-lg cursor-pointer"
+                disabled={isProcessingPayment}
+                className="w-full py-3.5 bg-gradient-to-r from-[#581C87] to-[#3B0764] hover:from-[#4C1D95] hover:to-[#2E0854] text-white rounded-xl font-bold flex items-center justify-center space-x-2 shadow-lg cursor-pointer transition-all disabled:opacity-60"
               >
-                <span>Authorize & Complete Guest Order</span>
-                <ArrowRight className="w-4 h-4" />
+                {isProcessingPayment ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Connecting Paystack...</span>
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    <span>Pay {currencySymbol} {grandTotal.toFixed(2)} with Paystack</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
               <button
                 type="button"
@@ -515,7 +568,7 @@ export const CartDrawer: React.FC = () => {
                   </form>
                   {appliedCoupon && (
                     <div className="flex items-center justify-between text-xs text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg mt-2">
-                      <span>10% discount ({appliedCoupon})</span>
+                      <span>{discountPercent}% discount ({appliedCoupon})</span>
                       <button onClick={removeCoupon} className="font-bold hover:underline cursor-pointer">
                         Remove
                       </button>
@@ -531,7 +584,7 @@ export const CartDrawer: React.FC = () => {
                 <div className="space-y-1.5 text-xs">
                   <div className="flex justify-between text-gray-600">
                     <span>Subtotal:</span>
-                    <span className="font-semibold">{currencySymbol} {cartTotal.toFixed(2)}</span>
+                    <span className="font-semibold">{currencySymbol} {(cartTotal + discount).toFixed(2)}</span>
                   </div>
                   {discount > 0 && (
                     <div className="flex justify-between text-emerald-600 font-semibold">
