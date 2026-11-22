@@ -36,33 +36,30 @@ export const PolicyModal: React.FC = () => {
         <div className="flex border-b border-gray-200 text-xs font-bold bg-white">
           <button
             onClick={() => setActiveTab('returns')}
-            className={`flex-1 py-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
-              activeTab === 'returns'
+            className={`flex-1 py-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === 'returns'
                 ? 'border-b-2 border-[#581C87] text-[#581C87] bg-purple-50/40'
                 : 'text-gray-500 hover:text-gray-700'
-            }`}
+              }`}
           >
             <ShieldAlert className="w-4 h-4" />
             <span>Returns & Cancellations</span>
           </button>
           <button
             onClick={() => setActiveTab('delivery')}
-            className={`flex-1 py-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
-              activeTab === 'delivery'
+            className={`flex-1 py-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === 'delivery'
                 ? 'border-b-2 border-[#581C87] text-[#581C87] bg-purple-50/40'
                 : 'text-gray-500 hover:text-gray-700'
-            }`}
+              }`}
           >
             <Truck className="w-4 h-4" />
             <span>Delivery Policy</span>
           </button>
           <button
             onClick={() => setActiveTab('terms')}
-            className={`flex-1 py-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
-              activeTab === 'terms'
+            className={`flex-1 py-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === 'terms'
                 ? 'border-b-2 border-[#581C87] text-[#581C87] bg-purple-50/40'
                 : 'text-gray-500 hover:text-gray-700'
-            }`}
+              }`}
           >
             <Lock className="w-4 h-4" />
             <span>Terms & Privacy</span>

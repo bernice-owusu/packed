@@ -105,11 +105,10 @@ export const OrderTrackingModal: React.FC = () => {
               ].map((step, idx) => (
                 <div key={idx} className="relative">
                   <span
-                    className={`absolute -left-6 top-0.5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                      step.done
+                    className={`absolute -left-6 top-0.5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${step.done
                         ? 'bg-[#581C87] text-white ring-4 ring-purple-100'
                         : 'bg-gray-200 text-gray-500'
-                    }`}
+                      }`}
                   >
                     {step.done ? '✓' : idx + 1}
                   </span>

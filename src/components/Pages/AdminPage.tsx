@@ -301,6 +301,110 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     }
   };
 
+  // Content CMS Direct Image Upload Handlers
+  const handleHeroSlideUpload = async (file: File, slideIdx: number) => {
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      addToast(validation.error || 'Invalid image file', 'warning');
+      return;
+    }
+    try {
+      const compressed = await compressAndReadImage(file, 1600, 900, 0.85);
+      setDraftContent(prev => {
+        const slides = [...prev.heroSlides];
+        slides[slideIdx] = { ...slides[slideIdx], image: compressed };
+        return { ...prev, heroSlides: slides };
+      });
+      addMediaItem({
+        title: `Hero Slide #${slideIdx + 1} Image`,
+        category: 'Promotions & Banners',
+        url: compressed,
+        size: formatFileSize(file.size)
+      });
+      addToast(`Hero slide #${slideIdx + 1} photo uploaded & compressed!`, 'success');
+    } catch (err) {
+      console.error(err);
+      addToast('Failed to process image upload', 'warning');
+    }
+  };
+
+  const handleC4BannerUpload = async (file: File, bannerIdx: number) => {
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      addToast(validation.error || 'Invalid image file', 'warning');
+      return;
+    }
+    try {
+      const compressed = await compressAndReadImage(file, 900, 900, 0.85);
+      setDraftContent(prev => {
+        const banners = [...prev.c4Banners];
+        banners[bannerIdx] = { ...banners[bannerIdx], image: compressed };
+        return { ...prev, c4Banners: banners };
+      });
+      addMediaItem({
+        title: `Campaign Banner #${bannerIdx + 1} Photo`,
+        category: 'Promotions & Banners',
+        url: compressed,
+        size: formatFileSize(file.size)
+      });
+      addToast(`Campaign banner #${bannerIdx + 1} photo uploaded!`, 'success');
+    } catch (err) {
+      console.error(err);
+      addToast('Failed to process image upload', 'warning');
+    }
+  };
+
+  const handleC6BannerUpload = async (file: File) => {
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      addToast(validation.error || 'Invalid image file', 'warning');
+      return;
+    }
+    try {
+      const compressed = await compressAndReadImage(file, 1600, 600, 0.85);
+      setDraftContent(prev => ({
+        ...prev,
+        c6Banner: { ...prev.c6Banner, image: compressed }
+      }));
+      addMediaItem({
+        title: 'Wide Strip Banner Photo',
+        category: 'Promotions & Banners',
+        url: compressed,
+        size: formatFileSize(file.size)
+      });
+      addToast('Wide strip banner photo uploaded!', 'success');
+    } catch (err) {
+      console.error(err);
+      addToast('Failed to process image upload', 'warning');
+    }
+  };
+
+  const handleC8BannerUpload = async (file: File, bannerIdx: number) => {
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      addToast(validation.error || 'Invalid image file', 'warning');
+      return;
+    }
+    try {
+      const compressed = await compressAndReadImage(file, 900, 900, 0.85);
+      setDraftContent(prev => {
+        const banners = [...prev.c8Banners];
+        banners[bannerIdx] = { ...banners[bannerIdx], image: compressed };
+        return { ...prev, c8Banners: banners };
+      });
+      addMediaItem({
+        title: `Highlight Card #${bannerIdx + 1} Photo`,
+        category: 'Promotions & Banners',
+        url: compressed,
+        size: formatFileSize(file.size)
+      });
+      addToast(`Highlight card #${bannerIdx + 1} photo uploaded!`, 'success');
+    } catch (err) {
+      console.error(err);
+      addToast('Failed to process image upload', 'warning');
+    }
+  };
+
   // Live Accra GMT Clock
   const [currentTime, setCurrentTime] = useState<string>('');
   useEffect(() => {
@@ -3269,44 +3373,12 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div className="md:col-span-1 space-y-2">
-                            <label className="text-[11px] font-bold text-slate-600 block">Slide Image URL</label>
-                            <input
-                              type="text"
-                              value={slide.image}
-                              onChange={e => {
-                                const val = e.target.value;
-                                setDraftContent(prev => {
-                                  const slides = [...prev.heroSlides];
-                                  slides[idx] = { ...slides[idx], image: val };
-                                  return { ...prev, heroSlides: slides };
-                                });
-                              }}
-                              className="w-full p-2 bg-white rounded-xl text-xs border border-slate-200 focus:outline-none focus:border-[#581C87]"
-                              placeholder="https://..."
-                            />
-                            {mediaItems.length > 0 && (
-                              <select
-                                onChange={e => {
-                                  if (e.target.value) {
-                                    const val = e.target.value;
-                                    setDraftContent(prev => {
-                                      const slides = [...prev.heroSlides];
-                                      slides[idx] = { ...slides[idx], image: val };
-                                      return { ...prev, heroSlides: slides };
-                                    });
-                                  }
-                                }}
-                                className="w-full p-1.5 bg-white rounded-xl text-[11px] border border-slate-200 text-slate-600 cursor-pointer"
-                              >
-                                <option value="">Choose from Picture Library...</option>
-                                {mediaItems.map(m => (
-                                  <option key={m.id} value={m.url}>
-                                    {m.title} ({m.category})
-                                  </option>
-                                ))}
-                              </select>
-                            )}
-                            <div className="h-28 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center">
+                            <label className="text-[11px] font-bold text-slate-700 flex items-center justify-between">
+                              <span>Slide Photo</span>
+                              <span className="text-[10px] text-purple-700 font-medium">Device Upload</span>
+                            </label>
+
+                            <div className="h-32 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center relative">
                               <img
                                 src={slide.image}
                                 alt={slide.title}
@@ -3315,6 +3387,46 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                                   e.target.src = 'https://images.unsplash.com/photo-1608248597359-0a6f875e5270?w=800';
                                 }}
                               />
+                            </div>
+
+                            <div className="space-y-1.5">
+                              <label className="w-full py-2 px-3 bg-[#581C87] hover:bg-[#4C1D95] text-white rounded-xl text-xs font-bold cursor-pointer transition-colors flex items-center justify-center gap-1.5 shadow-2xs">
+                                <Upload className="w-3.5 h-3.5 text-amber-300" />
+                                <span>Upload Photo from Device</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={e => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handleHeroSlideUpload(file, idx);
+                                    e.target.value = '';
+                                  }}
+                                />
+                              </label>
+
+                              {mediaItems.length > 0 && (
+                                <select
+                                  onChange={e => {
+                                    if (e.target.value) {
+                                      const val = e.target.value;
+                                      setDraftContent(prev => {
+                                        const slides = [...prev.heroSlides];
+                                        slides[idx] = { ...slides[idx], image: val };
+                                        return { ...prev, heroSlides: slides };
+                                      });
+                                    }
+                                  }}
+                                  className="w-full p-1.5 bg-white rounded-xl text-[11px] border border-slate-200 text-slate-600 cursor-pointer"
+                                >
+                                  <option value="">Or pick from Picture Library...</option>
+                                  {mediaItems.map(m => (
+                                    <option key={m.id} value={m.url}>
+                                      {m.title} ({m.category})
+                                    </option>
+                                  ))}
+                                </select>
+                              )}
                             </div>
                           </div>
 
@@ -3492,21 +3604,62 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                                 className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
                               />
                             </div>
-                            <div>
-                              <label className="text-[11px] font-bold text-slate-600 block">Image URL</label>
-                              <input
-                                type="text"
-                                value={banner.image}
-                                onChange={e => {
-                                  const val = e.target.value;
-                                  setDraftContent(prev => {
-                                    const banners = [...prev.c4Banners];
-                                    banners[idx] = { ...banners[idx], image: val };
-                                    return { ...prev, c4Banners: banners };
-                                  });
-                                }}
-                                className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
-                              />
+                            <div className="space-y-2 pt-2 border-t border-slate-200/60">
+                              <label className="text-[11px] font-bold text-slate-700 flex items-center justify-between">
+                                <span>Banner Photo</span>
+                                <span className="text-[10px] text-purple-700 font-medium">Device Upload</span>
+                              </label>
+
+                              <div className="h-28 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center">
+                                <img
+                                  src={banner.image}
+                                  alt={banner.title}
+                                  className="w-full h-full object-cover"
+                                  onError={(e: any) => {
+                                    e.target.src = 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800';
+                                  }}
+                                />
+                              </div>
+
+                              <div className="space-y-1.5">
+                                <label className="w-full py-1.5 px-3 bg-[#581C87] hover:bg-[#4C1D95] text-white rounded-xl text-xs font-bold cursor-pointer transition-colors flex items-center justify-center gap-1.5 shadow-2xs">
+                                  <Upload className="w-3.5 h-3.5 text-amber-300" />
+                                  <span>Upload Photo from Device</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={e => {
+                                      const file = e.target.files?.[0];
+                                      if (file) handleC4BannerUpload(file, idx);
+                                      e.target.value = '';
+                                    }}
+                                  />
+                                </label>
+
+                                {mediaItems.length > 0 && (
+                                  <select
+                                    onChange={e => {
+                                      if (e.target.value) {
+                                        const val = e.target.value;
+                                        setDraftContent(prev => {
+                                          const banners = [...prev.c4Banners];
+                                          banners[idx] = { ...banners[idx], image: val };
+                                          return { ...prev, c4Banners: banners };
+                                        });
+                                      }
+                                    }}
+                                    className="w-full p-1.5 bg-white rounded-xl text-[11px] border border-slate-200 text-slate-600 cursor-pointer"
+                                  >
+                                    <option value="">Or pick from Picture Library...</option>
+                                    {mediaItems.map(m => (
+                                      <option key={m.id} value={m.url}>
+                                        {m.title}
+                                      </option>
+                                    ))}
+                                  </select>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -3589,20 +3742,61 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                           />
                         </div>
 
-                        <div className="space-y-1">
-                          <label className="text-[11px] font-bold text-slate-600 block">Image URL</label>
-                          <input
-                            type="text"
-                            value={draftContent.c6Banner.image}
-                            onChange={e => {
-                              const val = e.target.value;
-                              setDraftContent(prev => ({
-                                ...prev,
-                                c6Banner: { ...prev.c6Banner, image: val }
-                              }));
-                            }}
-                            className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
-                          />
+                        <div className="sm:col-span-2 space-y-2 pt-2 border-t border-slate-200/60">
+                          <label className="text-[11px] font-bold text-slate-700 flex items-center justify-between">
+                            <span>Wide Banner Photo</span>
+                            <span className="text-[10px] text-purple-700 font-medium">Device Upload</span>
+                          </label>
+
+                          <div className="h-32 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center">
+                            <img
+                              src={draftContent.c6Banner.image}
+                              alt={draftContent.c6Banner.title}
+                              className="w-full h-full object-cover"
+                              onError={(e: any) => {
+                                e.target.src = 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?w=1600';
+                              }}
+                            />
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row items-center gap-2">
+                            <label className="flex-1 w-full py-2 px-3 bg-[#581C87] hover:bg-[#4C1D95] text-white rounded-xl text-xs font-bold cursor-pointer transition-colors flex items-center justify-center gap-1.5 shadow-2xs">
+                              <Upload className="w-3.5 h-3.5 text-amber-300" />
+                              <span>Upload Wide Photo from Device</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={e => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleC6BannerUpload(file);
+                                  e.target.value = '';
+                                }}
+                              />
+                            </label>
+
+                            {mediaItems.length > 0 && (
+                              <select
+                                onChange={e => {
+                                  if (e.target.value) {
+                                    const val = e.target.value;
+                                    setDraftContent(prev => ({
+                                      ...prev,
+                                      c6Banner: { ...prev.c6Banner, image: val }
+                                    }));
+                                  }
+                                }}
+                                className="w-full sm:w-auto p-2 bg-white rounded-xl text-[11px] border border-slate-200 text-slate-600 cursor-pointer"
+                              >
+                                <option value="">Or pick from Picture Library...</option>
+                                {mediaItems.map(m => (
+                                  <option key={m.id} value={m.url}>
+                                    {m.title}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -3670,21 +3864,62 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                                 className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
                               />
                             </div>
-                            <div>
-                              <label className="text-[11px] font-bold text-slate-600 block">Image URL</label>
-                              <input
-                                type="text"
-                                value={banner.image}
-                                onChange={e => {
-                                  const val = e.target.value;
-                                  setDraftContent(prev => {
-                                    const banners = [...prev.c8Banners];
-                                    banners[idx] = { ...banners[idx], image: val };
-                                    return { ...prev, c8Banners: banners };
-                                  });
-                                }}
-                                className="w-full p-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-[#581C87]"
-                              />
+                            <div className="space-y-2 pt-2 border-t border-slate-200/60">
+                              <label className="text-[11px] font-bold text-slate-700 flex items-center justify-between">
+                                <span>Card Photo</span>
+                                <span className="text-[10px] text-purple-700 font-medium">Device Upload</span>
+                              </label>
+
+                              <div className="h-28 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center">
+                                <img
+                                  src={banner.image}
+                                  alt={banner.title}
+                                  className="w-full h-full object-cover"
+                                  onError={(e: any) => {
+                                    e.target.src = 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800';
+                                  }}
+                                />
+                              </div>
+
+                              <div className="space-y-1.5">
+                                <label className="w-full py-1.5 px-3 bg-[#581C87] hover:bg-[#4C1D95] text-white rounded-xl text-xs font-bold cursor-pointer transition-colors flex items-center justify-center gap-1.5 shadow-2xs">
+                                  <Upload className="w-3.5 h-3.5 text-amber-300" />
+                                  <span>Upload Photo from Device</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={e => {
+                                      const file = e.target.files?.[0];
+                                      if (file) handleC8BannerUpload(file, idx);
+                                      e.target.value = '';
+                                    }}
+                                  />
+                                </label>
+
+                                {mediaItems.length > 0 && (
+                                  <select
+                                    onChange={e => {
+                                      if (e.target.value) {
+                                        const val = e.target.value;
+                                        setDraftContent(prev => {
+                                          const banners = [...prev.c8Banners];
+                                          banners[idx] = { ...banners[idx], image: val };
+                                          return { ...prev, c8Banners: banners };
+                                        });
+                                      }
+                                    }}
+                                    className="w-full p-1.5 bg-white rounded-xl text-[11px] border border-slate-200 text-slate-600 cursor-pointer"
+                                  >
+                                    <option value="">Or pick from Picture Library...</option>
+                                    {mediaItems.map(m => (
+                                      <option key={m.id} value={m.url}>
+                                        {m.title}
+                                      </option>
+                                    ))}
+                                  </select>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
