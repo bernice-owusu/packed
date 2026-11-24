@@ -48,7 +48,7 @@ export const Topbar: React.FC<{
   };
 
   return (
-    <div className="bg-[#FF8961] text-white text-[11px] sm:text-xs border-b border-white/10 relative z-40 select-none">
+    <div className="bg-[#059669] text-white text-[11px] sm:text-xs border-b border-white/10 relative z-40 select-none">
       <div className="pls-container px-2 sm:px-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-1.5 py-1 sm:py-1.5">
         {/* Left: WhatsApp quick access (desktop only) */}
         <div className="hidden sm:flex items-center gap-2">
@@ -72,7 +72,7 @@ export const Topbar: React.FC<{
           <button
             onClick={copyCode}
             title="Click to copy code"
-            className="inline-flex items-center space-x-1 font-bold text-white bg-[#581C87] hover:bg-[#6B21A8] px-2 py-0.5 rounded transition-colors cursor-pointer border border-purple-400/30"
+            className="inline-flex items-center space-x-1 font-bold text-white bg-[#047857] hover:bg-[#065F46] px-2 py-0.5 rounded transition-colors cursor-pointer border border-emerald-400/30"
           >
             <span className="font-bold text-[10px] sm:text-xs">DOLYN10</span>
             {copied ? (
