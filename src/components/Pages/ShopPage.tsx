@@ -4,7 +4,7 @@ import { ProductCard } from '../Products/ProductCard';
 import { useApp } from '../../context/AppContext';
 
 export const ShopPage: React.FC = () => {
-  const { productList, selectedCategory, setSelectedCategory, searchQuery, currencySymbol, exchangeRate, categories } = useApp();
+  const { productList, selectedCategory, setSelectedCategory, searchQuery, setSearchQuery, currencySymbol, exchangeRate, categories } = useApp();
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
@@ -281,6 +281,7 @@ export const ShopPage: React.FC = () => {
                 <button
                   onClick={() => {
                     setSelectedCategory('All');
+                    setSearchQuery('');
                     setMaxPrice(1000);
                     setOnlyWholesale(false);
                     setOnlyDrugs(false);

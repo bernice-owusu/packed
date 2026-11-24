@@ -12,7 +12,8 @@ import { useApp } from "../../context/AppContext";
 export const Header: React.FC<{
   onToggleMobileMenu?: () => void;
   onLogoClick?: () => void;
-}> = ({ onToggleMobileMenu, onLogoClick }) => {
+  onNavigatePage?: (page: string) => void;
+}> = ({ onToggleMobileMenu, onLogoClick, onNavigatePage }) => {
   const {
     cartCount,
     cartTotal,
@@ -32,9 +33,19 @@ export const Header: React.FC<{
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const target = document.getElementById("featured-products-section");
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth" });
+    const query = searchQuery.trim();
+    if (!query) {
+      const target = document.getElementById("featured-products-section");
+      if (target) target.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+    // Searching is global, so clear any category filter that would hide matches.
+    setSelectedCategory("All");
+    if (onNavigatePage) {
+      onNavigatePage("shop");
+    } else {
+      const target = document.getElementById("featured-products-section");
+      if (target) target.scrollIntoView({ behavior: "smooth" });
     }
   };
 

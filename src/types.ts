@@ -23,6 +23,11 @@ export interface Product {
   isDrugOrHealthcare?: boolean;
   dosageOrUsage?: string;
   ingredients?: string;
+  isFlashSale?: boolean;
+  flashSaleStartDate?: string;
+  flashSaleStartTime?: string;
+  flashSaleEndDate?: string;
+  flashSaleEndTime?: string;
 }
 
 export interface Category {

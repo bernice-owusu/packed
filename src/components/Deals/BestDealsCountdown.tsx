@@ -1,38 +1,74 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, Flame, Star, ShoppingBag } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { isProductFlashDealActive } from '../../utils/flashSaleUtils';
 
 export const BestDealsCountdown: React.FC = () => {
   const { productList, addToCart, openQuickView, currencySymbol, exchangeRate } = useApp();
 
-  // Ticking countdown timer
+  // Current time for reactivity
+  const [now, setNow] = useState<Date>(() => new Date());
+
+  useEffect(() => {
+    const clock = setInterval(() => {
+      setNow(new Date());
+    }, 1000);
+    return () => clearInterval(clock);
+  }, []);
+
+  // Filter for products that are currently active flash deals
+  const activeFlashDeals = productList.filter(p => isProductFlashDealActive(p, now));
+
+  // If no explicit flash deals active, fallback to default promo products (if none, null)
+  const dealsToDisplay = activeFlashDeals.length > 0
+    ? activeFlashDeals
+    : productList.filter(p => p.category === 'Flash Deals & Specials' && (p.isFlashSale ?? true)).slice(0, 4);
+
+  // Ticking countdown timer calculated towards earliest expiring flash sale
   const [timeLeft, setTimeLeft] = useState({
-    days: 3,
-    hours: 11,
-    minutes: 42,
-    seconds: 18
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
   });
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        if (prev.days > 0) return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
-        return { days: 3, hours: 12, minutes: 0, seconds: 0 };
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+    if (dealsToDisplay.length === 0) return;
 
-  // Flash deal products from productList
-  const flashDeals = [
-    { ...productList.find(p => p.id === 21) || productList[0], stockSold: 36, stockTotal: 50 },
-    { ...productList.find(p => p.id === 9) || productList[1], stockSold: 12, stockTotal: 20 },
-    { ...productList.find(p => p.id === 22) || productList[2], stockSold: 28, stockTotal: 40 },
-    { ...productList.find(p => p.id === 16) || productList[3], stockSold: 41, stockTotal: 55 }
-  ];
+    const currentTime = now.getTime();
+
+    // Look for the nearest expiring flash sale
+    const futureExpirations = dealsToDisplay
+      .filter(p => p.flashSaleEndDate)
+      .map(p => {
+        const timeStr = p.flashSaleEndTime || '23:59';
+        return new Date(`${p.flashSaleEndDate}T${timeStr}:59`).getTime();
+      })
+      .filter(t => !isNaN(t) && t > currentTime);
+
+    let targetTime: number;
+    if (futureExpirations.length > 0) {
+      targetTime = Math.min(...futureExpirations);
+    } else {
+      // Default: roll towards end of current day or 24 hours
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+      targetTime = endOfDay.getTime();
+    }
+
+    const diff = Math.max(0, targetTime - currentTime);
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    setTimeLeft({ days, hours, minutes, seconds });
+  }, [now, dealsToDisplay]);
+
+  // If no active deals to display, do not show on the storefront
+  if (dealsToDisplay.length === 0) {
+    return null;
+  }
 
   return (
     <section id="deals-section" className="py-8 md:py-12 bg-gradient-to-b from-purple-50/70 via-white to-purple-50/40">
@@ -41,12 +77,12 @@ export const BestDealsCountdown: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 mb-8 border-b border-purple-100 gap-4">
           <div className="flex items-center space-x-3">
             <div className="w-11 h-11 rounded-2xl bg-[#581C87] flex items-center justify-center text-amber-300 shadow-md">
-              <Flame className="w-6 h-6 fill-current" />
+              <Flame className="w-6 h-6 fill-current animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
-                  Limited Time Offers
+                  Limited Time Offers ({dealsToDisplay.length} Deals)
                 </span>
               </div>
               <h2 className="text-2xl md:text-3xl font-extrabold text-[#1E0B36] tracking-tight mt-1">
@@ -85,10 +121,14 @@ export const BestDealsCountdown: React.FC = () => {
           </div>
         </div>
 
-        {/* 4 Deal Products Grid */}
+        {/* Dynamic Flash Deals Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-          {flashDeals.map(deal => {
-            const percent = Math.round((deal.stockSold / deal.stockTotal) * 100);
+          {dealsToDisplay.map(deal => {
+            const stockTotal = deal.stockCount ? Math.max(deal.stockCount + 15, 30) : 40;
+            const stockLeft = deal.stockCount ?? 12;
+            const stockSold = Math.max(5, stockTotal - stockLeft);
+            const percent = Math.min(100, Math.round((stockSold / stockTotal) * 100));
+
             const priceVal = typeof deal.numericPrice === 'number'
               ? `${currencySymbol} ${(deal.numericPrice * exchangeRate).toFixed(2)}`
               : deal.price;
@@ -107,12 +147,15 @@ export const BestDealsCountdown: React.FC = () => {
                 <div>
                   {/* Badges */}
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[9.5px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 uppercase tracking-wide">
-                      Flash Promo
+                    <span className="text-[9.5px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 uppercase tracking-wide flex items-center gap-1">
+                      <Flame className="w-3 h-3 fill-rose-600 text-rose-600" />
+                      <span>Flash Promo</span>
                     </span>
-                    <span className="text-[9.5px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 uppercase tracking-wide">
-                      Save GH₵ 25+
-                    </span>
+                    {deal.flashSaleEndDate && (
+                      <span className="text-[9px] font-bold text-slate-500">
+                        Until {deal.flashSaleEndDate}
+                      </span>
+                    )}
                   </div>
 
                   {/* Image */}
@@ -169,8 +212,8 @@ export const BestDealsCountdown: React.FC = () => {
                   {/* Stock progress bar */}
                   <div className="mt-4 pt-2 border-t border-gray-100">
                     <div className="flex justify-between text-[11px] text-gray-500 mb-1.5 font-semibold">
-                      <span>Claimed: <strong className="text-purple-900">{deal.stockSold}</strong></span>
-                      <span>Left: <strong className="text-rose-600">{deal.stockTotal - deal.stockSold}</strong></span>
+                      <span>Claimed: <strong className="text-purple-900">{stockSold}</strong></span>
+                      <span>Left: <strong className="text-rose-600">{stockLeft}</strong></span>
                     </div>
                     <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div

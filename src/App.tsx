@@ -122,6 +122,7 @@ export default function App() {
         <Header
           onToggleMobileMenu={() => setMobileMenuOpen(true)}
           onLogoClick={() => navigateTo('home2')}
+          onNavigatePage={navigateTo}
         />
         <Navigation activeLayout={activeLayout} setActiveLayout={navigateTo} />
 

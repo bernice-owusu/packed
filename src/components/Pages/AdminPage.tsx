@@ -57,7 +57,8 @@ import {
   Menu,
   MoreVertical,
   Globe,
-  Sparkles
+  Sparkles,
+  Flame
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import logo from '../../assets/logo.png';
@@ -65,6 +66,7 @@ import logoWhite from '../../assets/logo_white.png';
 import { Product, Order, MediaItem, Coupon, Category, SiteContent, HeroSlide, PromoBanner } from '../../types';
 import { initialSiteContent } from '../../data/siteContent';
 import { compressAndReadImage, formatFileSize, validateImageFile } from '../../utils/imageUtils';
+import { isProductFlashDealActive } from '../../utils/flashSaleUtils';
 import {
   exportOrdersToCSV,
   exportProductsToCSV,
@@ -440,7 +442,7 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   // ==========================================
   const [productSearch, setProductSearch] = useState('');
   const [productCategoryFilter, setProductCategoryFilter] = useState('All');
-  const [productStockFilter, setProductStockFilter] = useState<'all' | 'in_stock' | 'low_stock' | 'out_of_stock'>('all');
+  const [productStockFilter, setProductStockFilter] = useState<'all' | 'in_stock' | 'low_stock' | 'out_of_stock' | 'flash_deals'>('all');
   const [productViewMode, setProductViewMode] = useState<'grid' | 'table'>('grid');
   const [openActionMenuId, setOpenActionMenuId] = useState<number | null>(null);
 
@@ -463,6 +465,13 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   const [formIsDrug, setFormIsDrug] = useState(false);
   const [formDosage, setFormDosage] = useState('');
   const [formBadges, setFormBadges] = useState<string[]>(['Popular']);
+
+  // Flash Deal form fields
+  const [formIsFlashSale, setFormIsFlashSale] = useState(false);
+  const [formFlashStartDate, setFormFlashStartDate] = useState('');
+  const [formFlashStartTime, setFormFlashStartTime] = useState('00:00');
+  const [formFlashEndDate, setFormFlashEndDate] = useState('');
+  const [formFlashEndTime, setFormFlashEndTime] = useState('23:59');
 
   // In-form image picker modal
   const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
@@ -586,6 +595,7 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
       if (productStockFilter === 'in_stock') matchesStock = stock > 10;
       else if (productStockFilter === 'low_stock') matchesStock = stock > 0 && stock <= 10;
       else if (productStockFilter === 'out_of_stock') matchesStock = stock === 0;
+      else if (productStockFilter === 'flash_deals') matchesStock = !!p.isFlashSale;
 
       return matchesSearch && matchesCategory && matchesStock;
     });
@@ -637,6 +647,11 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     setFormIsDrug(false);
     setFormDosage('');
     setFormBadges(['New']);
+    setFormIsFlashSale(false);
+    setFormFlashStartDate(new Date().toISOString().split('T')[0]);
+    setFormFlashStartTime('00:00');
+    setFormFlashEndDate(new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0]);
+    setFormFlashEndTime('23:59');
     setIsProductModalOpen(true);
   };
 
@@ -656,6 +671,11 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     setFormIsDrug(!!p.isDrugOrHealthcare);
     setFormDosage(p.dosageOrUsage || '');
     setFormBadges(p.badges || ['Popular']);
+    setFormIsFlashSale(!!p.isFlashSale);
+    setFormFlashStartDate(p.flashSaleStartDate || new Date().toISOString().split('T')[0]);
+    setFormFlashStartTime(p.flashSaleStartTime || '00:00');
+    setFormFlashEndDate(p.flashSaleEndDate || new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0]);
+    setFormFlashEndTime(p.flashSaleEndTime || '23:59');
     setIsProductModalOpen(true);
   };
 
@@ -665,6 +685,14 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     const numStock = parseInt(formStock) || 20;
     const numBoxPrice = parseFloat(formWholesaleBoxPrice) || numPrice * 10;
     const numBoxQty = parseInt(formWholesaleBoxQty) || 12;
+
+    const updatedBadges = [...formBadges];
+    if (formIsFlashSale && !updatedBadges.includes('Flash Deal')) {
+      updatedBadges.push('Flash Deal');
+    } else if (!formIsFlashSale) {
+      const bIdx = updatedBadges.indexOf('Flash Deal');
+      if (bIdx !== -1) updatedBadges.splice(bIdx, 1);
+    }
 
     const productPayload: Partial<Product> = {
       title: formTitle.trim() || 'Custom Product Offering',
@@ -682,7 +710,12 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
       isPreOrder: formIsPreOrder,
       isDrugOrHealthcare: formIsDrug,
       dosageOrUsage: formIsDrug ? formDosage : undefined,
-      badges: formBadges
+      isFlashSale: formIsFlashSale,
+      flashSaleStartDate: formIsFlashSale ? formFlashStartDate : undefined,
+      flashSaleStartTime: formIsFlashSale ? formFlashStartTime : undefined,
+      flashSaleEndDate: formIsFlashSale ? formFlashEndDate : undefined,
+      flashSaleEndTime: formIsFlashSale ? formFlashEndTime : undefined,
+      badges: updatedBadges
     };
 
     if (editingProductId) {
@@ -692,6 +725,32 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     }
 
     setIsProductModalOpen(false);
+  };
+
+  const handleToggleFlashSale = (p: Product) => {
+    const nextStatus = !p.isFlashSale;
+    const badges = [...(p.badges || [])];
+    if (nextStatus && !badges.includes('Flash Deal')) {
+      badges.push('Flash Deal');
+    } else if (!nextStatus) {
+      const idx = badges.indexOf('Flash Deal');
+      if (idx !== -1) badges.splice(idx, 1);
+    }
+
+    updateProduct(p.id, {
+      isFlashSale: nextStatus,
+      flashSaleStartDate: nextStatus ? (p.flashSaleStartDate || new Date().toISOString().split('T')[0]) : undefined,
+      flashSaleStartTime: nextStatus ? (p.flashSaleStartTime || '00:00') : undefined,
+      flashSaleEndDate: nextStatus ? (p.flashSaleEndDate || new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0]) : undefined,
+      flashSaleEndTime: nextStatus ? (p.flashSaleEndTime || '23:59') : undefined,
+      badges
+    });
+
+    if (nextStatus) {
+      addToast(`Moved "${p.title}" into Flash Deals!`, 'success');
+    } else {
+      addToast(`Removed "${p.title}" from Flash Deals.`, 'info');
+    }
   };
 
   const handleDuplicateProduct = (p: Product) => {
@@ -1789,7 +1848,7 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                 </div>
 
                 <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto no-scrollbar text-xs">
-                  {(['all', 'in_stock', 'low_stock', 'out_of_stock'] as const).map(status => (
+                  {(['all', 'in_stock', 'low_stock', 'out_of_stock', 'flash_deals'] as const).map(status => (
                     <button
                       key={status}
                       onClick={() => setProductStockFilter(status)}
@@ -1820,6 +1879,12 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                         <>
                           <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                           <span>Out of Stock</span>
+                        </>
+                      )}
+                      {status === 'flash_deals' && (
+                        <>
+                          <Flame className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
+                          <span>Flash Deals ({productList.filter(p => p.isFlashSale).length})</span>
                         </>
                       )}
                     </button>
@@ -1872,6 +1937,14 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                               <span className="text-[9.5px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-950/75 text-white backdrop-blur-xs">
                                 {prod.category}
                               </span>
+                              {prod.isFlashSale && (
+                                <span className={`text-[9.5px] font-black px-2 py-0.5 rounded-full shadow-xs flex items-center gap-1 ${
+                                  isProductFlashDealActive(prod) ? 'bg-rose-600 text-white' : 'bg-slate-700 text-slate-200'
+                                }`}>
+                                  <Flame className="w-3 h-3 fill-current" />
+                                  <span>{isProductFlashDealActive(prod) ? 'Flash Deal' : 'Flash Expired'}</span>
+                                </span>
+                              )}
                               {prod.isPreOrder && (
                                 <span className="text-[9.5px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-white shadow-xs">
                                   Pre-Order
@@ -1941,6 +2014,18 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                           </button>
 
                           <button
+                            onClick={() => handleToggleFlashSale(prod)}
+                            className={`p-1.5 rounded-xl border transition-all cursor-pointer active:scale-95 ${
+                              prod.isFlashSale
+                                ? 'bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100'
+                                : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50 border-transparent hover:border-rose-200'
+                            }`}
+                            title={prod.isFlashSale ? "Remove from Flash Deals" : "Move to Flash Deals"}
+                          >
+                            <Flame className={`w-3.5 h-3.5 ${prod.isFlashSale ? 'fill-rose-500' : ''}`} />
+                          </button>
+
+                          <button
                             onClick={() => handleDuplicateProduct(prod)}
                             className="p-1.5 text-slate-500 hover:text-[#581C87] hover:bg-purple-50 border border-transparent hover:border-purple-200 rounded-xl transition-all cursor-pointer active:scale-95"
                             title="Duplicate product"
@@ -1993,7 +2078,17 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                                   />
                                   <div className="min-w-0">
                                     <h5 className="font-bold text-xs text-slate-900 truncate max-w-xs">{prod.title}</h5>
-                                    <span className="text-[10px] text-slate-400 block">{prod.sku || `DOLYN-${prod.id}`}</span>
+                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                      <span className="text-[10px] text-slate-400">{prod.sku || `DOLYN-${prod.id}`}</span>
+                                      {prod.isFlashSale && (
+                                        <span className={`inline-flex items-center gap-1 text-[9.5px] font-bold px-1.5 py-0.5 rounded ${
+                                          isProductFlashDealActive(prod) ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-500'
+                                        }`}>
+                                          <Flame className="w-2.5 h-2.5 fill-current" />
+                                          <span>{isProductFlashDealActive(prod) ? 'Flash Deal' : 'Flash Expired'}</span>
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                               </td>
@@ -2060,6 +2155,21 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                                           >
                                             <Edit className="w-3.5 h-3.5 text-[#581C87]" />
                                             <span>Edit Details</span>
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              setOpenActionMenuId(null);
+                                              handleToggleFlashSale(prod);
+                                            }}
+                                            className={`w-full px-3.5 py-2 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors ${
+                                              prod.isFlashSale
+                                                ? 'text-rose-600 hover:bg-rose-50'
+                                                : 'text-slate-700 hover:bg-purple-50 hover:text-[#581C87]'
+                                            }`}
+                                          >
+                                            <Flame className={`w-3.5 h-3.5 ${prod.isFlashSale ? 'fill-rose-500' : ''}`} />
+                                            <span>{prod.isFlashSale ? 'Remove from Flash' : 'Move to Flash'}</span>
                                           </button>
                                           <button
                                             type="button"
@@ -4389,7 +4499,7 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                 <div className="w-14 h-14 rounded-xl border border-slate-200 overflow-hidden bg-slate-100 shrink-0">
                   <img src={catFormIcon} alt="Preview" className="w-full h-full object-cover" />
                 </div>
-                <div className="flex-1 space-y-1">
+                <div className="flex-1 space-y-1.5">
                   <input
                     type="file"
                     accept="image/*"
@@ -4401,17 +4511,14 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                     type="button"
                     onClick={() => catFileInputRef.current?.click()}
                     disabled={isUploadingCatIcon}
-                    className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-[#581C87] border border-purple-200 rounded-lg font-bold text-[11px] cursor-pointer"
+                    className="px-3 py-1.5 bg-[#581C87] hover:bg-[#4C1D95] text-white rounded-lg font-bold text-[11px] cursor-pointer shadow-2xs flex items-center gap-1.5"
                   >
-                    {isUploadingCatIcon ? 'Compressing...' : 'Upload Cover Photo'}
+                    <Upload className="w-3.5 h-3.5 text-amber-300" />
+                    <span>{isUploadingCatIcon ? 'Compressing...' : 'Upload Cover Photo from Device'}</span>
                   </button>
-                  <input
-                    type="url"
-                    placeholder="Or paste image URL..."
-                    value={catFormIcon}
-                    onChange={e => setCatFormIcon(e.target.value)}
-                    className="w-full p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px]"
-                  />
+                  <p className="text-[10px] text-slate-400">
+                    Auto-compressed to ~65KB. No image URL needed.
+                  </p>
                 </div>
               </div>
             </div>
@@ -4516,15 +4623,9 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                       </button>
                     </div>
 
-                    <div className="pt-1">
-                      <input
-                        type="url"
-                        placeholder="Or paste external image URL..."
-                        value={formImage}
-                        onChange={e => setFormImage(e.target.value)}
-                        className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs"
-                      />
-                    </div>
+                    <p className="text-[10px] text-slate-400 pt-0.5">
+                      Upload from phone or computer. Image automatically compressed for fast loading.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -4668,6 +4769,102 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                   />
                 </div>
               )}
+
+              {/* Flash Deals & Special Promos */}
+              <div className="p-4 bg-gradient-to-r from-rose-50/80 to-amber-50/50 rounded-2xl border border-rose-200/90 space-y-3">
+                <label className="flex items-center justify-between cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={formIsFlashSale}
+                      onChange={e => {
+                        const checked = e.target.checked;
+                        setFormIsFlashSale(checked);
+                        if (checked) {
+                          if (!formFlashStartDate) setFormFlashStartDate(new Date().toISOString().split('T')[0]);
+                          if (!formFlashStartTime) setFormFlashStartTime('00:00');
+                          if (!formFlashEndDate) setFormFlashEndDate(new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0]);
+                          if (!formFlashEndTime) setFormFlashEndTime('23:59');
+                        }
+                      }}
+                      className="w-4 h-4 rounded text-rose-600 focus:ring-rose-500"
+                    />
+                    <div className="flex items-center gap-1.5">
+                      <Flame className="w-4 h-4 text-rose-600 fill-rose-500" />
+                      <span className="font-extrabold text-xs text-rose-950">
+                        Include in Flash Deals & Limited-Time Specials
+                      </span>
+                    </div>
+                  </div>
+                  {formIsFlashSale && (
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 uppercase tracking-wide">
+                      Flash Deal Active
+                    </span>
+                  )}
+                </label>
+
+                {formIsFlashSale && (
+                  <div className="pt-2 border-t border-rose-200/60 space-y-3 animate-fade-in">
+                    <p className="text-[11px] text-rose-800">
+                      Specify the scheduled window. Once the expiration time arrives, this product will automatically stop displaying in Flash Deals on the storefront.
+                    </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                          Start Date *
+                        </label>
+                        <input
+                          type="date"
+                          required={formIsFlashSale}
+                          value={formFlashStartDate}
+                          onChange={e => setFormFlashStartDate(e.target.value)}
+                          className="w-full p-2 bg-white border border-rose-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                          Start Time *
+                        </label>
+                        <input
+                          type="time"
+                          required={formIsFlashSale}
+                          value={formFlashStartTime}
+                          onChange={e => setFormFlashStartTime(e.target.value)}
+                          className="w-full p-2 bg-white border border-rose-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                          End Date (Expiration) *
+                        </label>
+                        <input
+                          type="date"
+                          required={formIsFlashSale}
+                          value={formFlashEndDate}
+                          onChange={e => setFormFlashEndDate(e.target.value)}
+                          className="w-full p-2 bg-white border border-rose-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                          End Time (Expiration) *
+                        </label>
+                        <input
+                          type="time"
+                          required={formIsFlashSale}
+                          value={formFlashEndTime}
+                          onChange={e => setFormFlashEndTime(e.target.value)}
+                          className="w-full p-2 bg-white border border-rose-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-rose-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Description */}
               <div>

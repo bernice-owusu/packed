@@ -48,7 +48,7 @@ export const Topbar: React.FC<{
   };
 
   return (
-    <div className="bg-[#3B0764] text-white text-[11px] sm:text-xs border-b border-white/10 relative z-40 select-none">
+    <div className="bg-[#FF8961] text-white text-[11px] sm:text-xs border-b border-white/10 relative z-40 select-none">
       <div className="pls-container px-2 sm:px-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-1.5 py-1 sm:py-1.5">
         {/* Left: WhatsApp quick access (desktop only) */}
         <div className="hidden sm:flex items-center gap-2">
@@ -56,7 +56,7 @@ export const Topbar: React.FC<{
             href={`https://wa.me/${contact.whatsapp}?text=${encodeURIComponent("Hello Packed by Dolyn, I would like to inquire about your products")}`}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 sm:gap-1.5 text-emerald-300 hover:text-emerald-200 transition-colors"
+            className="inline-flex items-center gap-1 sm:gap-1.5 text-white hover:text-white/80 transition-colors"
           >
             <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span className="hidden sm:inline-block">WhatsApp:</span>
