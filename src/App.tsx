@@ -38,8 +38,8 @@ const FloatingWhatsAppButton = () => {
   const whatsappNumber = rawDigits.startsWith('0')
     ? `233${rawDigits.slice(1)}`
     : rawDigits.startsWith('233')
-    ? rawDigits
-    : `233${rawDigits}`;
+      ? rawDigits
+      : `233${rawDigits}`;
   const displayPhone = contact.phone || '0244149464';
 
   return (
@@ -106,7 +106,7 @@ export default function App() {
   if (activeLayout === 'manager' || activeLayout === 'admin') {
     return (
       <AppProvider>
-        <div className="min-h-screen bg-[#FAF7FB] text-[#1D395F] selection:bg-[#581C87] selection:text-white font-['Rubik',sans-serif]">
+        <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-slate-900 selection:text-white font-['Rubik',sans-serif]">
           <AdminPage onExit={() => navigateTo('home2')} />
           <ToastContainer />
         </div>

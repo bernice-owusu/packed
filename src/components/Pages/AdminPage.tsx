@@ -1202,34 +1202,35 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
   // MAIN ADMIN DASHBOARD (AUTHENTICATED EXECUTIVE WORKSPACE)
   // =========================================================================
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 font-['Rubik',sans-serif] flex flex-col">
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col antialiased">
       {/* =========================================================================
           TOP EXECUTIVE COMMAND BAR (STICKY)
          ========================================================================= */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 min-h-18 sm:min-h-20 flex items-center justify-between gap-2 sm:gap-4">
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-2xs">
+        <div className="max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3 sm:gap-4">
           {/* Left: Mobile Nav Toggle + Brand Identity */}
-          <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
+          <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-              className="lg:hidden p-2 text-slate-700 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+              className="lg:hidden p-2 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
               aria-label="Toggle navigation"
             >
               <Menu className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
-              <img src={logo} alt="Packed by Dolyn Logo" className="h-12 sm:h-14 md:h-16 lg:h-18 w-auto object-contain shrink-0" />
+            <div className="flex items-center gap-3 min-w-0">
+              <img src={logo} alt="Packed by Dolyn Logo" className="h-10 sm:h-12 w-auto object-contain shrink-0" />
               <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black uppercase tracking-wider px-2 sm:px-2.5 py-0.5 rounded-full bg-purple-100 text-[#581C87] border border-purple-200/60 shrink-0">
-                    Enterprise Portal
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-slate-900 text-sm hidden sm:inline">Packed by Dolyn</span>
+                  <span className="inline-flex items-center text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200/80 shrink-0">
+                    Admin Portal
                   </span>
                 </div>
-                <div className="hidden sm:flex items-center gap-2 mt-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0 ring-2 ring-emerald-200" />
-                  <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 truncate">
-                    Live Storefront • Accra: <strong className="text-slate-700">{currentTime || 'GMT'}</strong>
+                <div className="hidden sm:flex items-center gap-2 mt-0.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0 ring-2 ring-emerald-100" />
+                  <span className="text-xs font-medium text-slate-500 truncate">
+                    Live Storefront • Accra: <strong className="text-slate-700 font-semibold">{currentTime || 'GMT'}</strong>
                   </span>
                 </div>
               </div>
@@ -1237,14 +1238,14 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
           </div>
 
           {/* Right: Quick Action CTAs */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => handleOpenAddModal()}
-              className="px-3 sm:px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-black rounded-xl text-xs shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+              className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-xl text-xs shadow-xs hover:shadow transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
             >
-              <Plus className="w-3.5 h-3.5 text-slate-950 stroke-[3]" />
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               <span className="hidden sm:inline">Add Product</span>
-              <span className="sm:hidden font-black">Add</span>
+              <span className="sm:hidden font-medium">Add</span>
             </button>
 
             <button
@@ -1252,19 +1253,19 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                 setActiveTab('media');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="hidden md:flex px-3 py-2 bg-purple-50 hover:bg-purple-100 text-[#581C87] border border-purple-200 rounded-xl text-xs font-bold transition-all items-center gap-1.5 cursor-pointer active:scale-95"
+              className="hidden md:flex px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-medium transition-all items-center gap-1.5 cursor-pointer active:scale-95"
               title="Upload picture to Category Media Vault"
             >
-              <Upload className="w-3.5 h-3.5" />
+              <Upload className="w-3.5 h-3.5 text-slate-500" />
               <span>Upload Photo</span>
             </button>
 
             <button
               onClick={onExit}
-              className="px-2.5 sm:px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+              className="px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
               title="View live customer storefront"
             >
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500" />
               <span className="hidden sm:inline">View Store</span>
             </button>
 
@@ -1277,13 +1278,13 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
             </button>
 
             {/* Profile Pill */}
-            <div className="hidden lg:flex items-center gap-2.5 pl-2.5 border-l border-slate-200 text-xs">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-700 to-indigo-800 text-white font-black flex items-center justify-center text-xs shadow-xs ring-2 ring-purple-100">
+            <div className="hidden lg:flex items-center gap-2 pl-2 border-l border-slate-200 text-xs">
+              <div className="w-8 h-8 rounded-full bg-slate-900 text-white font-semibold flex items-center justify-center text-xs shadow-xs">
                 GB
               </div>
               <div className="text-left">
-                <span className="font-bold text-slate-900 block leading-tight">Gwendolyn B.</span>
-                <span className="text-[10px] text-slate-500 block leading-tight">Owner / Director</span>
+                <span className="font-semibold text-slate-900 block leading-tight text-xs">Gwendolyn B.</span>
+                <span className="text-[10px] text-slate-500 block leading-tight">Director</span>
               </div>
             </div>
           </div>
@@ -1293,11 +1294,11 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
       {/* =========================================================================
           WORKSPACE DUAL-PANEL LAYOUT
          ========================================================================= */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-6 flex-1 w-full flex gap-6 pb-8">
+      <div className="max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 w-full flex flex-col lg:flex-row gap-8">
         {/* Mobile Navigation Backdrop */}
         {isMobileNavOpen && (
           <div
-            className="fixed inset-0 bg-slate-950/50 z-45 lg:hidden backdrop-blur-xs transition-opacity animate-fade-in"
+            className="fixed inset-0 bg-slate-950/40 z-45 lg:hidden backdrop-blur-xs transition-opacity animate-fade-in"
             onClick={() => setIsMobileNavOpen(false)}
             aria-hidden="true"
           />
@@ -1307,12 +1308,13 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
             DESKTOP & OFF-CANVAS SIDEBAR NAVIGATION
            ========================================== */}
         <aside
-          className={`lg:w-64 shrink-0 fixed lg:static inset-y-0 left-0 z-50 lg:z-auto bg-white lg:bg-transparent border-r lg:border-none border-slate-200 p-4 lg:p-0 w-72 transition-transform duration-300 lg:translate-x-0 ${isMobileNavOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'
-            }`}
+          className={`lg:w-64 shrink-0 fixed lg:static inset-y-0 left-0 z-50 lg:z-auto bg-white lg:bg-transparent border-r lg:border-none border-slate-200 p-4 lg:p-0 w-72 transition-transform duration-300 lg:translate-x-0 ${
+            isMobileNavOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'
+          }`}
         >
           {/* Mobile close button */}
           <div className="flex items-center justify-between lg:hidden pb-4 mb-3 border-b border-slate-100">
-            <span className="font-extrabold text-sm text-slate-900">Manager Modules</span>
+            <span className="font-semibold text-sm text-slate-900">Navigation</span>
             <button
               onClick={() => setIsMobileNavOpen(false)}
               className="p-1.5 text-slate-400 hover:text-slate-700 cursor-pointer rounded-lg hover:bg-slate-100"
@@ -1321,11 +1323,11 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
             </button>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-3 space-y-4 lg:sticky lg:top-24">
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-3 space-y-4 lg:sticky lg:top-24">
             {/* Nav Group 1: Core Operations */}
             <div className="space-y-1">
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-3">
-                Core Operations
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 px-3">
+                Operations
               </span>
 
               <button
@@ -1333,13 +1335,14 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                   setActiveTab('overview');
                   setIsMobileNavOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'overview'
-                  ? 'bg-gradient-to-r from-[#1E0B36] to-purple-900 text-white shadow-xs'
-                  : 'text-slate-600 hover:bg-purple-50/70 hover:text-[#581C87]'
-                  }`}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                  activeTab === 'overview'
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <BarChart3 className={`w-4 h-4 ${activeTab === 'overview' ? 'text-amber-300' : 'text-slate-400'}`} />
+                  <BarChart3 className={`w-4 h-4 ${activeTab === 'overview' ? 'text-white' : 'text-slate-400'}`} />
                   <span>Overview & Analytics</span>
                 </div>
               </button>
@@ -1349,22 +1352,25 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                   setActiveTab('products');
                   setIsMobileNavOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'products'
-                  ? 'bg-gradient-to-r from-[#1E0B36] to-purple-900 text-white shadow-xs'
-                  : 'text-slate-600 hover:bg-purple-50/70 hover:text-[#581C87]'
-                  }`}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                  activeTab === 'products'
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Package className={`w-4 h-4 ${activeTab === 'products' ? 'text-amber-300' : 'text-slate-400'}`} />
+                  <Package className={`w-4 h-4 ${activeTab === 'products' ? 'text-white' : 'text-slate-400'}`} />
                   <span>Products & Stock</span>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                   {lowStockCount > 0 && (
-                    <span className="text-[9.5px] px-1.5 py-0.2 rounded-full font-black bg-amber-100 text-amber-800">
-                      {lowStockCount} low
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold bg-amber-50 text-amber-700 border border-amber-200/60">
+                      {lowStockCount}
                     </span>
                   )}
-                  <span className="text-[10px] opacity-75 font-semibold">({productList.length})</span>
+                  <span className={`text-xs ${activeTab === 'products' ? 'text-slate-300' : 'text-slate-400'}`}>
+                    {productList.length}
+                  </span>
                 </div>
               </button>
 
@@ -1373,16 +1379,19 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                   setActiveTab('categories');
                   setIsMobileNavOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'categories'
-                  ? 'bg-gradient-to-r from-[#1E0B36] to-purple-900 text-white shadow-xs'
-                  : 'text-slate-600 hover:bg-purple-50/70 hover:text-[#581C87]'
-                  }`}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                  activeTab === 'categories'
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Layers className={`w-4 h-4 ${activeTab === 'categories' ? 'text-amber-300' : 'text-slate-400'}`} />
+                  <Layers className={`w-4 h-4 ${activeTab === 'categories' ? 'text-white' : 'text-slate-400'}`} />
                   <span>Categories</span>
                 </div>
-                <span className="text-[10px] opacity-75 font-semibold">({categories.length})</span>
+                <span className={`text-xs ${activeTab === 'categories' ? 'text-slate-300' : 'text-slate-400'}`}>
+                  {categories.length}
+                </span>
               </button>
 
               <button
@@ -1390,23 +1399,26 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                   setActiveTab('media');
                   setIsMobileNavOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'media'
-                  ? 'bg-gradient-to-r from-[#1E0B36] to-purple-900 text-white shadow-xs'
-                  : 'text-slate-600 hover:bg-purple-50/70 hover:text-[#581C87]'
-                  }`}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                  activeTab === 'media'
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <ImageIcon className={`w-4 h-4 ${activeTab === 'media' ? 'text-amber-300' : 'text-slate-400'}`} />
-                  <span>Category Photos</span>
+                  <ImageIcon className={`w-4 h-4 ${activeTab === 'media' ? 'text-white' : 'text-slate-400'}`} />
+                  <span>Media Vault</span>
                 </div>
-                <span className="text-[10px] opacity-75 font-semibold">({mediaItems.length})</span>
+                <span className={`text-xs ${activeTab === 'media' ? 'text-slate-300' : 'text-slate-400'}`}>
+                  {mediaItems.length}
+                </span>
               </button>
             </div>
 
             {/* Nav Group 2: Fulfillment & Sales */}
-            <div className="space-y-1 pt-1 border-t border-slate-100">
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-3">
-                Fulfillment & Sales
+            <div className="space-y-1 pt-2 border-t border-slate-100">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 px-3">
+                Orders & Sales
               </span>
 
               <button
@@ -1414,17 +1426,18 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                   setActiveTab('orders');
                   setIsMobileNavOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'orders'
-                  ? 'bg-gradient-to-r from-[#1E0B36] to-purple-900 text-white shadow-xs'
-                  : 'text-slate-600 hover:bg-purple-50/70 hover:text-[#581C87]'
-                  }`}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                  activeTab === 'orders'
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <ShoppingCart className={`w-4 h-4 ${activeTab === 'orders' ? 'text-amber-300' : 'text-slate-400'}`} />
-                  <span>Orders & Dispatches</span>
+                  <ShoppingCart className={`w-4 h-4 ${activeTab === 'orders' ? 'text-white' : 'text-slate-400'}`} />
+                  <span>Orders</span>
                 </div>
                 {pendingOrders > 0 && (
-                  <span className="text-[9.5px] px-1.5 py-0.2 rounded-full font-black bg-emerald-100 text-emerald-800">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
                     {pendingOrders} active
                   </span>
                 )}
@@ -1435,42 +1448,26 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                   setActiveTab('coupons');
                   setIsMobileNavOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'coupons'
-                  ? 'bg-gradient-to-r from-[#1E0B36] to-purple-900 text-white shadow-xs'
-                  : 'text-slate-600 hover:bg-purple-50/70 hover:text-[#581C87]'
-                  }`}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                  activeTab === 'coupons'
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Percent className={`w-4 h-4 ${activeTab === 'coupons' ? 'text-amber-300' : 'text-slate-400'}`} />
+                  <Percent className={`w-4 h-4 ${activeTab === 'coupons' ? 'text-white' : 'text-slate-400'}`} />
                   <span>Coupons & Promos</span>
                 </div>
-                <span className="text-[10px] opacity-75 font-semibold">({coupons.length})</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setActiveTab('ai');
-                  setIsMobileNavOpen(false);
-                }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'ai'
-                  ? 'bg-gradient-to-r from-[#1E0B36] to-purple-900 text-white shadow-xs'
-                  : 'text-slate-600 hover:bg-purple-50/70 hover:text-[#581C87]'
-                  }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Bot className={`w-4 h-4 ${activeTab === 'ai' ? 'text-amber-300' : 'text-purple-600'}`} />
-                  <span>AI Operations Briefing</span>
-                </div>
-                <span className="text-[9.5px] font-black uppercase text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded">
-                  Flash
+                <span className={`text-xs ${activeTab === 'coupons' ? 'text-slate-300' : 'text-slate-400'}`}>
+                  {coupons.length}
                 </span>
               </button>
             </div>
 
-            {/* Nav Group 3: Clients & Settings */}
-            <div className="space-y-1 pt-1 border-t border-slate-100">
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-3">
-                Enterprise & System
+            {/* Nav Group 3: Storefront CMS & System */}
+            <div className="space-y-1 pt-2 border-t border-slate-100">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 px-3">
+                Storefront & System
               </span>
 
               <button
@@ -1478,14 +1475,32 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                   setActiveTab('content');
                   setIsMobileNavOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'content'
-                  ? 'bg-gradient-to-r from-[#1E0B36] to-purple-900 text-white shadow-xs'
-                  : 'text-slate-600 hover:bg-purple-50/70 hover:text-[#581C87]'
-                  }`}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                  activeTab === 'content'
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <SlidersHorizontal className={`w-4 h-4 ${activeTab === 'content' ? 'text-amber-300' : 'text-slate-400'}`} />
+                  <SlidersHorizontal className={`w-4 h-4 ${activeTab === 'content' ? 'text-white' : 'text-slate-400'}`} />
                   <span>Site Content & Banners</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  setActiveTab('ai');
+                  setIsMobileNavOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                  activeTab === 'ai'
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Bot className={`w-4 h-4 ${activeTab === 'ai' ? 'text-white' : 'text-slate-400'}`} />
+                  <span>AI Operations</span>
                 </div>
               </button>
 
@@ -1494,24 +1509,27 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                   setActiveTab('settings');
                   setIsMobileNavOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === 'settings'
-                  ? 'bg-gradient-to-r from-[#1E0B36] to-purple-900 text-white shadow-xs'
-                  : 'text-slate-600 hover:bg-purple-50/70 hover:text-[#581C87]'
-                  }`}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                  activeTab === 'settings'
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Settings className={`w-4 h-4 ${activeTab === 'settings' ? 'text-amber-300' : 'text-slate-400'}`} />
-                  <span>Settings & Backups</span>
+                  <Settings className={`w-4 h-4 ${activeTab === 'settings' ? 'text-white' : 'text-slate-400'}`} />
+                  <span>Settings & Cloud</span>
                 </div>
               </button>
             </div>
 
-            {/* Mini Enterprise Footer Note */}
-            <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-500 space-y-1">
-              <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200/60">
-                <span className="text-[10px] font-bold text-slate-400 uppercase block">Enterprise Hub</span>
-                <strong className="text-slate-800 block text-xs">Accra, Greater Accra</strong>
-                <span className="text-slate-600 text-[10.5px]">Tel: {siteContent.contact.phone}</span>
+            {/* Status note */}
+            <div className="pt-2 border-t border-slate-100 text-xs text-slate-500">
+              <div className="p-2.5 bg-slate-50/80 rounded-xl border border-slate-200/60">
+                <div className="flex items-center gap-1.5 text-slate-700 font-semibold text-xs mb-0.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span>Accra Support Live</span>
+                </div>
+                <span className="text-[11px] text-slate-500 block truncate">Hotline: {siteContent.contact.phone}</span>
               </div>
             </div>
           </div>
@@ -1521,7 +1539,7 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
         {isMobileNavOpen && (
           <div
             onClick={() => setIsMobileNavOpen(false)}
-            className="fixed inset-0 bg-slate-950/60 z-40 lg:hidden backdrop-blur-xs transition-opacity animate-fade-in"
+            className="fixed inset-0 bg-slate-950/40 z-40 lg:hidden backdrop-blur-xs transition-opacity animate-fade-in"
           />
         )}
 
@@ -1529,93 +1547,86 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
             MAIN CONTENT STAGE
            ========================================== */}
         <main className="flex-1 min-w-0 space-y-6">
-          {/* ==========================================
-              EXECUTIVE KPI METRICS STRIP
-             ========================================== */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            {/* 1. Gross Sales */}
-            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 relative overflow-hidden group">
-              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-purple-600 to-indigo-600" />
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Gross Sales</span>
-                <div className="w-8 h-8 rounded-xl bg-purple-50 text-[#581C87] border border-purple-100 flex items-center justify-center transition-transform group-hover:scale-110">
-                  <DollarSign className="w-4 h-4" />
-                </div>
-              </div>
-              <div className="mt-2.5">
-                <span className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight block">
-                  {currencySymbol} {totalRevenue.toFixed(2)}
-                </span>
-                <span className="text-[10.5px] font-bold text-emerald-600 flex items-center gap-1 mt-1">
-                  <TrendingUp className="w-3 h-3" />
-                  <span>MoMo & Card Verified</span>
-                </span>
-              </div>
-            </div>
-
-            {/* 2. Total Orders */}
-            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 relative overflow-hidden group">
-              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Orders</span>
-                <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 border border-amber-100 flex items-center justify-center transition-transform group-hover:scale-110">
-                  <ShoppingCart className="w-4 h-4" />
-                </div>
-              </div>
-              <div className="mt-2.5">
-                <span className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight block">
-                  {orders.length} Orders
-                </span>
-                <span className="text-[10.5px] font-bold text-slate-500 block mt-1">
-                  {momoOrders} MoMo • {cardOrders} Card
-                </span>
-              </div>
-            </div>
-
-            {/* 3. Dispatches */}
-            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 relative overflow-hidden group">
-              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-sky-500 to-blue-600" />
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Dispatches</span>
-                <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-700 border border-sky-100 flex items-center justify-center transition-transform group-hover:scale-110">
-                  <Truck className="w-4 h-4" />
-                </div>
-              </div>
-              <div className="mt-2.5">
-                <span className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight block">
-                  {pendingOrders} Active
-                </span>
-                <span className="text-[10.5px] font-bold text-sky-700 block mt-1">
-                  Courier Manifests Ready
-                </span>
-              </div>
-            </div>
-
-            {/* 4. Products */}
-            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 relative overflow-hidden group">
-              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-600" />
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Catalog Items</span>
-                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center justify-center transition-transform group-hover:scale-110">
-                  <Package className="w-4 h-4" />
-                </div>
-              </div>
-              <div className="mt-2.5">
-                <span className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight block">
-                  {productList.length} Items
-                </span>
-                <span className={`text-[10.5px] font-bold block mt-1 ${lowStockCount > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
-                  {lowStockCount > 0 ? `${lowStockCount} Low stock alert` : 'Inventory healthy'}
-                </span>
-              </div>
-            </div>
-          </div>
-
           {/* =========================================================================
               TAB 0: OVERVIEW & VISUAL ANALYTICS
              ========================================================================= */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
+              {/* Executive KPI Metrics Strip - exclusively on Overview */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* 1. Gross Sales */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs relative overflow-hidden group">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Gross Sales</span>
+                    <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                      <DollarSign className="w-4 h-4" />
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <span className="text-2xl font-bold text-slate-900 tracking-tight block">
+                      {currencySymbol} {totalRevenue.toFixed(2)}
+                    </span>
+                    <span className="text-xs font-medium text-emerald-600 flex items-center gap-1 mt-1">
+                      <TrendingUp className="w-3 h-3" />
+                      <span>MoMo & Card Verified</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* 2. Total Orders */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs relative overflow-hidden group">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Orders</span>
+                    <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                      <ShoppingCart className="w-4 h-4" />
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <span className="text-2xl font-bold text-slate-900 tracking-tight block">
+                      {orders.length}
+                    </span>
+                    <span className="text-xs font-medium text-slate-500 block mt-1">
+                      {momoOrders} MoMo • {cardOrders} Card
+                    </span>
+                  </div>
+                </div>
+
+                {/* 3. Dispatches */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs relative overflow-hidden group">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Dispatches</span>
+                    <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                      <Truck className="w-4 h-4" />
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <span className="text-2xl font-bold text-slate-900 tracking-tight block">
+                      {pendingOrders}
+                    </span>
+                    <span className="text-xs font-medium text-slate-500 block mt-1">
+                      Courier Manifests
+                    </span>
+                  </div>
+                </div>
+
+                {/* 4. Products */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs relative overflow-hidden group">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Catalog Items</span>
+                    <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                      <Package className="w-4 h-4" />
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <span className="text-2xl font-bold text-slate-900 tracking-tight block">
+                      {productList.length}
+                    </span>
+                    <span className={`text-xs font-medium block mt-1 ${lowStockCount > 0 ? 'text-amber-600 font-semibold' : 'text-emerald-600'}`}>
+                      {lowStockCount > 0 ? `${lowStockCount} Low stock items` : 'Healthy stock levels'}
+                    </span>
+                  </div>
+                </div>
+              </div>
               {/* Category Revenue Distribution and Best Sellers */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left 2 Cols: Category Sales Distribution */}

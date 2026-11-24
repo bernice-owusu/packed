@@ -135,8 +135,8 @@ export const BestDealsCountdown: React.FC = () => {
 
             const origVal = deal.originalPrice
               ? (deal.originalPrice.match(/[\d\.]+/)
-                  ? `${currencySymbol} ${(parseFloat(deal.originalPrice.match(/[\d\.]+/)?.[0] || '0') * exchangeRate).toFixed(2)}`
-                  : deal.originalPrice)
+                ? `${currencySymbol} ${(parseFloat(deal.originalPrice.match(/[\d\.]+/)?.[0] || '0') * exchangeRate).toFixed(2)}`
+                : deal.originalPrice)
               : null;
 
             return (
@@ -188,9 +188,8 @@ export const BestDealsCountdown: React.FC = () => {
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
-                          className={`w-3.5 h-3.5 ${
-                            i < Math.floor(deal.rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-300'
-                          }`}
+                          className={`w-3.5 h-3.5 ${i < Math.floor(deal.rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-300'
+                            }`}
                         />
                       ))}
                     </div>
