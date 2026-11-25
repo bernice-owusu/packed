@@ -4,7 +4,6 @@ import {
   HeroSlide,
   PromoBanner,
   Brand,
-  BlogPost,
   InfoBox,
   Order,
 } from "../types";
@@ -56,7 +55,7 @@ export const categories: Category[] = [
     count: "4 Products",
     icon: "https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?w=150&auto=format&fit=crop&q=80",
     description:
-      "Limited-time discounts, wholesale packs & holiday gift promotions.",
+      "Limited-time discounts, special bundles & holiday gift promotions.",
   },
 ];
 
@@ -83,8 +82,6 @@ export const products: Product[] = [
     stockCount: 45,
     sizes: ["150g", "250g (Standard)", "500g (Family)"],
     varieties: ["Lavender Dream", "Sweet Vanilla", "Unscented Natural"],
-    wholesaleBoxQuantity: 12,
-    wholesaleBoxPrice: "GH₵ 5.00",
     ingredients:
       "Pure Unrefined Butyrospermum Parkii (Shea) Butter, Cocos Nucifera (Coconut) Oil, Tocopherol (Vitamin E), Lavandula Angustifolia Oil.",
   },
@@ -106,8 +103,6 @@ export const products: Product[] = [
     inStock: true,
     stockCount: 30,
     sizes: ["1kg Bucket", "2.5kg Tub", "5kg Commercial"],
-    wholesaleBoxQuantity: 10,
-    wholesaleBoxPrice: "GH₵ 5.00",
   },
   {
     id: 3,
@@ -146,8 +141,6 @@ export const products: Product[] = [
     sku: "DOLYN-SH-04",
     inStock: true,
     stockCount: 60,
-    wholesaleBoxQuantity: 24,
-    wholesaleBoxPrice: "GH₵ 5.00",
   },
   {
     id: 5,
@@ -186,8 +179,6 @@ export const products: Product[] = [
     inStock: true,
     stockCount: 25,
     sizes: ["1kg Tub", "2.5kg Tub"],
-    wholesaleBoxQuantity: 10,
-    wholesaleBoxPrice: "GH₵ 5.00",
   },
   {
     id: 7,
@@ -255,8 +246,6 @@ export const products: Product[] = [
     flashSaleEndTime: "23:59",
     sizes: ["100ml Travel", "250ml Full Spray"],
     varieties: ["Original Vanilla Oud", "Oud Rose Extreme"],
-    wholesaleBoxQuantity: 12,
-    wholesaleBoxPrice: "GH₵ 5.00",
   },
   {
     id: 10,
@@ -294,8 +283,6 @@ export const products: Product[] = [
     sku: "DOLYN-PF-03",
     inStock: true,
     stockCount: 40,
-    wholesaleBoxQuantity: 20,
-    wholesaleBoxPrice: "GH₵ 5.00",
   },
   {
     id: 12,
@@ -351,8 +338,6 @@ export const products: Product[] = [
     sku: "DOLYN-PF-06",
     inStock: true,
     stockCount: 35,
-    wholesaleBoxQuantity: 15,
-    wholesaleBoxPrice: "GH₵ 5.00",
   },
 
   // ==========================================
@@ -382,8 +367,6 @@ export const products: Product[] = [
       "Custom Corporate Logo Branding Sticker",
       "Choice of Shea Scent: Lavender or Vanilla",
     ],
-    wholesaleBoxQuantity: 5,
-    wholesaleBoxPrice: "GH₵ 5.00",
   },
   {
     id: 16,
@@ -413,8 +396,6 @@ export const products: Product[] = [
       "Satin Ribbon Tie",
       "Fragrance Selection",
     ],
-    wholesaleBoxQuantity: 10,
-    wholesaleBoxPrice: "GH₵ 5.00",
   },
   {
     id: 17,
@@ -531,8 +512,6 @@ export const products: Product[] = [
     flashSaleEndTime: "23:59",
     sizes: ["500ml Pump", "1L Refill", "5L Economy Gallon"],
     varieties: ["Lemon Fresh", "Lavender Meadow", "Aloe & Green Tea"],
-    wholesaleBoxQuantity: 12,
-    wholesaleBoxPrice: "GH₵ 5.00",
   },
   {
     id: 22,
@@ -575,8 +554,6 @@ export const products: Product[] = [
     sku: "DOLYN-HS-03",
     inStock: true,
     stockCount: 65,
-    wholesaleBoxQuantity: 20,
-    wholesaleBoxPrice: "GH₵ 5.00",
   },
   {
     id: 24,
@@ -595,8 +572,6 @@ export const products: Product[] = [
     sku: "DOLYN-HS-04",
     inStock: true,
     stockCount: 35,
-    wholesaleBoxQuantity: 6,
-    wholesaleBoxPrice: "GH₵ 5.00",
   },
   {
     id: 25,
@@ -939,13 +914,13 @@ export const c4Banners: PromoBanner[] = [
   },
   {
     id: 2,
-    subtitle: "WHOLESALE & BULK",
-    title: "Box Cartons at Factory Direct Multipliers",
-    description: "Save 15% to 25% when purchasing 12+ or 24+ units in a box.",
-    buttonText: "Order Bulk",
+    subtitle: "GIFT BUNDLES",
+    title: "Curated Gift Sets for Every Celebration",
+    description: "Thoughtfully packed bundles for birthdays, weddings, and corporate gifting.",
+    buttonText: "Shop Bundles",
     image:
       "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600&auto=format&fit=crop&q=80",
-    price: "Bulk Pricing",
+    price: "Bundle Pricing",
   },
 ];
 
@@ -1024,69 +999,6 @@ export const brands: Brand[] = [
   },
 ];
 
-export const blogPosts: BlogPost[] = [
-  {
-    id: 1,
-    title:
-      "The Miraculous Benefits of Raw Ghanaian Shea Butter for Tropical Skin",
-    category: "Skincare Wisdom",
-    author: "Gwendolyn B. Boahen",
-    date: "Nov 02, 2026",
-    comments: "8 Comments",
-    snippet:
-      "Discover why raw unrefined ivory shea butter from Northern Ghana remains the gold standard for restoring damaged skin barriers, soothing eczema, and locking in deep hydration.",
-    image:
-      "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600&auto=format&fit=crop&q=80",
-    readTime: "4 min read",
-    content: `Shea butter has been revered across West Africa for centuries as "women's gold." Extracted by traditional crushing and boiling of the shea tree nuts (Vitellaria paradoxa), unrefined shea butter retains exceptional concentrations of stearic and oleic fatty acids along with natural vitamins A, E, and F.\n\nIn Ghana’s warm climate, high humidity and direct sun can strip natural moisture. Whipped shea butter melts at body temperature, creating a breathable lipid shield that restores elasticity without clogging pores. When combined with natural lavender or almond oil, it transforms into an everyday luxury for both face, body, and natural haircare.`,
-  },
-  {
-    id: 2,
-    title:
-      "How to Choose the Perfect Corporate Gift Hamper for Ghanaian Businesses",
-    category: "Gifting & Events",
-    author: "Packed by Dolyn Team",
-    date: "Oct 28, 2026",
-    comments: "5 Comments",
-    snippet:
-      "Corporate gifting isn’t just a formality—it is a statement of appreciation. Learn how to tailor customized gift boxes that leave a lasting impact on partners and VIP clients.",
-    image:
-      "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=600&auto=format&fit=crop&q=80",
-    readTime: "5 min read",
-    content: `When corporate entities in Accra, Kumasi, or Takoradi show appreciation to their executives, boards, and strategic clients, standard off-the-shelf gift bags often fail to resonate. A memorable corporate hamper requires three distinct elements:\n\n1. Sensory appeal: Elegant textured boxes, royal purple satin ribbons, and bespoke stationery.\n2. Utility and luxury: Blending handcrafted wellness products like whipped shea butter and fine fragrances with high-end insulated mugs or stationery.\n3. Brand harmony: Customized branding elements that honor both the giver and the recipient.`,
-  },
-  {
-    id: 3,
-    title:
-      "Essential Home First Aid & Hygiene: Keeping Your Household Protected",
-    category: "Health & Pharmacy",
-    author: "Health Advisory Team",
-    date: "Oct 20, 2026",
-    comments: "12 Comments",
-    snippet:
-      "From fast pain relief and fever management to hospital-grade antiseptics, here is the complete checklist every Ghanaian household should maintain in their medicine cabinet.",
-    image:
-      "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop&q=80",
-    readTime: "6 min read",
-    content: `Unexpected health occurrences—whether a sudden fever, culinary burn, or seasonal cold—can occur at any time. Maintaining an organized home medical and sanitary kit ensures peace of mind.\n\nKey essentials include fast-acting paracetamol for pain and fever, effervescent Vitamin C and zinc for early immune defense, antiseptic iodine solution, adhesive bandages, and non-drowsy antihistamines. Pairing these with hospital-grade antibacterial hand soap safeguards your entire family.`,
-  },
-  {
-    id: 4,
-    title:
-      "Layering Fragrances: How to Make Your Body Splash Last All Day in Ghana",
-    category: "Fragrance Tips",
-    author: "Dolyn Beauty Lab",
-    date: "Oct 15, 2026",
-    comments: "4 Comments",
-    snippet:
-      "Struggling with perfumes evaporating too quickly in the heat? Master the art of scent anchoring using shea oil as a moisture primer for your favorite fragrances.",
-    image:
-      "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=600&auto=format&fit=crop&q=80",
-    readTime: "3 min read",
-    content: `Fragrance molecules evaporate significantly faster when applied to dry skin, especially in warm climates. The secret to extending the longevity of your body splash from 3 hours to 12+ hours is "scent anchoring."\n\nApply a light layer of unscented or vanilla whipped shea butter onto your pulse points immediately after showering while skin is damp. Spray your Vanilla Oud or Amber Rose mist on top. The rich lipid layer binds to the perfume oils, slowing dissipation and creating an alluring scent aura all day.`,
-  },
-];
-
 export const infoboxes: InfoBox[] = [
   {
     id: 1,
@@ -1118,113 +1030,8 @@ export const infoboxes: InfoBox[] = [
   },
 ];
 
-// Seed initial orders for Gwendolyn's Admin Dashboard
-export const initialOrders: Order[] = [
-  {
-    id: "DOLYN-GH-8291",
-    createdAt: "2026-11-05 09:15",
-    customerName: "Kofi Mensah",
-    customerPhone: "0244589210",
-    customerEmail: "kofi.mensah@gmail.com",
-    deliveryRegion: "Greater Accra",
-    deliveryAddress: "House 14, Boundary Road, East Legon, Accra",
-    deliveryType: "Same-day",
-    preferredDeliveryDate: "2026-11-05",
-    preferredDeliveryTime: "Afternoon (1pm - 5pm)",
-    deliveryFee: 35,
-    paymentMethod: "MTN MoMo",
-    momoNumber: "0244589210",
-    paymentStatus: "Paid",
-    items: [
-      {
-        product: products[0],
-        quantity: 2,
-        selectedSize: "250g (Standard)",
-        selectedVariety: "Lavender Dream",
-      },
-      {
-        product: products[8],
-        quantity: 1,
-        selectedSize: "250ml Full Spray",
-      },
-    ],
-    subtotal: 155.0,
-    discount: 15.5,
-    total: 174.5,
-    status: "In Packing",
-    customNotes: "Please include royal purple ribbon for gift delivery",
-    trackingNumber: "TRK-ACC-8291",
-  },
-  {
-    id: "DOLYN-GH-8292",
-    createdAt: "2026-11-05 10:40",
-    customerName: "Akosua Asantewaa",
-    customerPhone: "0553198421",
-    customerEmail: "akosua.asante@standardbank.com.gh",
-    deliveryRegion: "Greater Accra",
-    deliveryAddress: "Stanbic Heights, Airport City, Accra",
-    deliveryType: "Scheduled",
-    preferredDeliveryDate: "2026-11-06",
-    preferredDeliveryTime: "Morning (9am - 12pm)",
-    deliveryFee: 25,
-    paymentMethod: "Card (Paystack)",
-    paymentStatus: "Paid",
-    items: [
-      {
-        product: products[14], // Executive Corporate Luxury Hamper
-        quantity: 3,
-        customizationNote:
-          "With Stanbic corporate logo cards & royal purple ribbons",
-        isWholesaleBox: true,
-      },
-    ],
-    subtotal: 1050.0,
-    discount: 105.0,
-    total: 970.0,
-    status: "Confirmed",
-    customNotes:
-      "Corporate Executive gifts for board members. Call recipient before delivery.",
-    trackingNumber: "TRK-ACC-8292",
-  },
-  {
-    id: "DOLYN-GH-8293",
-    createdAt: "2026-11-04 16:20",
-    customerName: "Dr. Emmanuel Osei",
-    customerPhone: "0208119432",
-    customerEmail: "osei.emmanuel@ug.edu.gh",
-    deliveryRegion: "Kumasi (Ashanti)",
-    deliveryAddress: "Plot 12, Block C, Adum, Kumasi",
-    deliveryType: "Express",
-    preferredDeliveryDate: "2026-11-06",
-    preferredDeliveryTime: "Standard Dispatch",
-    deliveryFee: 45,
-    paymentMethod: "Telecel Cash",
-    momoNumber: "0208119432",
-    paymentStatus: "Paid",
-    items: [
-      {
-        product: products[26], // Paracetamol Extra
-        quantity: 4,
-      },
-      {
-        product: products[27], // Vitamin C 1000mg + Zinc
-        quantity: 3,
-      },
-      {
-        product: products[20], // Antibacterial Hand Wash
-        quantity: 2,
-        selectedSize: "500ml Pump",
-      },
-    ],
-    subtotal: 257.0,
-    discount: 0,
-    total: 302.0,
-    status: "Out for Delivery",
-    customNotes:
-      "Dispatch via VIP Express courier parcel service to Kumasi Adum terminal.",
-    trackingNumber: "TRK-KMS-8293",
-  },
-];
+// No seeded orders; the admin dashboard starts empty until real orders arrive.
+export const initialOrders: Order[] = [];
 
 export const deliveryRates = [
   {
@@ -1277,8 +1084,8 @@ export const dolynFAQs = [
     a: 'During guest checkout, select your preferred Mobile Money provider (MTN, Telecel, or AT Money) and enter your MoMo phone number. Upon clicking "Complete Order", you will receive an instant prompt on your phone to approve the transaction with your 4-digit PIN. Once authorized, your electronic receipt is immediately generated!',
   },
   {
-    q: "Can I purchase items in bulk or wholesale quantities?",
-    a: 'Yes! Most of our cosmetics, pure shea butter, fragrances, and sanitary items have wholesale carton options ("price multiplied by the quantity in a box" with built-in volume discounts of 15% to 25%). Select the wholesale box option on the product page or contact Gwendolyn via WhatsApp on 0244149464 for container quantities.',
+    q: "Can I purchase items in bulk quantities?",
+    a: 'Yes! Contact Gwendolyn via WhatsApp on 0244149464 to arrange bulk orders and larger quantities.',
   },
   {
     q: "How does custom gift packaging and event hamper personalization work?",

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Star, ShoppingBag, Plus, Minus, Check, ShieldCheck, Truck, MessageCircle } from 'lucide-react';
+import { X, ShoppingBag, Plus, Minus, Check, ShieldCheck, Truck, MessageCircle } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export const QuickViewModal: React.FC = () => {
@@ -15,7 +15,6 @@ export const QuickViewModal: React.FC = () => {
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedVariety, setSelectedVariety] = useState<string>('');
   const [customizationNote, setCustomizationNote] = useState<string>('');
-  const [isWholesaleBox, setIsWholesaleBox] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'desc' | 'specs' | 'delivery'>('desc');
 
   if (!quickViewProduct) return null;
@@ -24,9 +23,6 @@ export const QuickViewModal: React.FC = () => {
   const currentVariety = selectedVariety || (quickViewProduct.varieties ? quickViewProduct.varieties[0] : '');
 
   const displayPrice = () => {
-    if (isWholesaleBox && quickViewProduct.wholesaleBoxPrice) {
-      return quickViewProduct.wholesaleBoxPrice;
-    }
     if (typeof quickViewProduct.numericPrice === 'number') {
       return `${currencySymbol} ${(quickViewProduct.numericPrice * exchangeRate).toFixed(2)}`;
     }
@@ -37,8 +33,7 @@ export const QuickViewModal: React.FC = () => {
     addToCart(quickViewProduct, quantity, {
       selectedSize: currentSize,
       selectedVariety: currentVariety,
-      customizationNote: customizationNote.trim() || undefined,
-      isWholesaleBox
+      customizationNote: customizationNote.trim() || undefined
     });
     closeQuickView();
   };
@@ -100,22 +95,6 @@ export const QuickViewModal: React.FC = () => {
                 <h2 className="text-xl sm:text-2xl font-extrabold text-[#1E0B36] mt-1 leading-snug">
                   {quickViewProduct.title}
                 </h2>
-
-                <div className="flex items-center space-x-2 mt-1.5">
-                  <div className="flex text-amber-400">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-3.5 h-3.5 ${
-                          i < Math.floor(quickViewProduct.rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-300'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-xs text-gray-500 font-semibold">
-                    {quickViewProduct.rating} ({quickViewProduct.reviewCount} reviews)
-                  </span>
-                </div>
               </div>
 
               {/* Price & Stock status */}
@@ -123,7 +102,7 @@ export const QuickViewModal: React.FC = () => {
                 <span className="text-2xl font-black text-[#581C87]">
                   {displayPrice()}
                 </span>
-                {quickViewProduct.originalPrice && !isWholesaleBox && (
+                {quickViewProduct.originalPrice && (
                   <span className="text-sm text-gray-400 line-through">
                     {quickViewProduct.originalPrice}
                   </span>
@@ -188,26 +167,6 @@ export const QuickViewModal: React.FC = () => {
                 </div>
               )}
 
-              {/* Wholesale Box Option */}
-              {quickViewProduct.wholesaleBoxPrice && (
-                <div className="p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/80">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isWholesaleBox}
-                      onChange={e => setIsWholesaleBox(e.target.checked)}
-                      className="rounded text-[#581C87] focus:ring-[#581C87]"
-                    />
-                    <span className="text-xs font-bold text-amber-950">
-                      Buy Wholesale Carton ({quickViewProduct.wholesaleBoxQuantity || 12} pcs) at {quickViewProduct.wholesaleBoxPrice}
-                    </span>
-                  </label>
-                  <p className="text-[10px] text-amber-800 pl-6 mt-0.5">
-                    Save 15% - 25% with factory-direct bulk box pricing.
-                  </p>
-                </div>
-              )}
-
               {/* Customization Note */}
               {quickViewProduct.isCustomizable && (
                 <div>
@@ -251,7 +210,7 @@ export const QuickViewModal: React.FC = () => {
                   className="w-full sm:flex-1 py-3 px-6 bg-[#581C87] hover:bg-[#4C1D95] text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center space-x-2 transition-all shadow-md hover:shadow-lg cursor-pointer"
                 >
                   <ShoppingBag className="w-4 h-4" />
-                  <span>{quickViewProduct.isPreOrder ? 'Pre-Order Now' : 'Add to Bag'}</span>
+                  <span>{quickViewProduct.isPreOrder ? 'Pre-Order Now' : 'Add to Cart'}</span>
                 </button>
 
                 <a

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product, CartItem, BlogPost, Order, MediaItem, Coupon, Category, SiteContent } from '../types';
+import { Product, CartItem, Order, MediaItem, Coupon, Category, SiteContent } from '../types';
 import { products as initialProducts, initialOrders, categories as initialCategories } from '../data/mockData';
 import { initialMediaItems } from '../data/initialMedia';
 import { initialSiteContent, normalizeSiteContent } from '../data/siteContent';
@@ -55,7 +55,6 @@ interface AppContextType {
       selectedSize?: string;
       selectedVariety?: string;
       customizationNote?: string;
-      isWholesaleBox?: boolean;
     }
   ) => void;
   removeFromCart: (productId: number, size?: string) => void;
@@ -74,16 +73,9 @@ interface AppContextType {
   openQuickView: (product: Product) => void;
   closeQuickView: () => void;
 
-  selectedArticle: BlogPost | null;
-  openArticleModal: (post: BlogPost) => void;
-  closeArticleModal: () => void;
-
   // Drawers & Modals
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
-
-  isOrderTrackingOpen: boolean;
-  setIsOrderTrackingOpen: (open: boolean) => void;
 
   // Active Electronic Receipt
   activeReceiptOrder: Order | null;
@@ -160,6 +152,11 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 const CATALOG_VERSION = 'v6_paystack_live_test_max5cedis';
 const MAX_TEST_PRICE = 5.0;
 
+const LEGACY_DUMMY_ORDER_IDS = new Set(['DOLYN-GH-8291', 'DOLYN-GH-8292', 'DOLYN-GH-8293']);
+
+const stripLegacyDummyOrders = (orders: Order[]): Order[] =>
+  orders.filter(order => !LEGACY_DUMMY_ORDER_IDS.has(order.id));
+
 const sanitizeCatalogPrices = (prods: Product[]): Product[] => {
   return prods.map(p => {
     const numPrice = typeof p.numericPrice === 'number' && p.numericPrice > 0 ? p.numericPrice : 5.0;
@@ -168,7 +165,6 @@ const sanitizeCatalogPrices = (prods: Product[]): Product[] => {
       ...p,
       numericPrice: cappedPrice,
       price: cappedPrice < numPrice || !p.price ? `GH₵ ${cappedPrice.toFixed(2)}` : p.price,
-      wholesaleBoxPrice: 'GH₵ 5.00',
     };
   });
 };
@@ -231,9 +227,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [orders, setOrders] = useState<Order[]>(() => {
     try {
       const saved = localStorage.getItem('dolyn_orders');
-      return saved ? JSON.parse(saved) : initialOrders;
+      const parsed: Order[] = saved ? JSON.parse(saved) : initialOrders;
+      const cleaned = Array.isArray(parsed) ? stripLegacyDummyOrders(parsed) : [];
+      if (saved && cleaned.length !== parsed.length) {
+        localStorage.setItem('dolyn_orders', JSON.stringify(cleaned));
+      }
+      return cleaned;
     } catch {
-      return initialOrders;
+      return stripLegacyDummyOrders(initialOrders);
     }
   });
 
@@ -312,10 +313,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // Orders: merge cloud + local so offline orders are never lost
       const cloudOrders = await fetchOrdersFromCloud();
       if (!cancelled && cloudOrders && cloudOrders.length > 0) {
+        const cleanedCloudOrders = stripLegacyDummyOrders(cloudOrders);
         setOrders(prev => {
-          const existingIds = new Set(cloudOrders.map(o => o.id));
+          const existingIds = new Set(cleanedCloudOrders.map(o => o.id));
           const uniqueLocal = prev.filter(o => !existingIds.has(o.id));
-          const merged = [...cloudOrders, ...uniqueLocal];
+          const merged = stripLegacyDummyOrders([...cleanedCloudOrders, ...uniqueLocal]);
           localStorage.setItem('dolyn_orders', JSON.stringify(merged));
           return merged;
         });
@@ -378,6 +380,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // Incoming orders from other devices
       unsubscribers.push(
         subscribeToCloudOrders(incomingOrder => {
+          if (LEGACY_DUMMY_ORDER_IDS.has(incomingOrder.id)) return;
           setOrders(prev => {
             const index = prev.findIndex(o => o.id === incomingOrder.id);
             let updated: Order[];
@@ -478,9 +481,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // Orders: pull cloud orders when present, otherwise keep local orders intact
     if (cloudOrders) {
-      if (cloudOrders.length > 0) {
-        setOrders(cloudOrders);
-        localStorage.setItem('dolyn_orders', JSON.stringify(cloudOrders));
+      const cleanedCloudOrders = stripLegacyDummyOrders(cloudOrders);
+      if (cleanedCloudOrders.length > 0) {
+        setOrders(cleanedCloudOrders);
+        localStorage.setItem('dolyn_orders', JSON.stringify(cleanedCloudOrders));
+      } else if (cloudOrders.length > 0) {
+        setOrders([]);
+        localStorage.setItem('dolyn_orders', JSON.stringify([]));
       }
       collectionsSynced++;
     }
@@ -551,10 +558,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
-  const [selectedArticle, setSelectedArticle] = useState<BlogPost | null>(null);
 
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isOrderTrackingOpen, setIsOrderTrackingOpen] = useState(false);
   const [activeReceiptOrder, setActiveReceiptOrder] = useState<Order | null>(null);
   const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false);
 
@@ -626,15 +631,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       selectedSize?: string;
       selectedVariety?: string;
       customizationNote?: string;
-      isWholesaleBox?: boolean;
     }
   ) => {
     setCart(prev => {
       const existingIndex = prev.findIndex(
         item =>
           item.product.id === product.id &&
-          item.selectedSize === options?.selectedSize &&
-          item.isWholesaleBox === options?.isWholesaleBox
+          item.selectedSize === options?.selectedSize
       );
 
       if (existingIndex > -1) {
@@ -653,14 +656,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           quantity,
           selectedSize: options?.selectedSize || (product.sizes ? product.sizes[0] : undefined),
           selectedVariety: options?.selectedVariety || (product.varieties ? product.varieties[0] : undefined),
-          customizationNote: options?.customizationNote,
-          isWholesaleBox: options?.isWholesaleBox || false
+          customizationNote: options?.customizationNote
         }
       ];
     });
 
-    const label = options?.isWholesaleBox ? `Wholesale Box of ${product.title}` : product.title;
-    addToast(`Added "${label}" to cart!`, 'success');
+    addToast(`Added "${product.title}" to cart!`, 'success');
   };
 
   const removeFromCart = (productId: number, size?: string) => {
@@ -732,10 +733,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Price calculations in Ghana Cedis
   const parseProductPrice = (item: CartItem): number => {
-    if (item.isWholesaleBox && item.product.wholesaleBoxPrice) {
-      const match = item.product.wholesaleBoxPrice.match(/[\d\.]+/);
-      return match ? parseFloat(match[0]) : (item.product.numericPrice || 45) * 10;
-    }
     if (typeof item.product.numericPrice === 'number') {
       return item.product.numericPrice;
     }
@@ -756,9 +753,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const openQuickView = (product: Product) => setQuickViewProduct(product);
   const closeQuickView = () => setQuickViewProduct(null);
-
-  const openArticleModal = (post: BlogPost) => setSelectedArticle(post);
-  const closeArticleModal = () => setSelectedArticle(null);
 
   // Order creation for Guest Shoppers
   const createOrder = (orderData: Omit<Order, 'id' | 'createdAt' | 'trackingNumber'>): Order => {
@@ -825,8 +819,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       stockCount: newProd.stockCount ?? 20,
       sizes: newProd.sizes || ['Standard'],
       varieties: newProd.varieties,
-      wholesaleBoxQuantity: newProd.wholesaleBoxQuantity || 12,
-      wholesaleBoxPrice: newProd.wholesaleBoxPrice || 'GH₵ 400.00',
       isCustomizable: newProd.isCustomizable,
       customizationOptions: newProd.customizationOptions,
       isDrugOrHealthcare: newProd.isDrugOrHealthcare,
@@ -1010,8 +1002,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.setItem('dolyn_media', JSON.stringify(data.media));
     }
     if (data.orders && Array.isArray(data.orders)) {
-      setOrders(data.orders);
-      localStorage.setItem('dolyn_orders', JSON.stringify(data.orders));
+      const cleanedOrders = stripLegacyDummyOrders(data.orders);
+      setOrders(cleanedOrders);
+      localStorage.setItem('dolyn_orders', JSON.stringify(cleanedOrders));
     }
     if (data.coupons && Array.isArray(data.coupons)) {
       setCoupons(data.coupons);
@@ -1056,13 +1049,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         quickViewProduct,
         openQuickView,
         closeQuickView,
-        selectedArticle,
-        openArticleModal,
-        closeArticleModal,
         isCartOpen,
         setIsCartOpen,
-        isOrderTrackingOpen,
-        setIsOrderTrackingOpen,
         activeReceiptOrder,
         setActiveReceiptOrder,
         isPolicyModalOpen,

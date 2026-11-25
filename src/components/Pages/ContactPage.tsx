@@ -33,7 +33,7 @@ export const ContactPage: React.FC = () => {
             Contact Packed by Dolyn
           </h1>
           <p className="text-xs sm:text-sm text-gray-500 mt-2">
-            Have questions about customized event hampers, bulk wholesale cartons, or pharmacy orders? Reach out directly.
+            Have questions about customized event hampers, bulk orders, or pharmacy orders? Reach out directly.
           </p>
         </div>
 
@@ -133,7 +133,7 @@ export const ContactPage: React.FC = () => {
                   >
                     <option>Custom Event Gift Hampers & Keepsakes</option>
                     <option>Corporate Branding & Executive Gift Boxes</option>
-                    <option>Bulk Wholesale Carton Purchase</option>
+                    <option>Bulk Order Purchase</option>
                     <option>Shea Butter & Handcrafted Cosmetics Inquiry</option>
                     <option>Pharmacy & Essential Drugs Delivery</option>
                     <option>General Collaboration & Partnership</option>

@@ -16,7 +16,7 @@ export const BrandCarousel: React.FC<{ compact?: boolean }> = ({ compact = false
 
         <div className="pls-container mb-2 flex items-center justify-center gap-2 text-[11px] font-bold text-slate-500 uppercase tracking-widest">
           <Award className="w-3.5 h-3.5 text-amber-500" />
-          <span>Authorized Retailer & Wholesaler for 50+ Global Brands</span>
+          <span>Authorized Retailer for 50+ Global Brands</span>
         </div>
 
         {/* Continuous Single-Track Moving Marquee */}
@@ -56,7 +56,7 @@ export const BrandCarousel: React.FC<{ compact?: boolean }> = ({ compact = false
           Over 50+ Trusted Global Brands We Work With
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 max-w-2xl mx-auto leading-relaxed">
-          From internationally certified personal care, French & Arabian perfumery, to essential pharmaceutical health supplies — all 100% genuine and available for retail and bulk carton supply.
+          From internationally certified personal care, French & Arabian perfumery, to essential pharmaceutical health supplies — all 100% genuine and available for retail supply.
         </p>
       </div>
 
@@ -108,7 +108,7 @@ export const BrandCarousel: React.FC<{ compact?: boolean }> = ({ compact = false
           <span className="hidden sm:inline text-slate-300">•</span>
           <div className="flex items-center gap-2">
             <Award className="w-4 h-4 text-purple-600" />
-            <span>Master Wholesale Cartons for Traders</span>
+            <span>Authorized Global Brand Retailer</span>
           </div>
           <span className="hidden sm:inline text-slate-300">•</span>
           <div className="flex items-center gap-2">

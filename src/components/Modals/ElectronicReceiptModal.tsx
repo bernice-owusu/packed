@@ -14,9 +14,9 @@ export const ElectronicReceiptModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+    <div className="receipt-print-overlay fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
       <div
-        className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden border border-purple-100 max-h-[92vh] flex flex-col"
+        className="receipt-print-card relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden border border-purple-100 max-h-[92vh] flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         {/* Top actions */}
@@ -99,13 +99,17 @@ export const ElectronicReceiptModal: React.FC = () => {
               <span className="text-gray-600">Phone:</span>
               <span className="font-semibold text-gray-900">{activeReceiptOrder.customerPhone}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Region:</span>
-              <span className="font-semibold text-gray-900">{activeReceiptOrder.deliveryRegion}</span>
-            </div>
-            <div className="pt-1 text-gray-600">
-              Address: <span className="font-medium text-gray-800">{activeReceiptOrder.deliveryAddress}</span>
-            </div>
+            {activeReceiptOrder.deliveryRegion && activeReceiptOrder.deliveryRegion !== 'To be confirmed' && (
+              <div className="flex justify-between">
+                <span className="text-gray-600">Region:</span>
+                <span className="font-semibold text-gray-900">{activeReceiptOrder.deliveryRegion}</span>
+              </div>
+            )}
+            {activeReceiptOrder.deliveryAddress && activeReceiptOrder.deliveryAddress !== 'To be confirmed' && (
+              <div className="pt-1 text-gray-600">
+                Address: <span className="font-medium text-gray-800">{activeReceiptOrder.deliveryAddress}</span>
+              </div>
+            )}
             {activeOrderScheduledSlot(activeReceiptOrder) && (
               <div className="pt-1 text-purple-900 font-semibold">
                 Scheduled Slot: {activeReceiptOrder.preferredDeliveryDate} ({activeReceiptOrder.preferredDeliveryTime})
@@ -163,10 +167,12 @@ export const ElectronicReceiptModal: React.FC = () => {
                 <span>-{currencySymbol} {activeReceiptOrder.discount.toFixed(2)}</span>
               </div>
             )}
-            <div className="flex justify-between text-gray-600">
-              <span>Delivery Fee ({activeReceiptOrder.deliveryType}):</span>
-              <span>{activeReceiptOrder.deliveryFee === 0 ? 'FREE' : `${currencySymbol} ${activeReceiptOrder.deliveryFee.toFixed(2)}`}</span>
-            </div>
+            {activeReceiptOrder.deliveryFee > 0 && (
+              <div className="flex justify-between text-gray-600">
+                <span>Delivery Fee ({activeReceiptOrder.deliveryType}):</span>
+                <span>{currencySymbol} {activeReceiptOrder.deliveryFee.toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex justify-between font-black text-sm text-[#1E0B36] pt-1.5 border-t border-gray-200">
               <span>Grand Total:</span>
               <span className="text-[#581C87]">{currencySymbol} {activeReceiptOrder.total.toFixed(2)}</span>

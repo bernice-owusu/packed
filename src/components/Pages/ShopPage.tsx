@@ -8,9 +8,8 @@ export const ShopPage: React.FC = () => {
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'rating'>('featured');
+  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc'>('featured');
   const [maxPrice, setMaxPrice] = useState<number>(1000);
-  const [onlyWholesale, setOnlyWholesale] = useState(false);
   const [onlyDrugs, setOnlyDrugs] = useState(false);
   const [onlyCustomizable, setOnlyCustomizable] = useState(false);
 
@@ -52,7 +51,6 @@ export const ShopPage: React.FC = () => {
       if (pVal > maxPrice) return false;
 
       // Filter flags
-      if (onlyWholesale && !p.wholesaleBoxPrice) return false;
       if (onlyDrugs && !p.isDrugOrHealthcare) return false;
       if (onlyCustomizable && !p.isCustomizable) return false;
 
@@ -60,10 +58,9 @@ export const ShopPage: React.FC = () => {
     }).sort((a, b) => {
       if (sortBy === 'price-asc') return parsePrice(a) - parsePrice(b);
       if (sortBy === 'price-desc') return parsePrice(b) - parsePrice(a);
-      if (sortBy === 'rating') return b.rating - a.rating;
       return 0;
     });
-  }, [productList, selectedCategory, searchQuery, maxPrice, onlyWholesale, onlyDrugs, onlyCustomizable, sortBy]);
+  }, [productList, selectedCategory, searchQuery, maxPrice, onlyDrugs, onlyCustomizable, sortBy]);
 
   return (
     <div className="bg-[#FAF7FB] py-6 sm:py-10 min-h-screen">
@@ -197,16 +194,6 @@ export const ShopPage: React.FC = () => {
                 <label className="flex items-center gap-2 cursor-pointer text-gray-700 hover:text-purple-900">
                   <input
                     type="checkbox"
-                    checked={onlyWholesale}
-                    onChange={e => setOnlyWholesale(e.target.checked)}
-                    className="rounded text-[#581C87] focus:ring-[#581C87]"
-                  />
-                  <span>Wholesale Cartons Available</span>
-                </label>
-
-                <label className="flex items-center gap-2 cursor-pointer text-gray-700 hover:text-purple-900">
-                  <input
-                    type="checkbox"
                     checked={onlyCustomizable}
                     onChange={e => setOnlyCustomizable(e.target.checked)}
                     className="rounded text-[#581C87] focus:ring-[#581C87]"
@@ -246,7 +233,6 @@ export const ShopPage: React.FC = () => {
                     <option value="featured">Featured Favorites</option>
                     <option value="price-asc">Price: Low to High</option>
                     <option value="price-desc">Price: High to Low</option>
-                    <option value="rating">Highest Rated</option>
                   </select>
                 </div>
 
@@ -283,7 +269,6 @@ export const ShopPage: React.FC = () => {
                     setSelectedCategory('All');
                     setSearchQuery('');
                     setMaxPrice(1000);
-                    setOnlyWholesale(false);
                     setOnlyDrugs(false);
                     setOnlyCustomizable(false);
                   }}

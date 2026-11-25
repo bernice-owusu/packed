@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Grid, ShoppingBag, Truck, MessageCircle } from 'lucide-react';
+import { Home, Grid, ShoppingBag, MessageCircle } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export const MobileBottomBar: React.FC<{
@@ -7,7 +7,7 @@ export const MobileBottomBar: React.FC<{
   setActiveLayout: (l: string) => void;
   onOpenMobileMenu: () => void;
 }> = ({ activeLayout, setActiveLayout, onOpenMobileMenu }) => {
-  const { cartCount, setIsCartOpen, setIsOrderTrackingOpen } = useApp();
+  const { cartCount, setIsCartOpen } = useApp();
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-purple-100 shadow-xl px-2 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] flex items-center justify-around select-none">
@@ -75,15 +75,6 @@ export const MobileBottomBar: React.FC<{
           </span>
         )}
         <span className="text-[10px] font-semibold mt-0.5">Bag</span>
-      </button>
-
-      {/* Order Tracking */}
-      <button
-        onClick={() => setIsOrderTrackingOpen(true)}
-        className="flex flex-col items-center justify-center p-1.5 text-gray-500 hover:text-[#581C87] transition-colors cursor-pointer"
-      >
-        <Truck className="w-5 h-5" />
-        <span className="text-[10px] font-semibold mt-0.5">Track</span>
       </button>
     </div>
   );

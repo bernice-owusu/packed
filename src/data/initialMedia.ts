@@ -173,14 +173,6 @@ export const initialMediaItems: MediaItem[] = [
 
   // 6. Flash Deals & Specials
   {
-    id: 'med-promo-1',
-    title: 'Wholesale Carton Master Box (12 Units Wholesale)',
-    category: 'Flash Deals & Specials',
-    url: 'https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?w=800&auto=format&fit=crop&q=80',
-    uploadedAt: '2026-11-15',
-    isCustom: false
-  },
-  {
     id: 'med-promo-2',
     title: 'Luxury 3-Piece Fragrance & Shea Butter Gift Bundle',
     category: 'Flash Deals & Specials',

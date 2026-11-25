@@ -14,18 +14,14 @@ import { BestDealsCountdown } from './components/Deals/BestDealsCountdown';
 import { TripleBanners } from './components/Banners/TripleBanners';
 import { MultiColumnShowcase } from './components/Products/MultiColumnShowcase';
 import { BrandCarousel } from './components/Brands/BrandCarousel';
-import { BlogSection } from './components/Blog/BlogSection';
 import { InfoBoxes } from './components/Features/InfoBoxes';
 import { Footer } from './components/Footer/Footer';
 import { ShopPage } from './components/Pages/ShopPage';
-import { BlogPage } from './components/Pages/BlogPage';
 import { AboutPage } from './components/Pages/AboutPage';
 import { ContactPage } from './components/Pages/ContactPage';
 import { AdminPage } from './components/Pages/AdminPage';
 import { QuickViewModal } from './components/Modals/QuickViewModal';
 import { CartDrawer } from './components/Modals/CartDrawer';
-import { OrderTrackingModal } from './components/Modals/OrderTrackingModal';
-import { ArticleReaderModal } from './components/Modals/ArticleReaderModal';
 import { ElectronicReceiptModal } from './components/Modals/ElectronicReceiptModal';
 import { PolicyModal } from './components/Modals/PolicyModal';
 import { ToastContainer } from './components/Notifications/ToastContainer';
@@ -71,7 +67,6 @@ export default function App() {
       if (path === '/manager' || hash === 'manager' || pageQuery === 'manager') return 'manager';
       if (path === '/admin' || hash === 'admin' || pageQuery === 'admin') return 'manager';
       if (path === '/shop' || hash === 'shop' || pageQuery === 'shop') return 'shop';
-      if (path === '/blog' || hash === 'blog' || pageQuery === 'blog') return 'blog';
       if (path === '/about' || hash === 'about' || pageQuery === 'about') return 'about';
       if (path === '/contact' || hash === 'contact' || pageQuery === 'contact') return 'contact';
     }
@@ -130,8 +125,6 @@ export default function App() {
         <main className="flex-1 w-full overflow-x-hidden">
           {activeLayout === 'shop' ? (
             <ShopPage />
-          ) : activeLayout === 'blog' ? (
-            <BlogPage />
           ) : activeLayout === 'about' ? (
             <AboutPage />
           ) : activeLayout === 'contact' ? (
@@ -169,9 +162,6 @@ export default function App() {
               {/* Section 9: Multi-Column Showcase */}
               <MultiColumnShowcase onNavigateShop={() => navigateTo('shop')} />
 
-              {/* Section 10: Health, Beauty & Gifting Insights Journal */}
-              <BlogSection onNavigateBlog={() => navigateTo('blog')} />
-
               {/* Section 12: Guarantees & Features */}
               <InfoBoxes />
             </>
@@ -187,8 +177,6 @@ export default function App() {
         {/* Modals & Slide-out Drawers */}
         <QuickViewModal />
         <CartDrawer />
-        <OrderTrackingModal />
-        <ArticleReaderModal />
         <ElectronicReceiptModal />
         <PolicyModal />
         <MobileMenu

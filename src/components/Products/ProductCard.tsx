@@ -1,5 +1,5 @@
 import React from 'react';
-import { Eye, ShoppingBag, Star, MessageCircle } from 'lucide-react';
+import { Eye, ShoppingBag, MessageCircle } from 'lucide-react';
 import { Product } from '../../types';
 import { useApp } from '../../context/AppContext';
 
@@ -56,18 +56,6 @@ export const ProductCard: React.FC<{
           >
             {product.title}
           </h4>
-          <div className="flex items-center space-x-1 mt-0.5">
-            <div className="flex text-amber-400">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-3 h-3 ${
-                    i < Math.floor(product.rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-300'
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
           <div className="flex items-center space-x-2 mt-1">
             <span className="text-xs font-extrabold text-[#581C87]">
               {displayPrice()}
@@ -173,21 +161,6 @@ export const ProductCard: React.FC<{
             {product.title}
           </h3>
 
-          {/* Rating */}
-          <div className="flex items-center space-x-1.5 mt-1.5">
-            <div className="flex text-amber-400">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-3.5 h-3.5 ${
-                    i < Math.floor(product.rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-300'
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="text-[11px] text-gray-500 font-medium">({product.reviewCount})</span>
-          </div>
-
           {/* Price */}
           <div className="flex items-baseline space-x-2 mt-2">
             <span className="text-sm sm:text-base font-extrabold text-[#1E0B36]">
@@ -199,13 +172,6 @@ export const ProductCard: React.FC<{
               </span>
             )}
           </div>
-
-          {/* Wholesale Box Price Notice */}
-          {product.wholesaleBoxPrice && (
-            <p className="text-[10px] text-emerald-700 font-semibold mt-1">
-              Box Carton: {product.wholesaleBoxPrice} ({product.wholesaleBoxQuantity || 12} pcs)
-            </p>
-          )}
         </div>
 
         {/* Add to Cart button */}
@@ -219,7 +185,7 @@ export const ProductCard: React.FC<{
             }`}
           >
             <ShoppingBag className="w-3.5 h-3.5" />
-            <span>{product.isPreOrder ? 'Pre-Order Now' : 'Add to Bag'}</span>
+            <span>{product.isPreOrder ? 'Pre-Order Now' : 'Add to Cart'}</span>
           </button>
         </div>
       </div>

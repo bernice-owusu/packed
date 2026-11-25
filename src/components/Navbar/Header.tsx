@@ -5,7 +5,6 @@ import {
   Phone,
   ShoppingBag,
   ChevronDown,
-  PackageCheck,
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 
@@ -18,7 +17,6 @@ export const Header: React.FC<{
     cartCount,
     cartTotal,
     setIsCartOpen,
-    setIsOrderTrackingOpen,
     searchQuery,
     setSearchQuery,
     selectedCategory,
@@ -192,16 +190,6 @@ export const Header: React.FC<{
           </div>
 
           <div className="hidden xl:block h-7 w-[1px] bg-gray-200"></div>
-
-          {/* Track Order Button (Desktop & Tablet) */}
-          <button
-            onClick={() => setIsOrderTrackingOpen(true)}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-purple-50 hover:bg-purple-100 text-[#1D395F] text-xs font-medium cursor-pointer transition-all active:scale-95"
-            title="Track Guest Order"
-          >
-            <PackageCheck className="w-4 h-4 text-[#581C87]" />
-            <span>Track Order</span>
-          </button>
 
           {/* Cart with GH₵ Value */}
           <button

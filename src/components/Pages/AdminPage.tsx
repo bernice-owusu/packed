@@ -459,8 +459,6 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   const [formImage, setFormImage] = useState('https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800&auto=format&fit=crop&q=80');
   const [formDescription, setFormDescription] = useState('');
   const [formSku, setFormSku] = useState('');
-  const [formWholesaleBoxPrice, setFormWholesaleBoxPrice] = useState('450.00');
-  const [formWholesaleBoxQty, setFormWholesaleBoxQty] = useState('12');
   const [formIsPreOrder, setFormIsPreOrder] = useState(false);
   const [formIsDrug, setFormIsDrug] = useState(false);
   const [formDosage, setFormDosage] = useState('');
@@ -543,10 +541,7 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
       order.items.forEach(item => {
         const cat = item.product.category || 'Shea Butter & Cosmetics';
         if (!stats[cat]) stats[cat] = { totalRevenue: 0, count: 0 };
-        const price =
-          item.isWholesaleBox && item.product.wholesaleBoxPrice
-            ? parseFloat(item.product.wholesaleBoxPrice.replace(/[^\d.]/g, '') || '400')
-            : item.product.numericPrice || 45;
+        const price = item.product.numericPrice || 45;
         stats[cat].totalRevenue += price * item.quantity;
         stats[cat].count += item.quantity;
       });
@@ -565,10 +560,7 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
         if (!productSalesMap[pId]) {
           productSalesMap[pId] = { product: item.product, unitsSold: 0, revenue: 0 };
         }
-        const unitPrice =
-          item.isWholesaleBox && item.product.wholesaleBoxPrice
-            ? parseFloat(item.product.wholesaleBoxPrice.replace(/[^\d.]/g, '') || '400')
-            : item.product.numericPrice || 45;
+        const unitPrice = item.product.numericPrice || 45;
 
         productSalesMap[pId].unitsSold += item.quantity;
         productSalesMap[pId].revenue += unitPrice * item.quantity;
@@ -641,8 +633,6 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     );
     setFormDescription('');
     setFormSku(`DOLYN-${Math.floor(1000 + Math.random() * 9000)}`);
-    setFormWholesaleBoxPrice('450.00');
-    setFormWholesaleBoxQty('12');
     setFormIsPreOrder(false);
     setFormIsDrug(false);
     setFormDosage('');
@@ -665,8 +655,6 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     setFormImage(p.image);
     setFormDescription(p.description || '');
     setFormSku(p.sku || `DOLYN-PR-${p.id}`);
-    setFormWholesaleBoxPrice(p.wholesaleBoxPrice ? p.wholesaleBoxPrice.replace(/[^\d.]/g, '') : '450.00');
-    setFormWholesaleBoxQty(String(p.wholesaleBoxQuantity || 12));
     setFormIsPreOrder(!!p.isPreOrder);
     setFormIsDrug(!!p.isDrugOrHealthcare);
     setFormDosage(p.dosageOrUsage || '');
@@ -683,8 +671,6 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     e.preventDefault();
     const numPrice = parseFloat(formPrice) || 45.0;
     const numStock = parseInt(formStock) || 20;
-    const numBoxPrice = parseFloat(formWholesaleBoxPrice) || numPrice * 10;
-    const numBoxQty = parseInt(formWholesaleBoxQty) || 12;
 
     const updatedBadges = [...formBadges];
     if (formIsFlashSale && !updatedBadges.includes('Flash Deal')) {
@@ -705,8 +691,6 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
       image: formImage,
       description: formDescription.trim(),
       sku: formSku || `DOLYN-${Math.floor(1000 + Math.random() * 9000)}`,
-      wholesaleBoxPrice: `GH₵ ${numBoxPrice.toFixed(2)}`,
-      wholesaleBoxQuantity: numBoxQty,
       isPreOrder: formIsPreOrder,
       isDrugOrHealthcare: formIsDrug,
       dosageOrUsage: formIsDrug ? formDosage : undefined,
@@ -941,7 +925,7 @@ export const AdminPage: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   // ==========================================
   const handleCopyWaybillForRider = (order: Order) => {
     const itemsText = order.items
-      .map(i => `• ${i.quantity}x ${i.product.title}${i.isWholesaleBox ? ' [Carton]' : ''}`)
+      .map(i => `• ${i.quantity}x ${i.product.title}`)
       .join('\n');
 
     const message = `🚚 *PACKED BY DOLYN — COURIER DISPATCH MANIFEST*
@@ -1029,7 +1013,7 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
     } catch (err: any) {
       console.error(err);
       setAiReport(
-        `📊 Executive Daily Briefing for Packed by Dolyn\nGenerated for: Gwendolyn Barnie Boahen (Business Owner)\n\n• Sales & Revenue: Total order volume GH₵ ${totalRevenue.toFixed(2)} across ${orders.length} orders.\n• Order Fulfillment: ${pendingOrders} dispatch(es) pending delivery in Greater Accra and courier parcels.\n• Payment Breakdown: ${momoOrders} via Mobile Money (MTN MoMo/Telecel/AT Money) and ${cardOrders} via Paystack cards.\n• Low Stock Alert: Monitor inventory of Whipped Shea Butter (250g) and Vitamin C 1000mg Effervescent.\n• Action Recommendations:\n  1. Confirm dispatch rider pickups for Accra East Legon & Airport City deliveries.\n  2. Follow up on pre-orders for luxury wedding gift hampers.\n  3. Verify bulk carton packaging supplies.`
+        `📊 Executive Daily Briefing for Packed by Dolyn\nGenerated for: Gwendolyn Barnie Boahen (Business Owner)\n\n• Sales & Revenue: Total order volume GH₵ ${totalRevenue.toFixed(2)} across ${orders.length} orders.\n• Order Fulfillment: ${pendingOrders} dispatch(es) pending delivery in Greater Accra and courier parcels.\n• Payment Breakdown: ${momoOrders} via Mobile Money (MTN MoMo/Telecel/AT Money) and ${cardOrders} via Paystack cards.\n• Low Stock Alert: Monitor inventory of Whipped Shea Butter (250g) and Vitamin C 1000mg Effervescent.\n• Action Recommendations:\n  1. Confirm dispatch rider pickups for Accra East Legon & Airport City deliveries.\n  2. Follow up on pre-orders for luxury wedding gift hampers.\n  3. Verify packaging supplies.`
       );
       addToast('Generated fallback business summary', 'info');
     } finally {
@@ -1757,7 +1741,7 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                     Product Catalog & Stock Management
                   </h3>
                   <p className="text-xs text-slate-500 mt-1">
-                    Manage prices, stock counts, wholesale cartons, and pharmaceutical products.
+                    Manage prices, stock counts, and pharmaceutical products.
                   </p>
                 </div>
 
@@ -2005,13 +1989,6 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                               </span>
                             )}
                           </div>
-
-                          {prod.wholesaleBoxPrice && (
-                            <p className="text-[10.5px] text-slate-500 mt-1">
-                              Carton ({prod.wholesaleBoxQuantity || 12}x):{' '}
-                              <strong className="text-slate-800">{prod.wholesaleBoxPrice}</strong>
-                            </p>
-                          )}
                         </div>
 
                         {/* Actions */}
@@ -2071,7 +2048,6 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                           <th className="p-3.5">Category</th>
                           <th className="p-3.5">Price</th>
                           <th className="p-3.5">Stock Level</th>
-                          <th className="p-3.5">Wholesale Box</th>
                           <th className="p-3.5 text-right">Actions</th>
                         </tr>
                       </thead>
@@ -2123,9 +2099,6 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                                   <span className={`w-1.5 h-1.5 rounded-full ${stock <= 0 ? 'bg-rose-600' : stock <= 10 ? 'bg-amber-600' : 'bg-emerald-600'}`} />
                                   <span>{stock} in stock</span>
                                 </span>
-                              </td>
-                              <td className="p-3.5 text-slate-600 text-[11px]">
-                                {prod.wholesaleBoxPrice ? `${prod.wholesaleBoxPrice} (${prod.wholesaleBoxQuantity || 12}x)` : '—'}
                               </td>
                               <td className="p-3.5 text-right relative">
                                 <div className="relative inline-block text-left">
@@ -2771,7 +2744,7 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                           <ul className="space-y-1 mt-1">
                             {order.items.map((item, idx) => (
                               <li key={idx} className="text-slate-800">
-                                • {item.quantity}x {item.isWholesaleBox ? `[Carton] ${item.product.title}` : item.product.title}
+                                • {item.quantity}x {item.product.title}
                                 {item.selectedSize && ` (${item.selectedSize})`}
                               </li>
                             ))}
@@ -4579,7 +4552,7 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                   {editingProductId ? 'Edit Product Offering' : 'Create New Product Offering'}
                 </h3>
                 <p className="text-[11px] text-slate-500">
-                  Add or update pictures, wholesale options, pricing, and category.
+                  Add or update pictures, pricing, and category.
                 </p>
               </div>
               <button
@@ -4715,32 +4688,6 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                     placeholder="DOLYN-PR-12"
                     className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs"
                   />
-                </div>
-              </div>
-
-              {/* Wholesale Carton Info */}
-              <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
-                <span className="font-bold text-slate-800 block">Wholesale Master Carton Options (Ghana Traders)</span>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-500 mb-1">Wholesale Box Price (GH₵)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={formWholesaleBoxPrice}
-                      onChange={e => setFormWholesaleBoxPrice(e.target.value)}
-                      className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-500 mb-1">Units per Carton</label>
-                    <input
-                      type="number"
-                      value={formWholesaleBoxQty}
-                      onChange={e => setFormWholesaleBoxQty(e.target.value)}
-                      className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs"
-                    />
-                  </div>
                 </div>
               </div>
 
@@ -5128,7 +5075,7 @@ ${order.customNotes ? `*Special Note:* "${order.customNotes}"\n` : ''}
                 {activeDispatchOrder.items.map((item, idx) => (
                   <li key={idx} className="pt-1 first:pt-0 flex justify-between">
                     <span className="text-slate-800 font-medium">
-                      • {item.quantity}x {item.isWholesaleBox ? `[Carton] ${item.product.title}` : item.product.title}
+                      • {item.quantity}x {item.product.title}
                       {item.selectedSize && ` (${item.selectedSize})`}
                     </span>
                   </li>

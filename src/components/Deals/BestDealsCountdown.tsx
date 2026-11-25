@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Flame, Star, ShoppingBag } from 'lucide-react';
+import { Clock, Flame, ShoppingBag } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { isProductFlashDealActive } from '../../utils/flashSaleUtils';
 
@@ -181,20 +181,6 @@ export const BestDealsCountdown: React.FC = () => {
                   >
                     {deal.title}
                   </h3>
-
-                  {/* Rating */}
-                  <div className="flex items-center space-x-1 mt-1.5">
-                    <div className="flex text-amber-400">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-3.5 h-3.5 ${i < Math.floor(deal.rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-300'
-                            }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-[11px] text-gray-500 font-medium">({deal.reviewCount})</span>
-                  </div>
 
                   {/* Price */}
                   <div className="flex items-baseline space-x-2 mt-2">

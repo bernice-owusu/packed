@@ -16,8 +16,6 @@ export interface Product {
   stockCount?: number;
   sizes?: string[];
   varieties?: string[];
-  wholesaleBoxQuantity?: number;
-  wholesaleBoxPrice?: string;
   isCustomizable?: boolean;
   customizationOptions?: string[];
   isDrugOrHealthcare?: boolean;
@@ -86,19 +84,6 @@ export interface Brand {
   logo: string;
 }
 
-export interface BlogPost {
-  id: number;
-  title: string;
-  category: string;
-  author: string;
-  date: string;
-  comments: string;
-  snippet: string;
-  image: string;
-  content?: string;
-  readTime?: string;
-}
-
 export interface InfoBox {
   id: number;
   title: string;
@@ -112,7 +97,6 @@ export interface CartItem {
   selectedSize?: string;
   selectedVariety?: string;
   customizationNote?: string;
-  isWholesaleBox?: boolean;
 }
 
 export interface Order {

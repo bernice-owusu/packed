@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import logo from '../../assets/logo.png';
-import { X, ChevronRight, ShoppingBag, Truck, Info, PhoneCall, MessageCircle } from 'lucide-react';
+import { X, ChevronRight, ShoppingBag, Info, PhoneCall, MessageCircle } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export const MobileMenu: React.FC<{
@@ -12,7 +12,6 @@ export const MobileMenu: React.FC<{
   const {
     setSelectedCategory,
     setIsCartOpen,
-    setIsOrderTrackingOpen,
     categories,
     productList,
     addToast,
@@ -155,21 +154,6 @@ export const MobileMenu: React.FC<{
                 <div className="flex items-center space-x-2">
                   <PhoneCall className="w-4 h-4 text-[#581C87]" />
                   <span>Contact</span>
-                </div>
-                <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
-              </button>
-
-              {/* Order Tracking */}
-              <button
-                onClick={() => {
-                  onClose();
-                  setIsOrderTrackingOpen(true);
-                }}
-                className="flex items-center justify-between w-full py-2.5 px-3 rounded-xl hover:bg-purple-50 text-gray-700 text-left cursor-pointer"
-              >
-                <div className="flex items-center space-x-2">
-                  <Truck className="w-4 h-4 text-[#581C87]" />
-                  <span>Track Guest Order</span>
                 </div>
                 <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
               </button>

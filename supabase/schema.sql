@@ -49,8 +49,6 @@ CREATE TABLE IF NOT EXISTS public.products (
     stock_count INTEGER DEFAULT 50,
     sizes TEXT[] DEFAULT '{}',
     varieties TEXT[] DEFAULT '{}',
-    wholesale_box_quantity INTEGER,
-    wholesale_box_price TEXT,
     is_customizable BOOLEAN DEFAULT FALSE,
     customization_options TEXT[] DEFAULT '{}',
     is_drug_or_healthcare BOOLEAN DEFAULT FALSE,

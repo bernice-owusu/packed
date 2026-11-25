@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Menu, ChevronDown, ChevronRight, Truck, MessageCircle, ShoppingBag } from 'lucide-react';
+import { Menu, ChevronDown, ChevronRight, MessageCircle, ShoppingBag } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export const Navigation: React.FC<{
@@ -8,7 +8,6 @@ export const Navigation: React.FC<{
 }> = ({ activeLayout, setActiveLayout }) => {
   const {
     setSelectedCategory,
-    setIsOrderTrackingOpen,
     setIsPolicyModalOpen,
     categories,
     cartCount,

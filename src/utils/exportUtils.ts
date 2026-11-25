@@ -37,7 +37,7 @@ export function exportOrdersToCSV(orders: Order[]): void {
 
   const rows = orders.map(order => {
     const itemsSummary = order.items
-      .map(i => `${i.quantity}x ${i.product.title}${i.isWholesaleBox ? ' [Carton]' : ''}`)
+      .map(i => `${i.quantity}x ${i.product.title}`)
       .join('; ');
 
     return [
@@ -75,8 +75,6 @@ export function exportProductsToCSV(products: Product[]): void {
     'Original Price (GHS)',
     'Stock Count',
     'In Stock',
-    'Wholesale Box Price',
-    'Wholesale Box Quantity',
     'Pre-Order',
     'Is Drug / Pharmacy',
     'Dosage Instructions'
@@ -92,8 +90,6 @@ export function exportProductsToCSV(products: Product[]): void {
       p.originalPrice ? p.originalPrice.replace(/[^\d.]/g, '') : '',
       p.stockCount ?? 20,
       p.inStock ? 'Yes' : 'No',
-      `"${p.wholesaleBoxPrice || ''}"`,
-      p.wholesaleBoxQuantity || 12,
       p.isPreOrder ? 'Yes' : 'No',
       p.isDrugOrHealthcare ? 'Yes' : 'No',
       `"${(p.dosageOrUsage || '').replace(/"/g, '""')}"`

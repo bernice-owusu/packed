@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { X, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Tag, ShoppingBag, CheckCircle, MapPin, Truck, Smartphone, CreditCard, Calendar, Clock, FileText } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Tag, ShoppingBag, CheckCircle, Smartphone, CreditCard, FileText } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useApp } from '../../context/AppContext';
-import { deliveryRates } from '../../data/mockData';
 import { processPaystackPayment } from '../../utils/paystack';
 
 export const CartDrawer: React.FC = () => {
@@ -28,27 +27,18 @@ export const CartDrawer: React.FC = () => {
   const [checkoutStep, setCheckoutStep] = useState<'cart' | 'details' | 'success'>('cart');
 
   // Guest details tailored for Ghana
-  const [guestName, setGuestName] = useState('Abena Osei');
-  const [guestPhone, setGuestPhone] = useState('0244123456');
-  const [guestEmail, setGuestEmail] = useState('abena.osei@gmail.com');
-  const [deliveryRegion, setDeliveryRegion] = useState('Greater Accra (Same-day Express)');
-  const [deliveryAddress, setGuestAddress] = useState('Plot 8, Boundary Road, East Legon, Accra');
-  const [preferredDate, setPreferredDate] = useState(() => {
-    const d = new Date();
-    return d.toISOString().split('T')[0];
-  });
-  const [preferredTime, setPreferredTime] = useState('Afternoon (1:00 PM - 5:00 PM)');
+  const [guestName, setGuestName] = useState('');
+  const [guestPhone, setGuestPhone] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
   const [customGiftNote, setCustomGiftNote] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'MTN MoMo' | 'Telecel Cash' | 'AT Money' | 'Card (Paystack)'>('MTN MoMo');
-  const [momoNumber, setMomoNumber] = useState('0244123456');
+  const [momoNumber, setMomoNumber] = useState('');
   const [createdOrder, setCreatedOrder] = useState<any>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   if (!isCartOpen) return null;
 
-  const currentRate = deliveryRates.find(r => r.region === deliveryRegion) || deliveryRates[0];
-  const deliveryFee = currentRate ? currentRate.fee : 35;
-  const grandTotal = cartTotal + deliveryFee;
+  const grandTotal = cartTotal;
 
   const handleApplyCoupon = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,8 +49,8 @@ export const CartDrawer: React.FC = () => {
 
   const handlePlaceOrder = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!guestName || !guestPhone || !deliveryAddress) {
-      addToast('Please complete name, phone, and delivery address', 'warning');
+    if (!guestName || !guestPhone) {
+      addToast('Please complete your name and phone number', 'warning');
       return;
     }
 
@@ -81,18 +71,12 @@ export const CartDrawer: React.FC = () => {
           customerName: guestName,
           customerPhone: guestPhone,
           customerEmail: guestEmail,
-          deliveryRegion: currentRate.region,
-          deliveryAddress,
-          deliveryType: deliveryRegion.includes('Same-day')
-            ? 'Same-day'
-            : deliveryRegion.includes('Pickup')
-              ? 'Customer Pickup'
-              : deliveryRegion.includes('Standard')
-                ? 'Scheduled'
-                : 'Express',
-          preferredDeliveryDate: preferredDate,
-          preferredDeliveryTime: preferredTime,
-          deliveryFee,
+          deliveryRegion: 'To be confirmed',
+          deliveryAddress: 'To be confirmed',
+          deliveryType: 'Scheduled',
+          preferredDeliveryDate: '',
+          preferredDeliveryTime: '',
+          deliveryFee: 0,
           paymentMethod: `${paymentMethod} (Paystack Live)`,
           paymentRef,
           momoNumber: momoNumber || guestPhone,
@@ -181,10 +165,6 @@ export const CartDrawer: React.FC = () => {
                 <span className="font-bold text-[#1E0B36]">{createdOrder.id}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500 font-medium">Tracking Number:</span>
-                <span className="font-bold text-[#581C87]">{createdOrder.trackingNumber}</span>
-              </div>
-              <div className="flex justify-between">
                 <span className="text-gray-500 font-medium">Payment Method:</span>
                 <span className="font-bold text-emerald-700">{createdOrder.paymentMethod} (Paid)</span>
               </div>
@@ -239,9 +219,6 @@ export const CartDrawer: React.FC = () => {
                   <p className="text-[11px] text-purple-800">MoMo (MTN, Telecel, AT) & Cards active.</p>
                 </div>
               </div>
-              <span className="text-[9.5px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-full shrink-0">
-                Max GH₵ 5.00 Mode
-              </span>
             </div>
 
             {/* Customer Details */}
@@ -290,80 +267,24 @@ export const CartDrawer: React.FC = () => {
               </div>
             </div>
 
-            {/* Delivery Destination & Date */}
-            <div className="space-y-3 pt-2 border-t border-gray-100">
-              <h4 className="font-bold text-[#1E0B36] uppercase tracking-wider text-[11px]">
-                2. Delivery in Ghana
-              </h4>
-              <div>
-                <label className="block text-[11px] font-semibold text-gray-600 mb-1">Delivery Region / Destination *</label>
-                <select
-                  value={deliveryRegion}
-                  onChange={e => setDeliveryRegion(e.target.value)}
-                  className="w-full p-2.5 rounded-lg border border-gray-200 focus:outline-none focus:border-[#581C87] text-xs font-medium"
-                >
-                  {deliveryRates.map(r => (
-                    <option key={r.id} value={r.region}>
-                      {r.region} - {r.fee === 0 ? 'FREE' : `GH₵ ${r.fee.toFixed(2)}`} ({r.time})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-gray-600 mb-1">Street Address / Landmark *</label>
-                <textarea
-                  required
-                  rows={2}
-                  value={deliveryAddress}
-                  onChange={e => setGuestAddress(e.target.value)}
-                  className="w-full p-2.5 rounded-lg border border-gray-200 focus:outline-none focus:border-[#581C87] text-xs"
-                  placeholder="House number, Street name, Digital Address (e.g. GA-183-9201), Area, Accra"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-[11px] font-semibold text-gray-600 mb-1">Preferred Date</label>
-                  <input
-                    type="date"
-                    value={preferredDate}
-                    onChange={e => setPreferredDate(e.target.value)}
-                    className="w-full p-2 rounded-lg border border-gray-200 text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-semibold text-gray-600 mb-1">Preferred Time Slot</label>
-                  <select
-                    value={preferredTime}
-                    onChange={e => setPreferredTime(e.target.value)}
-                    className="w-full p-2 rounded-lg border border-gray-200 text-xs"
-                  >
-                    <option>Morning (9:00 AM - 12:00 PM)</option>
-                    <option>Afternoon (1:00 PM - 5:00 PM)</option>
-                    <option>Evening Express (5:00 PM - 8:00 PM)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-gray-600 mb-1">
-                  Customization Note (Ribbon Color / Card Message)
-                </label>
-                <input
-                  type="text"
-                  value={customGiftNote}
-                  onChange={e => setCustomGiftNote(e.target.value)}
-                  className="w-full p-2.5 rounded-lg border border-gray-200 text-xs"
-                  placeholder="e.g. Royal Purple ribbon, write 'Happy Birthday Kofi' on note card"
-                />
-              </div>
+            {/* Customization Note */}
+            <div>
+              <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                Customization Note (Ribbon Color / Card Message)
+              </label>
+              <input
+                type="text"
+                value={customGiftNote}
+                onChange={e => setCustomGiftNote(e.target.value)}
+                className="w-full p-2.5 rounded-lg border border-gray-200 text-xs"
+                placeholder="e.g. Royal Purple ribbon, write 'Happy Birthday Kofi' on note card"
+              />
             </div>
 
             {/* Payment Method */}
             <div className="space-y-3 pt-2 border-t border-gray-100">
               <h4 className="font-bold text-[#1E0B36] uppercase tracking-wider text-[11px]">
-                3. Payment Method
+                2. Payment Method
               </h4>
               <div className="grid grid-cols-2 gap-2">
                 {[
@@ -411,10 +332,6 @@ export const CartDrawer: React.FC = () => {
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal:</span>
                 <span>{currencySymbol} {(cartTotal + discount).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-gray-600">
-                <span>Delivery ({currentRate.region.split('(')[0]}):</span>
-                <span>{deliveryFee === 0 ? 'FREE' : `${currencySymbol} ${deliveryFee.toFixed(2)}`}</span>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-emerald-600 font-semibold">
@@ -481,7 +398,7 @@ export const CartDrawer: React.FC = () => {
                 {/* Item List */}
                 <div className="divide-y divide-gray-100">
                   {cart.map(item => (
-                    <div key={`${item.product.id}-${item.selectedSize}-${item.isWholesaleBox}`} className="py-3.5 flex items-start space-x-3 group">
+                    <div key={`${item.product.id}-${item.selectedSize}`} className="py-3.5 flex items-start space-x-3 group">
                       <img
                         src={item.product.image}
                         alt={item.product.title}
@@ -490,7 +407,7 @@ export const CartDrawer: React.FC = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
                           <h4 className="text-xs font-bold text-[#1D395F] leading-tight line-clamp-2">
-                            {item.isWholesaleBox ? `Wholesale Box: ${item.product.title}` : item.product.title}
+                            {item.product.title}
                           </h4>
                           <button
                             onClick={() => removeFromCart(item.product.id, item.selectedSize)}
@@ -535,9 +452,7 @@ export const CartDrawer: React.FC = () => {
                           <span className="text-xs font-extrabold text-[#1E0B36]">
                             {currencySymbol}{' '}
                             {(
-                              (item.isWholesaleBox && item.product.wholesaleBoxPrice
-                                ? parseFloat(item.product.wholesaleBoxPrice.match(/[\d\.]+/)?.[0] || '400')
-                                : (item.product.numericPrice || 45)) * item.quantity
+                              (item.product.numericPrice || 45) * item.quantity
                             ).toFixed(2)}
                           </span>
                         </div>
