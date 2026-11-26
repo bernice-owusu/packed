@@ -40,7 +40,7 @@ export const FeaturedProducts: React.FC<{ onNavigateShop?: () => void }> = ({ on
   };
 
   return (
-    <section id="featured-products-section" className="py-8 md:py-12 bg-white scroll-mt-16">
+    <section id="featured-products-section" className="py-6 md:py-12 bg-white scroll-mt-32 md:scroll-mt-20">
       <div className="pls-container">
         {/* Section Heading Bar */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-6 pb-4 border-b border-gray-100 gap-4">

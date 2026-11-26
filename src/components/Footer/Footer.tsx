@@ -237,7 +237,7 @@ export const Footer: React.FC<{
                 <MessageCircle className="w-4 h-4" />
               </a>
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/pack.edproducts?cnvx=N3d1cmFsMXVhdjcw"
                 target="_blank"
                 rel="noreferrer"
                 className="w-8 h-8 rounded-full bg-white/10 hover:bg-purple-600 flex items-center justify-center text-white transition-colors"

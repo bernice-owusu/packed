@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import logo from '../../assets/logo.png';
 import { X, Printer, CheckCircle2, MapPin, Phone, Mail, ShieldCheck } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -7,6 +7,15 @@ export const ElectronicReceiptModal: React.FC = () => {
   const { activeReceiptOrder, setActiveReceiptOrder, currencySymbol, siteContent } = useApp();
   const contact = siteContent.contact;
 
+  useEffect(() => {
+    if (!activeReceiptOrder) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [activeReceiptOrder]);
+
   if (!activeReceiptOrder) return null;
 
   const handlePrint = () => {
@@ -14,9 +23,15 @@ export const ElectronicReceiptModal: React.FC = () => {
   };
 
   return (
-    <div className="receipt-print-overlay fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+    <div
+      className="receipt-print-overlay fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+      onClick={() => setActiveReceiptOrder(null)}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Electronic receipt"
+    >
       <div
-        className="receipt-print-card relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden border border-purple-100 max-h-[92vh] flex flex-col"
+        className="receipt-print-card relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden border border-purple-100 max-h-[92vh] flex flex-col animate-fade-in"
         onClick={e => e.stopPropagation()}
       >
         {/* Top actions */}

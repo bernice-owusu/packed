@@ -113,11 +113,11 @@ export const ProductCard: React.FC<{
             href={`https://wa.me/233244149464?text=Hello%20Packed%20by%20Dolyn,%20I%20am%20interested%20in%20${encodeURIComponent(product.title)}`}
             target="_blank"
             rel="noreferrer"
-            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/95 text-emerald-600 hover:bg-emerald-50 flex items-center justify-center shadow-md transition-all cursor-pointer border border-gray-100 active:scale-95"
+            className="w-8 h-8 rounded-full bg-white/95 text-emerald-600 hover:bg-emerald-50 flex items-center justify-center shadow-md transition-all cursor-pointer border border-gray-100 active:scale-95"
             title="Inquire on WhatsApp"
             aria-label="WhatsApp Inquiry"
           >
-            <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <MessageCircle className="w-4 h-4" />
           </a>
         </div>
 
@@ -149,7 +149,7 @@ export const ProductCard: React.FC<{
       <div className="p-3 sm:p-4 pt-2 flex flex-col justify-between flex-1">
         <div>
           {/* Category */}
-          <span className="text-[10.5px] font-bold text-purple-700 uppercase tracking-wider block">
+          <span className="text-[10px] sm:text-[10.5px] font-bold text-purple-700 uppercase tracking-wider block truncate">
             {product.category}
           </span>
 
@@ -178,7 +178,7 @@ export const ProductCard: React.FC<{
         <div className="mt-3.5 pt-2 border-t border-gray-100">
           <button
             onClick={() => addToCart(product, 1)}
-            className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer shadow-xs active:scale-98 select-none touch-manipulation ${
+            className={`w-full min-h-[40px] py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer shadow-xs active:scale-98 select-none touch-manipulation ${
               product.isPreOrder
                 ? 'bg-amber-400 hover:bg-amber-500 text-purple-950'
                 : 'bg-purple-50 hover:bg-[#581C87] text-[#581C87] hover:text-white'

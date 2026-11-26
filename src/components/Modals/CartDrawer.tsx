@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Tag, ShoppingBag, CheckCircle, Smartphone, CreditCard, FileText } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useApp } from '../../context/AppContext';
@@ -35,6 +35,15 @@ export const CartDrawer: React.FC = () => {
   const [momoNumber, setMomoNumber] = useState('');
   const [createdOrder, setCreatedOrder] = useState<any>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+  useEffect(() => {
+    if (!isCartOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isCartOpen]);
 
   if (!isCartOpen) return null;
 
@@ -120,9 +129,15 @@ export const CartDrawer: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm animate-fade-in flex justify-end">
+    <div
+      className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm animate-fade-in flex justify-end"
+      onClick={handleClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Shopping bag"
+    >
       <div
-        className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col justify-between"
+        className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col justify-between animate-fade-in"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
@@ -495,7 +510,7 @@ export const CartDrawer: React.FC = () => {
 
             {/* Footer Summary & Checkout Button */}
             {cart.length > 0 && (
-              <div className="p-4 sm:p-5 border-t border-purple-100 bg-purple-50/30 space-y-3">
+              <div className="p-4 sm:p-5 pb-safe border-t border-purple-100 bg-purple-50/30 space-y-3">
                 <div className="space-y-1.5 text-xs">
                   <div className="flex justify-between text-gray-600">
                     <span>Subtotal:</span>

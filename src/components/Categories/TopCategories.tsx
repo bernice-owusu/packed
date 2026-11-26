@@ -12,10 +12,10 @@ export const TopCategories: React.FC = () => {
   };
 
   return (
-    <section className="py-8 md:py-12 bg-white">
+    <section className="py-7 md:py-12 bg-white">
       <div className="pls-container">
         {/* Section Heading */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 sm:mb-8">
           <span className="text-[11px] font-bold tracking-wider text-purple-700 uppercase bg-purple-50 px-3 py-1 rounded-full">
             Featured Collections
           </span>
@@ -27,18 +27,18 @@ export const TopCategories: React.FC = () => {
           </p>
         </div>
 
-        {/* Categories Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4">
+        {/* Categories: horizontal snap rail on mobile, grid on larger screens */}
+        <div className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory -mx-4 px-4 pb-2 sm:mx-0 sm:px-0 sm:pb-0 sm:grid sm:grid-cols-3 md:grid-cols-6 sm:gap-4">
           {categories.map(cat => {
             const isSelected = selectedCategory === cat.title;
             return (
               <div
                 key={cat.id}
                 onClick={() => handleCategoryClick(cat.title)}
-                className={`group flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl cursor-pointer transition-all duration-200 border ${
+                className={`group flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl cursor-pointer transition-all duration-200 border shrink-0 snap-start w-[104px] sm:w-auto ${
                   isSelected
-                    ? 'border-[#581C87] bg-purple-50/70 shadow-md -translate-y-1'
-                    : 'border-transparent hover:border-purple-200 hover:bg-purple-50/40 hover:-translate-y-1 hover:shadow-xs'
+                    ? 'border-[#581C87] bg-purple-50/70 shadow-md sm:-translate-y-1'
+                    : 'border-transparent hover:border-purple-200 hover:bg-purple-50/40 sm:hover:-translate-y-1 hover:shadow-xs'
                 }`}
               >
                 {/* Round Thumbnail Image */}

@@ -8,10 +8,10 @@ export const TopPicks: React.FC<{ onNavigateShop?: () => void }> = ({ onNavigate
   const topPickProducts = productList.slice(4, 9);
 
   return (
-    <section className="py-8 md:py-12 bg-purple-50/30">
+    <section className="py-7 md:py-12 bg-purple-50/30">
       <div className="pls-container">
         {/* Section Heading Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-3 border-b border-purple-100 gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 pb-3 border-b border-purple-100 gap-3">
           <div>
             <div className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 uppercase bg-amber-50 px-2.5 py-0.5 rounded-md mb-1.5 border border-amber-200">
               <Star className="w-3 h-3 fill-amber-500 text-amber-500" />

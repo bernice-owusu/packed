@@ -71,10 +71,10 @@ export const BestDealsCountdown: React.FC = () => {
   }
 
   return (
-    <section id="deals-section" className="py-8 md:py-12 bg-gradient-to-b from-purple-50/70 via-white to-purple-50/40">
+    <section id="deals-section" className="py-7 md:py-12 bg-gradient-to-b from-purple-50/70 via-white to-purple-50/40">
       <div className="pls-container">
         {/* Header with Title & Countdown Timer */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 mb-8 border-b border-purple-100 gap-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between pb-5 sm:pb-6 mb-6 sm:mb-8 border-b border-purple-100 gap-4">
           <div className="flex items-center space-x-3">
             <div className="w-11 h-11 rounded-2xl bg-[#581C87] flex items-center justify-center text-amber-300 shadow-md">
               <Flame className="w-6 h-6 fill-current animate-pulse" />
@@ -95,7 +95,7 @@ export const BestDealsCountdown: React.FC = () => {
           </div>
 
           {/* Countdown timer blocks */}
-          <div className="flex flex-wrap items-center space-x-1.5 sm:space-x-2 text-center self-start md:self-auto bg-white p-1.5 sm:p-2 rounded-2xl shadow-sm border border-purple-100">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-center self-start md:self-auto bg-white p-1.5 sm:p-2 rounded-2xl shadow-sm border border-purple-100">
             <span className="text-[11px] sm:text-xs font-bold text-purple-900 mr-1 sm:mr-2 flex items-center gap-1 sm:gap-1.5 pl-1">
               <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#581C87]" /> Ends In:
             </span>
@@ -107,7 +107,7 @@ export const BestDealsCountdown: React.FC = () => {
               { label: 'Secs', value: timeLeft.seconds }
             ].map((unit, i) => (
               <React.Fragment key={unit.label}>
-                <div className="bg-[#1E0B36] text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl min-w-[42px] sm:min-w-[50px] shadow-sm">
+                <div className="bg-[#1E0B36] text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl min-w-[38px] sm:min-w-[50px] shadow-sm">
                   <span className="text-sm sm:text-lg font-black block leading-none text-amber-300">
                     {String(unit.value).padStart(2, '0')}
                   </span>

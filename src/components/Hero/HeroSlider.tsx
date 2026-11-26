@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { HeroSlide } from '../../types';
@@ -8,6 +8,7 @@ export const HeroSlider: React.FC<{ onNavigateShop?: () => void }> = ({ onNaviga
   const { heroSlides, contact } = siteContent;
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     if (isPaused || heroSlides.length === 0) return;
@@ -31,6 +32,25 @@ export const HeroSlider: React.FC<{ onNavigateShop?: () => void }> = ({ onNaviga
   const prevSlide = () => {
     if (heroSlides.length === 0) return;
     setCurrentSlide(prev => (prev - 1 + heroSlides.length) % heroSlides.length);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStart.current = { x: touch.clientX, y: touch.clientY };
+    setIsPaused(true);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    setIsPaused(false);
+    if (!touchStart.current) return;
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - touchStart.current.x;
+    const dy = touch.clientY - touchStart.current.y;
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) nextSlide();
+      else prevSlide();
+    }
+    touchStart.current = null;
   };
 
   const handleAction = (slide: HeroSlide) => {
@@ -58,9 +78,11 @@ export const HeroSlider: React.FC<{ onNavigateShop?: () => void }> = ({ onNaviga
       className="relative w-full overflow-hidden bg-gradient-to-b from-purple-50/60 to-white"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
-      <div className="pls-container py-3 sm:py-5">
-        <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden min-h-[380px] sm:min-h-[440px] md:min-h-[480px] shadow-lg border border-purple-100">
+      <div className="pls-container py-2.5 sm:py-5">
+        <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden min-h-[340px] xs:min-h-[380px] sm:min-h-[440px] md:min-h-[480px] shadow-lg border border-purple-100 touch-pan-y">
           {heroSlides.map((slide, index) => {
             const isActive = index === currentSlide;
             return (
@@ -82,13 +104,13 @@ export const HeroSlider: React.FC<{ onNavigateShop?: () => void }> = ({ onNaviga
                 <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-purple-950/95 via-purple-900/85 to-purple-950/50 sm:to-transparent sm:max-w-2xl" />
 
                 {/* Content */}
-                <div className="relative h-full flex items-center z-10 px-4 sm:px-12 md:px-14 max-w-xl text-white">
-                  <div className="space-y-3 sm:space-y-4 py-8">
+                <div className="relative h-full flex items-center z-10 px-5 sm:px-12 md:px-14 max-w-xl text-white">
+                  <div className="space-y-3 sm:space-y-4 py-6 sm:py-8">
                     <div className="inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-purple-200 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-purple-300/30">
                       <span>{slide.tag || 'Packed by Dolyn • Ghana'}</span>
                     </div>
 
-                    <h1 className="text-xl xs:text-2xl sm:text-4xl md:text-5xl font-extrabold text-white leading-[1.15] tracking-tight">
+                    <h1 className="text-[22px] xs:text-2xl sm:text-4xl md:text-5xl font-extrabold text-white leading-[1.15] tracking-tight line-clamp-3 sm:line-clamp-none">
                       {slide.title}
                     </h1>
 

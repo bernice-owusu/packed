@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import logo from '../../assets/logo.png';
 import { X, ChevronRight, ShoppingBag, Info, PhoneCall, MessageCircle } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -21,6 +21,15 @@ export const MobileMenu: React.FC<{
 
   const [activeTab, setActiveTab] = useState<'menu' | 'categories'>('menu');
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleCategorySelect = (title: string) => {
@@ -42,9 +51,15 @@ export const MobileMenu: React.FC<{
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex lg:hidden bg-black/60 backdrop-blur-sm animate-fade-in">
+    <div
+      className="fixed inset-0 z-50 flex lg:hidden bg-black/60 backdrop-blur-sm animate-fade-in"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Mobile navigation menu"
+    >
       <div
-        className="relative w-4/5 max-w-sm bg-white h-full shadow-2xl flex flex-col justify-between overflow-y-auto"
+        className="relative w-[85%] max-w-sm bg-white h-full shadow-2xl flex flex-col justify-between overflow-y-auto animate-fade-in"
         onClick={e => e.stopPropagation()}
       >
         <div>
@@ -166,11 +181,11 @@ export const MobileMenu: React.FC<{
                   onClick={() => handleCategorySelect(cat.title)}
                   className="flex items-center justify-between w-full py-2.5 px-3 rounded-xl hover:bg-purple-50 text-left transition-colors cursor-pointer"
                 >
-                  <div className="flex items-center space-x-2.5">
-                    <img src={cat.icon} alt={cat.title} className="w-6 h-6 object-cover rounded-md" />
-                    <span className="font-semibold text-[#1D395F]">{cat.title}</span>
+                  <div className="flex items-center space-x-2.5 min-w-0">
+                    <img src={cat.icon} alt={cat.title} className="w-6 h-6 object-cover rounded-md shrink-0" />
+                    <span className="font-semibold text-[#1D395F] truncate">{cat.title}</span>
                   </div>
-                  <span className="text-[11px] text-gray-400">
+                  <span className="text-[11px] text-gray-400 shrink-0 pl-2">
                     {productList.filter(p => p.category === cat.title).length} items
                   </span>
                 </button>
@@ -180,7 +195,7 @@ export const MobileMenu: React.FC<{
         </div>
 
         {/* Bottom Actions */}
-        <div className="p-4 border-t border-gray-100 bg-purple-50/40 space-y-2">
+        <div className="p-4 pb-safe border-t border-gray-100 bg-purple-50/40 space-y-2">
           <button
             onClick={() => {
               onClose();

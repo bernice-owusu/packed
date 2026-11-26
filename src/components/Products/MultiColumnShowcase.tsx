@@ -16,9 +16,9 @@ export const MultiColumnShowcase: React.FC<{ onNavigateShop?: () => void }> = ({
   };
 
   return (
-    <section className="py-8 md:py-12 bg-white">
+    <section className="py-7 md:py-12 bg-white">
       <div className="pls-container">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
           {/* Column 1: Recent Additions */}
           <div className="flex flex-col space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-purple-100">

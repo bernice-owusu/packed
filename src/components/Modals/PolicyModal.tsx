@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ShieldAlert, Truck, FileText, Lock } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -7,12 +7,27 @@ export const PolicyModal: React.FC = () => {
   const contact = siteContent.contact;
   const [activeTab, setActiveTab] = useState<'returns' | 'delivery' | 'terms'>('returns');
 
+  useEffect(() => {
+    if (!isPolicyModalOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isPolicyModalOpen]);
+
   if (!isPolicyModalOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+      onClick={() => setIsPolicyModalOpen(false)}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Store policies and terms"
+    >
       <div
-        className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-purple-100 max-h-[90vh] flex flex-col"
+        className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-purple-100 max-h-[90vh] flex flex-col animate-fade-in"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
@@ -33,35 +48,35 @@ export const PolicyModal: React.FC = () => {
         </div>
 
         {/* Tab Buttons */}
-        <div className="flex border-b border-gray-200 text-xs font-bold bg-white">
+        <div className="flex border-b border-gray-200 text-xs font-bold bg-white overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveTab('returns')}
-            className={`flex-1 py-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === 'returns'
+            className={`flex-1 min-w-[140px] sm:min-w-0 py-3 px-2 text-center whitespace-nowrap transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === 'returns'
                 ? 'border-b-2 border-[#581C87] text-[#581C87] bg-purple-50/40'
                 : 'text-gray-500 hover:text-gray-700'
               }`}
           >
-            <ShieldAlert className="w-4 h-4" />
+            <ShieldAlert className="w-4 h-4 shrink-0" />
             <span>Returns & Cancellations</span>
           </button>
           <button
             onClick={() => setActiveTab('delivery')}
-            className={`flex-1 py-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === 'delivery'
+            className={`flex-1 min-w-[120px] sm:min-w-0 py-3 px-2 text-center whitespace-nowrap transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === 'delivery'
                 ? 'border-b-2 border-[#581C87] text-[#581C87] bg-purple-50/40'
                 : 'text-gray-500 hover:text-gray-700'
               }`}
           >
-            <Truck className="w-4 h-4" />
+            <Truck className="w-4 h-4 shrink-0" />
             <span>Delivery Policy</span>
           </button>
           <button
             onClick={() => setActiveTab('terms')}
-            className={`flex-1 py-3 text-center transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === 'terms'
+            className={`flex-1 min-w-[120px] sm:min-w-0 py-3 px-2 text-center whitespace-nowrap transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === 'terms'
                 ? 'border-b-2 border-[#581C87] text-[#581C87] bg-purple-50/40'
                 : 'text-gray-500 hover:text-gray-700'
               }`}
           >
-            <Lock className="w-4 h-4" />
+            <Lock className="w-4 h-4 shrink-0" />
             <span>Terms & Privacy</span>
           </button>
         </div>
@@ -142,7 +157,7 @@ export const PolicyModal: React.FC = () => {
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+        <div className="p-4 pb-safe bg-gray-50 border-t border-gray-100 flex justify-end">
           <button
             onClick={() => setIsPolicyModalOpen(false)}
             className="px-5 py-2 bg-[#581C87] hover:bg-[#4C1D95] text-white rounded-xl text-xs font-semibold cursor-pointer transition-colors"

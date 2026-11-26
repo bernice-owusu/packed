@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ShoppingBag, Plus, Minus, Check, ShieldCheck, Truck, MessageCircle } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -16,6 +16,15 @@ export const QuickViewModal: React.FC = () => {
   const [selectedVariety, setSelectedVariety] = useState<string>('');
   const [customizationNote, setCustomizationNote] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'desc' | 'specs' | 'delivery'>('desc');
+
+  useEffect(() => {
+    if (!quickViewProduct) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [quickViewProduct]);
 
   if (!quickViewProduct) return null;
 
@@ -39,9 +48,15 @@ export const QuickViewModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+      onClick={closeQuickView}
+      role="dialog"
+      aria-modal="true"
+      aria-label={quickViewProduct.title}
+    >
       <div
-        className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-purple-100 max-h-[92vh] flex flex-col"
+        className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-purple-100 max-h-[92vh] flex flex-col animate-fade-in"
         onClick={e => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -228,10 +243,10 @@ export const QuickViewModal: React.FC = () => {
 
           {/* Bottom Tabs */}
           <div className="mt-8 pt-6 border-t border-gray-100">
-            <div className="flex space-x-6 border-b border-gray-200 text-xs font-bold">
+            <div className="flex space-x-6 border-b border-gray-200 text-xs font-bold overflow-x-auto no-scrollbar">
               <button
                 onClick={() => setActiveTab('desc')}
-                className={`pb-2.5 transition-colors cursor-pointer ${
+                className={`pb-2.5 whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
                   activeTab === 'desc'
                     ? 'border-b-2 border-[#581C87] text-[#581C87]'
                     : 'text-gray-500 hover:text-gray-700'
@@ -241,7 +256,7 @@ export const QuickViewModal: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveTab('specs')}
-                className={`pb-2.5 transition-colors cursor-pointer ${
+                className={`pb-2.5 whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
                   activeTab === 'specs'
                     ? 'border-b-2 border-[#581C87] text-[#581C87]'
                     : 'text-gray-500 hover:text-gray-700'
@@ -251,7 +266,7 @@ export const QuickViewModal: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveTab('delivery')}
-                className={`pb-2.5 transition-colors cursor-pointer ${
+                className={`pb-2.5 whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
                   activeTab === 'delivery'
                     ? 'border-b-2 border-[#581C87] text-[#581C87]'
                     : 'text-gray-500 hover:text-gray-700'

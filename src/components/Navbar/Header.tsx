@@ -194,22 +194,22 @@ export const Header: React.FC<{
           {/* Cart with GH₵ Value */}
           <button
             onClick={() => setIsCartOpen(true)}
-            className="flex items-center space-x-2 sm:space-x-2.5 bg-[#6B21A8] hover:bg-[#581C87] text-white px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl transition-all shadow-md group cursor-pointer border border-purple-400/30 active:scale-95 touch-manipulation"
-            aria-label="Shopping Cart"
+            className="flex items-center space-x-2 sm:space-x-2.5 bg-[#6B21A8] hover:bg-[#581C87] text-white px-2.5 sm:px-3.5 py-2 rounded-xl transition-all shadow-md group cursor-pointer border border-purple-400/30 active:scale-95 touch-manipulation min-h-[44px]"
+            aria-label={`Shopping Cart${cartCount > 0 ? `, ${cartCount} items` : ''}`}
           >
             <div className="relative flex items-center justify-center">
-              <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              <ShoppingBag className="w-5 h-5 text-white" />
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-amber-400 text-purple-950 text-[10px] sm:text-[10.5px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center shadow">
+                <span className="absolute -top-2 -right-2 bg-amber-400 text-purple-950 text-[10px] font-extrabold min-w-[16px] h-4 px-0.5 rounded-full flex items-center justify-center shadow">
                   {cartCount}
                 </span>
               )}
             </div>
             <div className="flex flex-col text-left">
-              <span className="text-[9.5px] sm:text-[10px] text-white font-medium leading-none">
+              <span className="text-[9.5px] sm:text-[10px] text-white/90 font-medium leading-none">
                 Bag
               </span>
-              <span className="text-xs font-bold text-white leading-tight mt-0.5">
+              <span className="text-[11px] sm:text-xs font-bold text-white leading-tight mt-0.5">
                 {currencySymbol} {cartTotal.toFixed(2)}
               </span>
             </div>
@@ -218,24 +218,28 @@ export const Header: React.FC<{
       </div>
 
       {/* Mobile Search Bar */}
-      <div className="md:hidden px-3 sm:px-4 mt-2 pb-0.5">
+      <div className="md:hidden px-3 sm:px-4 mt-1.5 pb-0.5">
         <form
           onSubmit={handleSearchSubmit}
-          className="flex items-center bg-purple-50/70 rounded-full overflow-hidden p-1 border border-purple-100 shadow-2xs"
+          className="flex items-center bg-purple-50/70 rounded-full overflow-hidden p-1 border border-purple-100 shadow-2xs focus-within:border-purple-300 focus-within:bg-white transition-colors"
         >
+          <Search className="w-4 h-4 ml-2 text-purple-400 shrink-0" aria-hidden="true" />
           <input
-            type="text"
+            type="search"
+            inputMode="search"
+            enterKeyHint="search"
             placeholder="Search products, hampers, drugs..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-3 py-1.5 text-xs text-[#1D395F] bg-transparent focus:outline-none"
+            aria-label="Search products"
+            className="w-full px-2 py-2 text-[13px] text-[#1D395F] bg-transparent focus:outline-none placeholder:text-gray-400 appearance-none"
           />
           <button
             type="submit"
-            className="bg-[#581C87] hover:bg-[#4C1D95] text-white p-1.5 rounded-full flex items-center justify-center cursor-pointer shadow-xs"
+            className="bg-[#581C87] hover:bg-[#4C1D95] active:scale-95 text-white p-2 rounded-full flex items-center justify-center cursor-pointer shadow-xs shrink-0 transition-transform"
             aria-label="Submit Search"
           >
-            <Search className="w-3.5 h-3.5" />
+            <Search className="w-4 h-4" />
           </button>
         </form>
       </div>
